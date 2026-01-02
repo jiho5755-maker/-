@@ -1,0 +1,143 @@
+<style>
+.mk-exit-overlay{position:fixed;top:0;left:0;right:0;bottom:0;
+background:rgba(0,0,0,0.7);z-index:99999;display:none;opacity:0}
+.mk-exit-overlay.show{display:block;opacity:1}
+.mk-exit-modal{position:fixed;top:50%;left:50%;
+transform:translate(-50%,-50%);background:#fff;border-radius:20px;
+padding:0;max-width:500px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.4);
+z-index:100000;opacity:0;transform:translate(-50%,-50%) scale(0.8)}
+.mk-exit-modal.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.mk-exit-icon{text-align:center;padding:40px 30px 20px;font-size:64px}
+.mk-exit-content{padding:0 40px 40px;text-align:center}
+.mk-exit-title{font-size:26px;font-weight:700;color:#333;
+margin:0 0 12px 0}
+.mk-exit-text{font-size:15px;color:#666;line-height:1.6;margin:0 0 25px 0}
+.mk-exit-offer{background:#F8FAF7;border:2px solid #8B9D83;
+border-radius:12px;padding:25px;margin:20px 0}
+.mk-exit-amount{font-size:42px;font-weight:700;color:#8B9D83;
+margin:0 0 8px 0}
+.mk-exit-desc{font-size:14px;color:#555;margin:0}
+.mk-exit-buttons{margin-top:25px}
+.mk-exit-btn-primary{background:#8B9D83;color:#fff;border:none;
+padding:16px 30px;border-radius:10px;font-size:16px;font-weight:700;
+cursor:pointer;width:100%;margin-bottom:10px}
+.mk-exit-btn-primary:hover{opacity:0.9}
+.mk-exit-btn-secondary{background:#fff;color:#8B9D83;
+border:2px solid #8B9D83;padding:14px 30px;border-radius:10px;
+font-size:15px;font-weight:600;cursor:pointer;width:100%}
+.mk-exit-btn-secondary:hover{background:#F8FAF7}
+.mk-exit-timer{font-size:13px;color:#999;margin-top:15px}
+.mk-exit-timer span{color:#8B9D83;font-weight:700}
+@media (max-width:768px){
+.mk-exit-modal{max-width:90%}
+.mk-exit-content{padding:0 25px 30px}
+.mk-exit-title{font-size:22px}
+.mk-exit-amount{font-size:36px}
+}
+</style>
+<div class="mk-exit-overlay" id="mkExitOverlay">
+<div class="mk-exit-modal" id="mkExitModal">
+<div class="mk-exit-icon">😢</div>
+<div class="mk-exit-content">
+<h2 class="mk-exit-title">잠깐만요!</h2>
+<p class="mk-exit-text">
+떠나시기 전에<br>
+특별한 혜택을 드리고 싶어요
+</p>
+<div class="mk-exit-offer">
+<p class="mk-exit-amount">5% OFF</p>
+<p class="mk-exit-desc">지금 바로 사용 가능한 쿠폰</p>
+</div>
+<div class="mk-exit-buttons">
+<button class="mk-exit-btn-primary" id="mkExitGetCoupon">
+쿠폰 받고 쇼핑 계속하기
+</button>
+<button class="mk-exit-btn-secondary" id="mkExitClose">
+괜찮아요, 다음에 올게요
+</button>
+</div>
+<p class="mk-exit-timer">
+이 제안은 <span id="mkExitTimer">30</span>초 후 사라집니다
+</p>
+</div>
+</div>
+</div>
+<script>
+(function(){
+var exitShown=false;
+var timeLeft=30;
+var timerInterval;
+function getCookie(n){
+var v=document.cookie.match('(^|;) ?'+n+'=([^;]*)(;|$)');
+return v?v[2]:null;
+}
+function setCookie(n,v,d){
+var date=new Date();
+date.setTime(date.getTime()+(d*24*60*60*1000));
+document.cookie=n+'='+v+';expires='+date.toUTCString()+';path=/';
+}
+function showExit(){
+if(exitShown)return;
+var overlay=document.getElementById('mkExitOverlay');
+var modal=document.getElementById('mkExitModal');
+if(overlay&&modal){
+overlay.className='mk-exit-overlay show';
+setTimeout(function(){
+modal.className='mk-exit-modal show';
+},100);
+exitShown=true;
+startTimer();
+}
+}
+function hideExit(){
+var overlay=document.getElementById('mkExitOverlay');
+var modal=document.getElementById('mkExitModal');
+if(modal){
+modal.className='mk-exit-modal';
+}
+setTimeout(function(){
+if(overlay){
+overlay.className='mk-exit-overlay';
+}
+},300);
+if(timerInterval){
+clearInterval(timerInterval);
+}
+setCookie('mk_exit_seen','1',1);
+}
+function startTimer(){
+var timerEl=document.getElementById('mkExitTimer');
+timerInterval=setInterval(function(){
+timeLeft--;
+if(timerEl){
+timerEl.textContent=timeLeft;
+}
+if(timeLeft<=0){
+hideExit();
+}
+},1000);
+}
+function handleMouseLeave(e){
+if(e.clientY<50&&!exitShown){
+var seenExit=getCookie('mk_exit_seen');
+if(!seenExit){
+showExit();
+}
+}
+}
+document.addEventListener('mouseleave',handleMouseLeave);
+var getCouponBtn=document.getElementById('mkExitGetCoupon');
+if(getCouponBtn){
+getCouponBtn.onclick=function(){
+setCookie('mk_exit_coupon','EXIT5',30);
+alert('5% 할인 쿠폰이 발급되었습니다!\n쿠폰코드: EXIT5\n\n마이페이지에서 확인하실 수 있습니다.');
+hideExit();
+};
+}
+var closeBtn=document.getElementById('mkExitClose');
+if(closeBtn){
+closeBtn.onclick=hideExit;
+}
+})();
+</script>
+

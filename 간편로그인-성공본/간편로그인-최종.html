@@ -1,0 +1,893 @@
+<!--/script_scroll(1)/-->
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* {
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body, html {
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+}
+
+#wrap,
+#contentWrapper,
+#contentWrap {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+}
+
+/* 헤더와 메뉴 숨김 */
+#header,
+#contentWrapper > #contentWrap > #menu,
+#footer {
+    display: none !important;
+}
+
+#wrap > #contentWrapper::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #8BA888 0%, #6B8E6B 100%);
+    z-index: -1;
+}
+
+#loginWrap {
+    padding: 0 !important;
+    margin: 0 auto !important;
+    background: transparent !important;
+    min-height: 100vh;
+    width: 100% !important;
+    max-width: 100vw !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box;
+    overflow-x: hidden !important;
+}
+
+#loginWrap .tit-page {
+    display: none !important;
+}
+
+#loginWrap .page-body {
+    background: transparent !important;
+    padding: 60px 10px;
+    width: 100%;
+    max-width: none;
+    margin: 0 auto !important;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 기존 mlog-sign 영역 - 아이디 로그인용으로 재활용 */
+#simpleLogin .mlog-sign {
+    display: none !important;
+}
+
+/* 토글 시 simpleLogin 안에서 나타나도록 */
+#simpleLogin .mlog-sign.show-traditional {
+    display: block !important;
+    margin-top: 30px;
+    padding: 0;
+    animation: slideDown 0.3s ease;
+}
+
+#simpleLogin .mlog-sign.show-traditional .mlog {
+    display: block;
+}
+
+#simpleLogin .mlog-sign.show-traditional .sign {
+    display: none;
+}
+
+#simpleLogin .mlog-sign .mlog h3 {
+    font-size: 18px;
+    color: #1a1a1a;
+    margin-bottom: 24px;
+    font-weight: 700;
+    text-align: center;
+}
+
+#simpleLogin .mlog-sign .mlog p {
+    display: none;
+}
+
+#simpleLogin .mlog-sign .mlog fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+#simpleLogin .mlog-sign .mlog legend {
+    display: none;
+}
+
+#simpleLogin .mlog-sign .mlog .frm-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#simpleLogin .mlog-sign .mlog .frm-list li {
+    margin-bottom: 16px;
+}
+
+#simpleLogin .mlog-sign .mlog .frm-list label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+#simpleLogin .mlog-sign .mlog .frm-list input[type="text"],
+#simpleLogin .mlog-sign .mlog .frm-list input[type="password"] {
+    width: 100%;
+    height: 56px;
+    padding: 0 18px;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: all 0.3s;
+    background: #ffffff;
+}
+
+#simpleLogin .mlog-sign .mlog .frm-list input:focus {
+    outline: none;
+    border-color: #8BA888;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(139, 168, 136, 0.15);
+}
+
+#simpleLogin .mlog-sign .mlog .se-log {
+    margin: 18px 0;
+    text-align: left;
+    font-size: 13px;
+    color: #495057;
+}
+
+#simpleLogin .mlog-sign .mlog .se-log label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+#simpleLogin .mlog-sign .mlog .se-log input[type="checkbox"] {
+    margin: 0 8px 0 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+#simpleLogin .mlog-sign .mlog .btn-mlog a {
+    width: 100%;
+    height: 58px;
+    background: linear-gradient(135deg, #8BA888 0%, #6B8E6B 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 16px rgba(139, 168, 136, 0.4);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.5px;
+    display: block;
+    line-height: 58px;
+    text-align: center;
+    text-decoration: none;
+}
+
+#simpleLogin .mlog-sign .mlog .btn-mlog a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(139, 168, 136, 0.5);
+    background: linear-gradient(135deg, #9DB89A 0%, #7A9E7A 100%);
+}
+
+/* ===== 소셜 로그인 영역 스타일링 ===== */
+#simpleLogin {
+    max-width: 650px;
+    width: 100%;
+    margin: 0;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 60px 20px;
+    text-align: center;
+    animation: fadeInUp 0.6s ease;
+    box-sizing: border-box;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 상단 메시지 스타일 */
+#simpleLogin .welcome-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    white-space: pre-line;
+}
+
+#simpleLogin .welcome-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 40px;
+}
+
+/* 혜택 배지 추가 - 각각 분리된 카드로 */
+#simpleLogin .benefits-section {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+#simpleLogin .benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #333;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 25px;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+#simpleLogin .benefit-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#simpleLogin .benefit-icon {
+    font-size: 20px;
+}
+
+/* 소셜 로그인 버튼 스타일링 */
+#simpleLogin .sns-login {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+#simpleLogin .sns-login a {
+    display: block !important;
+    width: 100% !important;
+    height: 62px !important;
+    line-height: 62px !important;
+    border-radius: 14px !important;
+    font-size: 17px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    text-align: center !important;
+}
+
+#simpleLogin .sns-login a span {
+    display: inline-block !important;
+    width: 100% !important;
+    height: 100% !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+#simpleLogin .sns-login a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* 각 소셜 로그인 버튼 색상 - Make샵 호환성 강화 */
+/* 카카오 */
+#wrap #contentWrapper #loginWrap #simpleLogin .sns-login a[href*="link_login_kakao"],
+#wrap #contentWrapper #loginWrap #simpleLogin a.kakao-login-btn,
+#simpleLogin .sns-login a[href*="link_login_kakao"],
+#simpleLogin a[href*="link_login_kakao"],
+#simpleLogin .kakao-login-btn,
+div#simpleLogin div.sns-login a[href*="link_login_kakao"],
+a.kakao-login-btn {
+    background: #FEE500 !important;
+    background-color: #FEE500 !important;
+    background-image: linear-gradient(135deg, #FEE500 0%, #FFEB3B 100%) !important;
+    color: #3c1e1e !important;
+    border: none !important;
+}
+
+#simpleLogin .kakao-login-btn span,
+#simpleLogin a[href*="link_login_kakao"] span {
+    color: #3c1e1e !important;
+}
+
+/* 네이버 */
+#wrap #contentWrapper #loginWrap #simpleLogin .sns-login a[href*="link_login_naver"],
+#wrap #contentWrapper #loginWrap #simpleLogin a.naver-login-btn,
+#simpleLogin .sns-login a[href*="link_login_naver"],
+#simpleLogin a[href*="link_login_naver"],
+#simpleLogin .naver-login-btn,
+div#simpleLogin div.sns-login a[href*="link_login_naver"],
+a.naver-login-btn {
+    background: #03C75A !important;
+    background-color: #03C75A !important;
+    background-image: linear-gradient(135deg, #03C75A 0%, #00B14F 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+#simpleLogin .naver-login-btn span,
+#simpleLogin a[href*="link_login_naver"] span {
+    color: #ffffff !important;
+}
+
+/* 페이스북 */
+#wrap #contentWrapper #loginWrap #simpleLogin .sns-login a[href*="link_login_facebook"],
+#wrap #contentWrapper #loginWrap #simpleLogin a.fb-login-btn,
+#simpleLogin .sns-login a[href*="link_login_facebook"],
+#simpleLogin a[href*="link_login_facebook"],
+#simpleLogin .fb-login-btn,
+div#simpleLogin div.sns-login a[href*="link_login_facebook"],
+a.fb-login-btn {
+    background: #1877F2 !important;
+    background-color: #1877F2 !important;
+    background-image: linear-gradient(135deg, #1877F2 0%, #1565C0 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+#simpleLogin .fb-login-btn span,
+#simpleLogin a[href*="link_login_facebook"] span {
+    color: #ffffff !important;
+}
+
+/* 애플 */
+#wrap #contentWrapper #loginWrap #simpleLogin .sns-login a[href*="link_login_apple"],
+#wrap #contentWrapper #loginWrap #simpleLogin a.apple-login-btn,
+#simpleLogin .sns-login a[href*="link_login_apple"],
+#simpleLogin a[href*="link_login_apple"],
+#simpleLogin .apple-login-btn,
+div#simpleLogin div.sns-login a[href*="link_login_apple"],
+a.apple-login-btn {
+    background: #000000 !important;
+    background-color: #000000 !important;
+    background-image: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+#simpleLogin .apple-login-btn span,
+#simpleLogin a[href*="link_login_apple"] span {
+    color: #ffffff !important;
+}
+
+/* ===== 아이디로 로그인 토글 섹션 ===== */
+/* 아이디로 로그인 토글 */
+#simpleLogin .id-login-toggle {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 2px solid #f1f3f5;
+}
+
+#simpleLogin .toggle-link {
+    font-size: 14px;
+    color: #868e96;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-block;
+    padding: 10px 20px;
+    transition: all 0.3s;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+#simpleLogin .toggle-link:hover {
+    color: #495057;
+    background: #e9ecef;
+}
+
+#simpleLogin .toggle-link::after {
+    content: " \25BC";
+    font-size: 11px;
+    margin-left: 6px;
+    transition: transform 0.3s;
+    display: inline-block;
+}
+
+#simpleLogin .toggle-link.active {
+    color: #495057;
+    background: #e9ecef;
+}
+
+#simpleLogin .toggle-link.active::after {
+    transform: rotate(180deg);
+}
+
+/* 전통 로그인 섹션 */
+#simpleLogin .traditional-login-section {
+    display: none !important;
+}
+
+#simpleLogin .traditional-login-section.show {
+    display: none !important;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 하단 링크 */
+#simpleLogin .bottom-links {
+    margin-top: 30px;
+    padding: 25px 0 0 0;
+    border-top: 2px solid #e9ecef;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#simpleLogin .bottom-links a {
+    font-size: 14px;
+    color: #6c757d;
+    text-decoration: none;
+    padding: 8px 16px;
+    transition: all 0.3s;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+#simpleLogin .bottom-links a:hover {
+    color: #8BA888;
+    background: #f8f9fa;
+}
+
+#simpleLogin .bottom-links .divider {
+    color: #dee2e6;
+    margin: 0 4px;
+}
+
+/* 반응형 - 태블릿 */
+@media (max-width: 1024px) {
+    #loginWrap .page-body {
+        padding: 60px 10px;
+    }
+
+    #simpleLogin {
+        padding: 55px 25px;
+    }
+}
+
+/* 반응형 - 태블릿 세로 */
+@media (max-width: 768px) {
+    #loginWrap .page-body {
+        padding: 40px 8px;
+    }
+
+    #simpleLogin {
+        padding: 50px 20px;
+    }
+}
+
+/* 반응형 - 중간 크기 (새로 추가) */
+@media (max-width: 700px) {
+    #loginWrap .page-body {
+        padding: 30px 6px;
+    }
+
+    #simpleLogin {
+        padding: 40px 18px;
+    }
+}
+
+/* 반응형 - 모바일 가로/세로 */
+@media (max-width: 600px) {
+    #loginWrap .page-body {
+        padding: 20px 5px;
+    }
+
+    #simpleLogin {
+        padding: 40px 15px;
+        border-radius: 22px;
+    }
+
+    #simpleLogin .welcome-title {
+        font-size: 26px;
+        line-height: 1.4;
+        margin-bottom: 20px;
+    }
+
+    #simpleLogin .benefits-section {
+        gap: 8px;
+        margin-bottom: 28px;
+    }
+
+    #simpleLogin .benefit-item {
+        font-size: 12px;
+        padding: 10px 16px;
+        flex: 1;
+        min-width: calc(33.333% - 6px);
+    }
+
+    #simpleLogin .benefit-icon {
+        font-size: 16px;
+    }
+
+    #simpleLogin .sns-login {
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    #simpleLogin .sns-login a {
+        height: 56px;
+        line-height: 56px;
+        font-size: 15px;
+        border-radius: 12px;
+    }
+
+    #simpleLogin .id-login-toggle {
+        margin-bottom: 18px;
+    }
+
+    #simpleLogin .toggle-link {
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+
+    .mlog-sign {
+        padding: 25px 0;
+    }
+
+    #simpleLogin .form-group {
+        margin-bottom: 14px;
+    }
+
+    #simpleLogin .form-group input {
+        height: 56px;
+        font-size: 15px;
+        padding: 0 18px;
+    }
+
+    #simpleLogin .security-checkbox label {
+        font-size: 13px;
+    }
+
+    #simpleLogin .login-button {
+        height: 56px;
+        font-size: 16px;
+        margin: 20px 0 16px 0;
+    }
+
+    #simpleLogin .bottom-links {
+        font-size: 13px;
+        gap: 10px;
+    }
+}
+
+/* 반응형 - 작은 모바일 */
+@media (max-width: 420px) {
+    #loginWrap .page-body {
+        padding: 15px 4px;
+    }
+
+    #simpleLogin {
+        padding: 30px 12px;
+        border-radius: 20px;
+    }
+
+    #simpleLogin .welcome-title {
+        font-size: 23px;
+        line-height: 1.35;
+        margin-bottom: 18px;
+    }
+
+    #simpleLogin .benefits-section {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 25px;
+    }
+
+    #simpleLogin .benefit-item {
+        font-size: 13px;
+        padding: 12px 16px;
+        width: 100%;
+        justify-content: center;
+    }
+
+    #simpleLogin .benefit-icon {
+        font-size: 18px;
+    }
+
+    #simpleLogin .sns-login {
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    #simpleLogin .sns-login a {
+        height: 54px;
+        line-height: 54px;
+        font-size: 14px;
+        border-radius: 10px;
+    }
+
+    #simpleLogin .id-login-toggle {
+        margin-bottom: 16px;
+    }
+
+    #simpleLogin .toggle-link {
+        font-size: 13px;
+        padding: 9px 14px;
+    }
+
+    .mlog-sign {
+        padding: 22px 0;
+    }
+
+    #simpleLogin .form-group {
+        margin-bottom: 12px;
+    }
+
+    #simpleLogin .form-group input {
+        height: 54px;
+        font-size: 14px;
+        padding: 0 16px;
+        border-radius: 10px;
+    }
+
+    #simpleLogin .security-checkbox {
+        margin-bottom: 16px;
+    }
+
+    #simpleLogin .security-checkbox label {
+        font-size: 12px;
+    }
+
+    #simpleLogin .login-button {
+        height: 54px;
+        font-size: 15px;
+        margin: 18px 0 14px 0;
+        border-radius: 10px;
+    }
+
+    #simpleLogin .bottom-links {
+        flex-direction: column;
+        gap: 8px;
+        font-size: 13px;
+        margin-top: 18px;
+    }
+
+    #simpleLogin .bottom-links .divider {
+        display: none;
+    }
+}
+
+/* 반응형 - 매우 작은 화면 (iPhone SE 등) */
+@media (max-width: 360px) {
+    #loginWrap .page-body {
+        padding: 12px 3px;
+    }
+
+    #simpleLogin {
+        padding: 25px 10px;
+        border-radius: 18px;
+    }
+
+    #simpleLogin .welcome-title {
+        font-size: 21px;
+        margin-bottom: 16px;
+    }
+
+    #simpleLogin .benefit-item {
+        font-size: 12px;
+        padding: 10px 14px;
+    }
+
+    #simpleLogin .sns-login a {
+        height: 52px;
+        line-height: 52px;
+        font-size: 13px;
+    }
+
+    #simpleLogin .form-group input {
+        height: 52px;
+        font-size: 13px;
+    }
+
+    #simpleLogin .login-button {
+        height: 52px;
+        font-size: 14px;
+    }
+}
+</style>
+
+<div id="wrap">
+    <!--/include_header(1)/-->
+    <div id="contentWrapper">
+        <div id="contentWrap">
+            <!--/include_menu(1)/-->
+            <div id="content">
+                <div id="loginWrap">
+                    <div class="tit-page">로그인</div>
+                    <div class="page-body">
+                        <!--/if_use_login_sns/-->
+                        <div id="simpleLogin">
+                            <h2 class="welcome-title">환영합니다!
+1초 만에 가입하고
+멤버십 혜택을 바로 확인하세요</h2>
+                            <p class="welcome-subtitle">소셜 계정으로 간편하게 시작하세요</p>
+                            
+                            <div class="benefits-section">
+                                <div class="benefit-item">
+                                    <span class="benefit-icon">&#128666;</span>
+                                    <span>무료배송 쿠폰</span>
+                                </div>
+                                <div class="benefit-item">
+                                    <span class="benefit-icon">&#128176;</span>
+                                    <span>적립금 3,000원</span>
+                                </div>
+                                <div class="benefit-item">
+                                    <span class="benefit-icon">&#127873;</span>
+                                    <span>즉시 5% 할인</span>
+                                </div>
+                            </div>
+                            
+                            <div class="sns-login">
+                                <!--/if_link_login_facebook/--><a href="<!--/link_login_facebook/-->" class="fb-login-btn"><span>Facebook으로 시작하기</span></a><!--/end_if/-->
+                                <!--/if_link_login_kakao/--><a href="<!--/link_login_kakao/-->" class="kakao-login-btn"><span>카카오로 1초 시작하기</span></a><!--/end_if/-->
+                                <!--/if_link_login_naver/--><a href="<!--/link_login_naver/-->" class="naver-login-btn"><span>네이버로 1초 시작하기</span></a><!--/end_if/-->
+                                <!--/if_link_login_apple/--><a href="<!--/link_login_apple/-->" class="apple-login-btn"><span>Apple로 시작하기</span></a><!--/end_if/-->
+                            </div><!-- .sns-login -->
+
+                            <div class="id-login-toggle">
+                                <a href="javascript:void(0);" class="toggle-link" id="toggleTraditionalLogin">
+                                    아이디로 로그인하기
+                                </a>
+                            </div>
+
+                            <!-- 아이디 로그인 폼 - 토글로 보여짐 -->
+                            <div class="mlog-sign">
+                                <div class="mlog">
+                                    <h3>회원 로그인</h3>
+                                    <p>가입하신 아이디와 비밀번호를 입력해주세요.<br />비밀번호는 대소문자를 구분합니다.</p>
+                                    <!--/form_login/-->
+                                        <fieldset>
+                                            <legend>member login</legend>
+                                            <ul class="frm-list">
+                                                <li class="id">
+                                                    <label>아이디</label>
+                                                    <!--/input_login_id/-->
+                                                </li>
+                                                <li class="pwd">
+                                                    <label>비밀번호</label>
+                                                    <!--/input_login_pw/-->
+                                                </li>
+                                            </ul>
+                                            <div class="btn-mlog">
+                                                <a href="<!--/link_login_button/-->" class="CSSbuttonBlack fe">로그인</a>
+                                            </div>
+                                            <p class="se-log">
+                                                <label><!--/checkbox_security/--> 보안접속</label>
+                                            </p>
+                                        </fieldset>
+                                    <!--/end_form/-->
+                                </div>
+                                <div class="sign">
+                                    <h3>회원가입</h3>
+                                    <dl>
+                                        <dt>아직 회원이 아니신가요? <br />회원가입을 하시면 다양한 혜택을  편리하게 이용하실 수 있습니다.</dt>
+                                        <dd><a href="<!--/link_join/-->" class="CSSbuttonWhite fe">JOIN-US</a></dd>
+                                    </dl>
+                                    <dl>
+                                        <dt>아이디 혹은 비밀번호를 잊으셨나요?<br />간단한 정보를 입력 후 잃어버린 정보를 찾으실 수 있습니다.</dt>
+                                        <dd><a href="<!--/link_password_lost/-->" class="CSSbuttonWhite fe">ID/PASSWORD</a></dd>
+                                    </dl>
+                                </div>
+                            </div><!-- .mlog-sign -->
+
+                            <div class="bottom-links">
+                                <a href="<!--/link_join/-->">회원가입</a>
+                                <span class="divider">|</span>
+                                <a href="<!--/link_password_lost/-->">아이디/비밀번호 찾기</a>
+                            </div>
+                        </div><!-- #simpleLogin -->
+                        <!--/end_if/-->
+                    </div><!-- .page-body -->
+                </div><!-- #loginWrap -->
+            </div><!-- #content -->
+        </div><!-- #contentWrap -->
+    </div><!-- #contentWrapper-->
+    <hr />
+    <!--/include_footer(1)/-->
+</div><!-- #wrap -->
+
+<script>
+(function(){
+    function initLoginToggle() {
+        if (typeof jQuery === 'undefined') {
+            setTimeout(initLoginToggle, 100);
+            return;
+        }
+        
+        jQuery(document).ready(function($){
+            // 토글 기능 - #simpleLogin 안의 .mlog-sign를 보여주기
+            $("#toggleTraditionalLogin").on("click", function(e){
+                e.preventDefault();
+                $(this).toggleClass("active");
+                $("#simpleLogin .mlog-sign").toggleClass("show-traditional");
+                
+                // 토글이 열릴 때 첫 번째 입력 필드에 포커스
+                if ($("#simpleLogin .mlog-sign").hasClass("show-traditional")) {
+                    setTimeout(function() {
+                        $("#simpleLogin .mlog-sign input:first").focus();
+                    }, 300);
+                }
+                return false;
+            });
+
+            // 엔터키 로그인 기능
+            $("#simpleLogin .mlog-sign input").on("keypress", function(e){
+                if (e.which === 13 || e.keyCode === 13) {
+                    e.preventDefault();
+                    var $form = $(this).closest("form");
+                    if ($form.length) {
+                        var $submitBtn = $form.find("a[href*='link_login_button']");
+                        if ($submitBtn.length) {
+                            window.location.href = $submitBtn.attr("href");
+                        } else {
+                            $form.submit();
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            // 소셜 로그인 버튼은 이벤트 리스너 없이 메이크샵 기본 동작 사용
+            // javascript:sns_login_log(), javascript:ks_login_log() 함수가 자동 실행됨
+        });
+    }
+    
+    initLoginToggle();
+})();
+</script>
+

@@ -1,0 +1,217 @@
+<style>
+.mk-popup-overlay{position:fixed;top:0;left:0;right:0;bottom:0;
+background:rgba(0,0,0,0.6);z-index:99999;display:none;opacity:0;
+transition:opacity 0.3s}
+.mk-popup-overlay.show{display:block;opacity:1}
+.mk-popup-modal{position:fixed;top:50%;left:50%;
+transform:translate(-50%,-50%);background:#fff;border-radius:20px;
+padding:0;max-width:500px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+z-index:100000;opacity:0;transform:translate(-50%,-50%) scale(0.9);
+transition:all 0.3s}
+.mk-popup-modal.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.mk-popup-close{position:absolute;top:15px;right:15px;z-index:1;
+background:rgba(255,255,255,0.2);border:none;width:36px;height:36px;
+border-radius:50%;color:#fff;font-size:20px;cursor:pointer;line-height:36px}
+.mk-popup-close:hover{background:rgba(255,255,255,0.3)}
+.mk-popup-header{background:#8B9D83;color:#fff;padding:35px 30px;
+text-align:center;border-radius:20px 20px 0 0;position:relative}
+.mk-popup-icon{font-size:56px;margin-bottom:10px}
+.mk-popup-title{font-size:24px;font-weight:700;margin:0 0 8px 0}
+.mk-popup-subtitle{font-size:14px;opacity:0.95;margin:0}
+.mk-popup-body{padding:30px;text-align:center}
+.mk-popup-offer{background:#F8FAF7;border:2px solid #8B9D83;
+border-radius:12px;padding:25px;margin:20px 0}
+.mk-popup-amount{font-size:42px;font-weight:700;color:#8B9D83;margin:0 0 8px 0}
+.mk-popup-desc{font-size:14px;color:#555;margin:0}
+.mk-popup-btn{background:#8B9D83;color:#fff;border:none;
+padding:16px 30px;border-radius:10px;font-size:16px;font-weight:700;
+cursor:pointer;width:100%;margin-top:15px}
+.mk-popup-btn:hover{opacity:0.9}
+.mk-popup-footer{padding:0 30px 25px;text-align:center}
+.mk-popup-check{font-size:13px;color:#999}
+.mk-popup-check input{margin-right:6px}
+@media (max-width:768px){
+.mk-popup-modal{max-width:90%}
+.mk-popup-body{padding:20px}
+.mk-popup-title{font-size:20px}
+.mk-popup-amount{font-size:36px}
+}
+</style>
+<div class="mk-popup-overlay" id="mkPopupOverlay">
+<div class="mk-popup-modal" id="mkPopupModal">
+<button class="mk-popup-close" id="mkPopupClose">×</button>
+<div class="mk-popup-header">
+<div class="mk-popup-icon" id="mkPopupIcon">🎉</div>
+<h2 class="mk-popup-title" id="mkPopupTitle">환영합니다!</h2>
+<p class="mk-popup-subtitle" id="mkPopupSubtitle">특별한 혜택을 드립니다</p>
+</div>
+<div class="mk-popup-body" id="mkPopupBody">
+<div class="mk-popup-offer">
+<p class="mk-popup-amount">3,000원</p>
+<p class="mk-popup-desc">즉시 사용 가능한 적립금</p>
+</div>
+<button class="mk-popup-btn" id="mkPopupBtn">지금 받기</button>
+</div>
+<div class="mk-popup-footer">
+<label class="mk-popup-check">
+<input type="checkbox" id="mkPopupNoShow">
+오늘 하루 보지 않기
+</label>
+</div>
+</div>
+</div>
+<script>
+(function(){
+var popupShown=false;
+var exitEnabled=false;
+function getCookie(n){
+var v=document.cookie.match('(^|;) ?'+n+'=([^;]*)(;|$)');
+return v?v[2]:null;
+}
+function setCookie(n,v,d){
+var date=new Date();
+date.setTime(date.getTime()+(d*24*60*60*1000));
+document.cookie=n+'='+v+';expires='+date.toUTCString()+';path=/';
+}
+function showPopup(type){
+if(popupShown)return;
+var overlay=document.getElementById('mkPopupOverlay');
+var modal=document.getElementById('mkPopupModal');
+var icon=document.getElementById('mkPopupIcon');
+var title=document.getElementById('mkPopupTitle');
+var subtitle=document.getElementById('mkPopupSubtitle');
+var body=document.getElementById('mkPopupBody');
+var btn=document.getElementById('mkPopupBtn');
+if(type==='welcome'){
+icon.textContent='🎉';
+title.textContent='PRESSCO21에 오신 것을 환영합니다!';
+subtitle.textContent='첫 구매 고객님께 특별한 혜택';
+body.innerHTML='<div class="mk-popup-offer"><p class="mk-popup-amount">3,000원</p><p class="mk-popup-desc">즉시 사용 가능한 적립금</p></div>';
+btn.textContent='회원가입하고 받기';
+btn.onclick=function(){
+hidePopup('welcome');
+window.location.href='/member/join.html';
+};
+}else if(type==='vip'){
+icon.textContent='👑';
+title.textContent='VIP 회원님을 위한 특별 혜택';
+subtitle.textContent='프리미엄 할인 쿠폰';
+body.innerHTML='<div class="mk-popup-offer"><p class="mk-popup-amount">20% OFF</p><p class="mk-popup-desc">전 상품 할인 쿠폰 VIP2025</p></div>';
+btn.textContent='지금 쇼핑하기';
+btn.onclick=function(){
+hidePopup('vip');
+window.location.href='/product/list.html';
+};
+}else if(type==='exit'){
+icon.textContent='😢';
+title.textContent='잠깐만요!';
+subtitle.textContent='떠나시기 전에 특별한 혜택을';
+body.innerHTML='<div class="mk-popup-offer"><p class="mk-popup-amount">5% OFF</p><p class="mk-popup-desc">지금 바로 사용 가능한 쿠폰</p></div>';
+btn.textContent='쿠폰 받고 계속하기';
+btn.onclick=function(){
+hidePopup('exit');
+alert('5% 할인 쿠폰이 발급되었습니다!\n쿠폰코드: EXIT5');
+};
+}else if(type==='time'){
+var hour=new Date().getHours();
+var emoji='🌙';
+var titleText='특별 타임 세일';
+var subtitleText='시간대별 특별 할인';
+var discount='10%';
+if(hour>=0&&hour<6){
+emoji='🌙';titleText='미드나잇 특가';discount='15%';
+}else if(hour>=12&&hour<14){
+emoji='🍽️';titleText='런치 타임 특가';discount='12%';
+}else if(hour>=18&&hour<21){
+emoji='🌆';titleText='이브닝 세일';discount='10%';
+}
+icon.textContent=emoji;
+title.textContent=titleText;
+subtitle.textContent=subtitleText;
+body.innerHTML='<div class="mk-popup-offer"><p class="mk-popup-amount">'+discount+' OFF</p><p class="mk-popup-desc">지금부터 2시간 동안만</p></div>';
+btn.textContent='지금 쇼핑하기';
+btn.onclick=function(){
+hidePopup('time');
+window.location.href='/product/list.html';
+};
+}
+if(overlay&&modal){
+overlay.className='mk-popup-overlay show';
+setTimeout(function(){
+modal.className='mk-popup-modal show';
+},100);
+popupShown=true;
+}
+}
+function hidePopup(type){
+var overlay=document.getElementById('mkPopupOverlay');
+var modal=document.getElementById('mkPopupModal');
+var noShow=document.getElementById('mkPopupNoShow');
+if(noShow&&noShow.checked){
+setCookie('mk_popup_'+type,'1',1);
+}else{
+setCookie('mk_popup_'+type,'1',1);
+}
+if(modal){
+modal.className='mk-popup-modal';
+}
+setTimeout(function(){
+if(overlay){
+overlay.className='mk-popup-overlay';
+}
+},300);
+}
+function checkAndShow(){
+var userLevel='<!--/user_level/-->';
+var isFirstVisit=!getCookie('mk_visited');
+var seenWelcome=getCookie('mk_popup_welcome');
+var seenVip=getCookie('mk_popup_vip');
+var seenTime=getCookie('mk_popup_time');
+if(isFirstVisit&&!seenWelcome){
+setCookie('mk_visited','1',365);
+setTimeout(function(){showPopup('welcome');},3000);
+exitEnabled=false;
+}else if(userLevel&&(userLevel==='VIP'||userLevel==='VVIP')&&!seenVip){
+setTimeout(function(){showPopup('vip');},5000);
+exitEnabled=false;
+}else if(!seenTime){
+var hour=new Date().getHours();
+if((hour>=0&&hour<6)||(hour>=12&&hour<14)||(hour>=18&&hour<21)){
+setTimeout(function(){showPopup('time');},7000);
+}
+exitEnabled=true;
+}else{
+exitEnabled=true;
+}
+}
+function handleExit(e){
+if(!exitEnabled||popupShown)return;
+if(e.clientY<50){
+var seenExit=getCookie('mk_popup_exit');
+if(!seenExit){
+showPopup('exit');
+}
+}
+}
+document.addEventListener('mouseleave',handleExit);
+checkAndShow();
+var closeBtn=document.getElementById('mkPopupClose');
+if(closeBtn){
+closeBtn.onclick=function(){
+var type='welcome';
+if(popupShown){
+hidePopup(type);
+}
+};
+}
+var overlay=document.getElementById('mkPopupOverlay');
+if(overlay){
+overlay.onclick=function(e){
+if(e.target===overlay){
+hidePopup('general');
+}
+};
+}
+})();
+</script>
+

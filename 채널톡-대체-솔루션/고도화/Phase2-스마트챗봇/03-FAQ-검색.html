@@ -1,0 +1,213 @@
+<style>
+.mk-faq-search{position:fixed;bottom:100px;right:30px;width:400px;
+background:#fff;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,0.15);
+z-index:9999;display:none}
+.mk-faq-search.on{display:block}
+.mk-faq-header{background:#8B9D83;padding:20px;color:#fff;
+border-radius:20px 20px 0 0;position:relative}
+.mk-faq-header h3{font-size:18px;margin:0 0 4px 0;font-weight:700}
+.mk-faq-header p{font-size:13px;opacity:0.9;margin:0}
+.mk-faq-close{background:rgba(255,255,255,0.2);border:none;
+width:32px;height:32px;border-radius:50%;cursor:pointer;
+position:absolute;top:18px;right:18px;color:#fff;
+font-size:18px;line-height:32px}
+.mk-faq-close:hover{background:rgba(255,255,255,0.3)}
+.mk-faq-search-box{padding:20px;background:#F8FAF7}
+.mk-faq-input-wrapper{position:relative}
+.mk-faq-input{width:100%;padding:12px 40px 12px 15px;
+border:2px solid #E8EDE6;border-radius:12px;font-size:14px;
+box-sizing:border-box}
+.mk-faq-input:focus{border-color:#8B9D83;outline:none}
+.mk-faq-search-icon{position:absolute;right:12px;top:50%;
+transform:translateY(-50%);color:#8B9D83;font-size:18px}
+.mk-faq-results{max-height:380px;overflow-y:auto;padding:0 20px 20px}
+.mk-faq-result{background:#fff;border:1px solid #E8EDE6;
+border-radius:12px;padding:15px;margin-bottom:10px;cursor:pointer}
+.mk-faq-result:hover{border-color:#8B9D83;background:#F8FAF7}
+.mk-faq-result-q{font-size:15px;font-weight:600;color:#333;
+margin:0 0 8px 0}
+.mk-faq-result-a{font-size:13px;color:#666;line-height:1.5;
+margin:0;display:none}
+.mk-faq-result.open .mk-faq-result-a{display:block}
+.mk-faq-result-badge{display:inline-block;background:#8B9D83;
+color:#fff;font-size:11px;padding:3px 10px;border-radius:10px;
+margin-bottom:8px}
+.mk-faq-empty{text-align:center;padding:40px 20px;color:#999}
+.mk-faq-empty-icon{font-size:48px;margin-bottom:15px}
+.mk-faq-empty-text{font-size:15px;margin:0 0 10px 0}
+.mk-faq-empty-sub{font-size:13px;color:#bbb;margin:0}
+.mk-faq-popular{padding:0 20px 15px}
+.mk-faq-popular-title{font-size:14px;font-weight:700;
+color:#555;margin:0 0 12px 0}
+.mk-faq-popular-item{background:#F8FAF7;border:1px solid #E8EDE6;
+border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;
+font-size:14px;color:#555}
+.mk-faq-popular-item:hover{border-color:#8B9D83;background:#E8EDE6}
+@media (max-width:768px){
+.mk-faq-search{width:calc(100vw - 40px);right:20px}
+}
+</style>
+<div class="mk-faq-search" id="mkFaqSearch">
+<div class="mk-faq-header">
+<button class="mk-faq-close" id="mkFaqClose">×</button>
+<h3>FAQ 검색</h3>
+<p>궁금한 점을 검색해보세요</p>
+</div>
+<div class="mk-faq-search-box">
+<div class="mk-faq-input-wrapper">
+<input type="text" class="mk-faq-input" id="mkFaqInput" 
+placeholder="검색어를 입력하세요 (예: 배송, 반품)">
+<span class="mk-faq-search-icon">🔍</span>
+</div>
+</div>
+<div class="mk-faq-popular" id="mkFaqPopular">
+<p class="mk-faq-popular-title">자주 묻는 질문 TOP 5</p>
+<div class="mk-faq-popular-item" data-id="1">배송은 얼마나 걸리나요?</div>
+<div class="mk-faq-popular-item" data-id="2">반품은 어떻게 하나요?</div>
+<div class="mk-faq-popular-item" data-id="3">적립금은 어떻게 사용하나요?</div>
+<div class="mk-faq-popular-item" data-id="4">쿠폰은 어디서 받나요?</div>
+<div class="mk-faq-popular-item" data-id="5">주문 취소는 가능한가요?</div>
+</div>
+<div class="mk-faq-results" id="mkFaqResults"></div>
+</div>
+<script>
+(function(){
+var faqs=[
+{id:1,category:'배송',q:'배송은 얼마나 걸리나요?',
+a:'주문 후 영업일 기준 2-3일 소요됩니다. 도서산간 지역은 1-2일 추가될 수 있습니다.',
+keywords:['배송','기간','얼마','언제','도착']},
+{id:2,category:'반품',q:'반품은 어떻게 하나요?',
+a:'상품 수령 후 7일 이내 마이페이지에서 반품 신청이 가능합니다. 단순 변심의 경우 왕복 배송비 6,000원이 발생합니다.',
+keywords:['반품','방법','어떻게','신청']},
+{id:3,category:'적립금',q:'적립금은 어떻게 사용하나요?',
+a:'30,000원 이상 구매 시 사용 가능하며, 최대 구매금액의 10%까지 사용할 수 있습니다.',
+keywords:['적립금','포인트','사용','방법']},
+{id:4,category:'쿠폰',q:'쿠폰은 어디서 받나요?',
+a:'앱 다운로드 시 즉시 쿠폰을 받을 수 있으며, 매주 월요일 새로운 쿠폰이 지급됩니다. 마이페이지 > 쿠폰함에서 확인하세요.',
+keywords:['쿠폰','할인','받기','다운']},
+{id:5,category:'주문',q:'주문 취소는 가능한가요?',
+a:'발송 전까지는 마이페이지에서 직접 취소 가능합니다. 발송 후에는 고객센터로 문의해주세요.',
+keywords:['주문','취소','가능','방법']},
+{id:6,category:'배송',q:'배송비는 얼마인가요?',
+a:'50,000원 이상 구매 시 무료배송이며, 미만 시 3,000원입니다.',
+keywords:['배송비','비용','얼마','금액']},
+{id:7,category:'교환',q:'교환은 어떻게 하나요?',
+a:'상품 수령 후 7일 이내 마이페이지에서 교환 신청이 가능합니다. 왕복 배송비 6,000원이 발생합니다.',
+keywords:['교환','바꾸기','변경','신청']},
+{id:8,category:'회원',q:'회원 가입 혜택이 있나요?',
+a:'신규 회원 가입 시 3,000원 적립금을 즉시 지급하며, 첫 구매 시 추가 5% 할인쿠폰을 드립니다.',
+keywords:['회원','가입','혜택','적립금']},
+{id:9,category:'결제',q:'무통장 입금은 얼마나 걸리나요?',
+a:'평일 오전 9시-오후 6시 사이에는 1시간 이내 확인됩니다. 야간/주말은 다음 영업일에 확인됩니다.',
+keywords:['입금','확인','무통장','시간']},
+{id:10,category:'배송',q:'배송 조회는 어떻게 하나요?',
+a:'마이페이지 > 주문조회에서 실시간으로 배송 상태를 확인하실 수 있습니다.',
+keywords:['배송','조회','추적','확인']}
+];
+var input=document.getElementById('mkFaqInput');
+var results=document.getElementById('mkFaqResults');
+var popular=document.getElementById('mkFaqPopular');
+var closeBtn=document.getElementById('mkFaqClose');
+function searchFaq(query){
+if(!query||query.length<2){
+showPopular();
+return;
+}
+var lower=query.toLowerCase();
+var matched=[];
+for(var i=0;i<faqs.length;i++){
+var faq=faqs[i];
+var score=0;
+if(faq.q.toLowerCase().indexOf(lower)>-1){
+score+=10;
+}
+if(faq.a.toLowerCase().indexOf(lower)>-1){
+score+=5;
+}
+for(var j=0;j<faq.keywords.length;j++){
+if(faq.keywords[j].indexOf(lower)>-1){
+score+=3;
+}
+}
+if(score>0){
+matched.push({faq:faq,score:score});
+}
+}
+matched.sort(function(a,b){return b.score-a.score;});
+showResults(matched);
+}
+function showResults(matched){
+popular.style.display='none';
+if(matched.length===0){
+results.innerHTML=
+'<div class="mk-faq-empty">'+
+'<div class="mk-faq-empty-icon">🔍</div>'+
+'<p class="mk-faq-empty-text">검색 결과가 없습니다</p>'+
+'<p class="mk-faq-empty-sub">다른 키워드로 검색해보세요</p>'+
+'</div>';
+return;
+}
+var html='';
+for(var i=0;i<matched.length;i++){
+var faq=matched[i].faq;
+html+='<div class="mk-faq-result" data-id="'+faq.id+'">';
+html+='<span class="mk-faq-result-badge">'+faq.category+'</span>';
+html+='<p class="mk-faq-result-q">'+faq.q+'</p>';
+html+='<p class="mk-faq-result-a">'+faq.a+'</p>';
+html+='</div>';
+}
+results.innerHTML=html;
+var items=results.querySelectorAll('.mk-faq-result');
+for(var i=0;i<items.length;i++){
+items[i].onclick=function(){
+var isOpen=this.className.indexOf('open')>-1;
+var all=results.querySelectorAll('.mk-faq-result');
+for(var j=0;j<all.length;j++){
+all[j].className='mk-faq-result';
+}
+if(!isOpen){
+this.className='mk-faq-result open';
+}
+};
+}
+}
+function showPopular(){
+popular.style.display='block';
+results.innerHTML='';
+}
+function showFaqById(id){
+for(var i=0;i<faqs.length;i++){
+if(faqs[i].id==id){
+var faq=faqs[i];
+popular.style.display='none';
+results.innerHTML=
+'<div class="mk-faq-result open">'+
+'<span class="mk-faq-result-badge">'+faq.category+'</span>'+
+'<p class="mk-faq-result-q">'+faq.q+'</p>'+
+'<p class="mk-faq-result-a">'+faq.a+'</p>'+
+'</div>';
+input.value=faq.q;
+break;
+}
+}
+}
+if(input){
+input.oninput=function(){
+searchFaq(input.value);
+};
+}
+var popItems=document.querySelectorAll('.mk-faq-popular-item');
+for(var i=0;i<popItems.length;i++){
+popItems[i].onclick=function(){
+var id=this.getAttribute('data-id');
+showFaqById(id);
+};
+}
+if(closeBtn){
+closeBtn.onclick=function(){
+document.getElementById('mkFaqSearch').className='mk-faq-search';
+};
+}
+})();
+</script>
+

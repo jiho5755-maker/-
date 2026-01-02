@@ -1,0 +1,385 @@
+<style>
+.mk-smart-bot{position:fixed;bottom:100px;right:30px;width:400px;
+background:#fff;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,0.15);
+z-index:9999;display:none}
+.mk-smart-bot.on{display:block}
+.mk-smart-header{background:#8B9D83;padding:20px;color:#fff;
+border-radius:20px 20px 0 0;position:relative}
+.mk-smart-header.closed{background:#6B7D63}
+.mk-smart-header h3{font-size:18px;margin:0 0 4px 0;font-weight:700}
+.mk-smart-header .status{font-size:12px;opacity:0.9;
+background:rgba(255,255,255,0.2);padding:4px 12px;
+border-radius:12px;display:inline-block;margin-top:5px}
+.mk-smart-close{background:rgba(255,255,255,0.2);border:none;
+width:32px;height:32px;border-radius:50%;cursor:pointer;
+position:absolute;top:18px;right:18px;color:#fff;
+font-size:18px;line-height:32px}
+.mk-smart-close:hover{background:rgba(255,255,255,0.3)}
+.mk-smart-tabs{background:#F8FAF7;padding:15px 20px;
+border-bottom:1px solid #E8EDE6;overflow:hidden}
+.mk-smart-tab{float:left;padding:8px 16px;margin-right:8px;
+background:#fff;border:1px solid #E8EDE6;border-radius:20px;
+font-size:13px;cursor:pointer;color:#666}
+.mk-smart-tab:hover{border-color:#8B9D83;color:#8B9D83}
+.mk-smart-tab.active{background:#8B9D83;border-color:#8B9D83;color:#fff}
+.mk-smart-content{height:400px;overflow-y:auto}
+.mk-smart-messages{padding:20px;background:#F8FAF7;height:350px;overflow-y:auto}
+.mk-chat-msg{margin-bottom:15px;clear:both}
+.mk-chat-msg.bot{float:left;max-width:75%}
+.mk-chat-msg.user{float:right;max-width:75%}
+.mk-chat-bubble{padding:12px 16px;border-radius:12px;
+font-size:14px;line-height:1.5}
+.mk-chat-msg.bot .mk-chat-bubble{background:#fff;color:#333;
+border:1px solid #E8EDE6}
+.mk-chat-msg.user .mk-chat-bubble{background:#8B9D83;color:#fff}
+.mk-chat-typing{padding:12px 16px;background:#fff;
+border-radius:12px;border:1px solid #E8EDE6;display:inline-block}
+.mk-chat-typing span{display:inline-block;width:8px;height:8px;
+border-radius:50%;background:#8B9D83;margin:0 2px;
+animation:typing 1.4s infinite}
+.mk-chat-typing span:nth-child(2){animation-delay:0.2s}
+.mk-chat-typing span:nth-child(3){animation-delay:0.4s}
+@keyframes typing{
+0%,60%,100%{opacity:0.3;transform:translateY(0)}
+30%{opacity:1;transform:translateY(-10px)}
+}
+.mk-chat-suggestions{padding:10px 20px;background:#fff;border-top:1px solid #E8EDE6}
+.mk-chat-suggestion{display:inline-block;padding:8px 14px;
+margin:5px 5px 0 0;background:#F8FAF7;border:1px solid #E8EDE6;
+border-radius:20px;font-size:13px;cursor:pointer;color:#555}
+.mk-chat-suggestion:hover{background:#E8EDE6;border-color:#8B9D83}
+.mk-smart-input{padding:15px 20px;border-top:1px solid #E8EDE6;background:#fff}
+.mk-smart-input-wrapper{display:block;overflow:hidden}
+.mk-smart-input input{width:calc(100% - 50px);float:left;
+padding:10px 15px;border:2px solid #E8EDE6;border-radius:10px;
+font-size:14px;box-sizing:border-box}
+.mk-smart-input input:focus{border-color:#8B9D83;outline:none}
+.mk-smart-input button{float:right;width:42px;height:42px;
+background:#8B9D83;border:none;border-radius:10px;
+color:#fff;font-size:18px;cursor:pointer;line-height:42px}
+.mk-smart-input button:hover{opacity:0.9}
+.mk-smart-body{padding:25px}
+.mk-smart-body textarea{width:100%;padding:12px;
+border:2px solid #E8EDE6;border-radius:10px;font-size:14px;
+box-sizing:border-box;min-height:100px;resize:vertical}
+.mk-smart-body textarea:focus{border-color:#8B9D83;outline:none}
+.mk-smart-body input{width:100%;padding:12px;
+border:2px solid #E8EDE6;border-radius:10px;font-size:14px;
+box-sizing:border-box;margin-bottom:12px}
+.mk-smart-body input:focus{border-color:#8B9D83;outline:none}
+.mk-smart-btn{background:#8B9D83;color:#fff;border:none;
+padding:14px 30px;border-radius:10px;font-size:15px;
+font-weight:700;cursor:pointer;width:100%;margin-top:15px}
+.mk-smart-btn:hover{opacity:0.9}
+.mk-chat-link{color:#8B9D83;text-decoration:underline;cursor:pointer}
+.mk-chat-link:hover{color:#6B7D63}
+.mk-faq-result{background:#fff;border:1px solid #E8EDE6;
+border-radius:12px;padding:15px;margin-bottom:10px;cursor:pointer}
+.mk-faq-result:hover{border-color:#8B9D83;background:#F8FAF7}
+.mk-faq-result-q{font-size:15px;font-weight:600;color:#333;margin:0 0 8px 0}
+.mk-faq-result-a{font-size:13px;color:#666;line-height:1.5;margin:0;display:none}
+.mk-faq-result.open .mk-faq-result-a{display:block}
+.mk-faq-badge{display:inline-block;background:#8B9D83;
+color:#fff;font-size:11px;padding:3px 10px;border-radius:10px;margin-bottom:8px}
+@media (max-width:768px){
+.mk-smart-bot{width:calc(100vw - 40px);right:20px;bottom:90px}
+}
+</style>
+<div class="mk-smart-bot" id="mkSmartBot">
+<div class="mk-smart-header" id="mkSmartHeader">
+<button class="mk-smart-close" id="mkSmartClose">×</button>
+<h3 id="mkSmartTitle">스마트 상담봇</h3>
+<span class="status" id="mkSmartStatus">✓ 상담 가능</span>
+</div>
+<div class="mk-smart-tabs">
+<button class="mk-smart-tab active" data-tab="chat">💬 채팅</button>
+<button class="mk-smart-tab" data-tab="faq">🔍 FAQ</button>
+<button class="mk-smart-tab" data-tab="inquiry">📧 문의</button>
+</div>
+<div class="mk-smart-content" id="mkSmartContent"></div>
+</div>
+<script>
+(function(){
+var currentTab='chat';
+var keywords={
+'배송':{words:['배송','택배','언제','도착'],
+answer:'<strong>배송 안내</strong><br><br>주문 후 영업일 기준 2-3일 소요<br>• 50,000원 이상: 무료<br>• 미만: 3,000원<br><br><a class="mk-chat-link" href="/mypage/order_list.html">주문 조회</a>',
+suggestions:['배송 조회','배송지 변경']},
+'반품':{words:['반품','환불','취소'],
+answer:'<strong>반품 안내</strong><br><br>상품 수령 후 7일 이내 가능<br>• 단순 변심: 6,000원<br>• 불량/오배송: 무료<br><br><a class="mk-chat-link" href="/mypage/return.html">반품 신청</a>',
+suggestions:['반품 방법','환불 기간']},
+'교환':{words:['교환','바꾸','변경'],
+answer:'<strong>교환 안내</strong><br><br>수령 후 7일 이내<br>• 왕복 배송비: 6,000원<br><br><a class="mk-chat-link" href="/mypage/exchange.html">교환 신청</a>',
+suggestions:['교환 방법','교환 기간']},
+'적립금':{words:['적립금','포인트'],
+answer:'<strong>적립금 안내</strong><br><br>• 신규 가입: 3,000원<br>• 구매 시: 3% 적립<br>• 사용: 30,000원 이상<br><br><a class="mk-chat-link" href="/mypage/mileage.html">적립금 확인</a>',
+suggestions:['적립금 사용','적립금 조회']}
+};
+var faqs=[
+{id:1,cat:'배송',q:'배송은 얼마나 걸리나요?',
+a:'주문 후 영업일 기준 2-3일 소요됩니다.',keywords:['배송','기간']},
+{id:2,cat:'반품',q:'반품은 어떻게 하나요?',
+a:'상품 수령 후 7일 이내 마이페이지에서 반품 신청 가능합니다.',keywords:['반품']},
+{id:3,cat:'적립금',q:'적립금은 어떻게 사용하나요?',
+a:'30,000원 이상 구매 시 사용 가능하며, 최대 10%까지 사용할 수 있습니다.',keywords:['적립금']},
+{id:4,cat:'쿠폰',q:'쿠폰은 어디서 받나요?',
+a:'마이페이지 > 쿠폰함에서 다운로드 가능합니다.',keywords:['쿠폰']},
+{id:5,cat:'주문',q:'주문 취소는 가능한가요?',
+a:'발송 전까지는 마이페이지에서 직접 취소 가능합니다.',keywords:['취소']}
+];
+function isBusinessHours(){
+var now=new Date();
+var day=now.getDay();
+var hour=now.getHours();
+if(day===0||day===6)return false;
+if(hour<9||hour>=18)return false;
+if(hour===12)return false;
+return true;
+}
+function updateStatus(){
+var header=document.getElementById('mkSmartHeader');
+var title=document.getElementById('mkSmartTitle');
+var status=document.getElementById('mkSmartStatus');
+if(isBusinessHours()){
+header.className='mk-smart-header';
+title.textContent='스마트 상담봇';
+status.textContent='✓ 상담 가능';
+}else{
+header.className='mk-smart-header closed';
+title.textContent='스마트 상담봇';
+status.textContent='영업시간 외';
+}
+}
+function switchTab(tab){
+currentTab=tab;
+var tabs=document.querySelectorAll('.mk-smart-tab');
+for(var i=0;i<tabs.length;i++){
+tabs[i].className='mk-smart-tab';
+}
+var activeTab=document.querySelector('[data-tab="'+tab+'"]');
+if(activeTab){
+activeTab.className='mk-smart-tab active';
+}
+var content=document.getElementById('mkSmartContent');
+if(tab==='chat'){
+content.innerHTML=
+'<div class="mk-smart-messages" id="mkMessages"></div>'+
+'<div class="mk-chat-suggestions" id="mkSuggestions"></div>'+
+'<div class="mk-smart-input"><div class="mk-smart-input-wrapper">'+
+'<input type="text" id="mkInput" placeholder="메시지를 입력하세요...">'+
+'<button id="mkSend">→</button></div></div>';
+initChat();
+}else if(tab==='faq'){
+content.innerHTML=
+'<div style="padding:20px">'+
+'<input type="text" id="mkFaqInput" placeholder="검색어 입력..." '+
+'style="width:100%;padding:12px;border:2px solid #E8EDE6;'+
+'border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:15px">'+
+'<div id="mkFaqResults"></div></div>';
+initFaq();
+}else if(tab==='inquiry'){
+var html='<div class="mk-smart-body">';
+if(isBusinessHours()){
+html+='<p style="text-align:center;margin:40px 0">'+
+'<span style="font-size:48px">👋</span><br><br>'+
+'<strong style="font-size:18px">실시간 상담 가능합니다</strong><br>'+
+'<span style="font-size:14px;color:#666">평일 09:00-18:00</span></p>'+
+'<button class="mk-smart-btn" onclick="connectLive()">상담원과 연결하기</button>';
+}else{
+html+='<p style="text-align:center;margin:20px 0">'+
+'<span style="font-size:40px">🌙</span><br>'+
+'<strong style="font-size:16px">영업시간이 아닙니다</strong><br>'+
+'<span style="font-size:13px;color:#999">영업일 기준 24시간 내 답변드립니다</span></p>'+
+'<input type="text" id="mkInqName" placeholder="이름">'+
+'<input type="email" id="mkInqEmail" placeholder="이메일">'+
+'<textarea id="mkInqMsg" placeholder="문의 내용을 자세히 적어주세요"></textarea>'+
+'<button class="mk-smart-btn" onclick="submitInquiry()">문의 남기기</button>';
+}
+html+='</div>';
+content.innerHTML=html;
+}
+}
+function initChat(){
+var messages=document.getElementById('mkMessages');
+var suggestions=document.getElementById('mkSuggestions');
+var input=document.getElementById('mkInput');
+var send=document.getElementById('mkSend');
+function addMsg(text,type){
+var msg=document.createElement('div');
+msg.className='mk-chat-msg '+type;
+msg.innerHTML='<div class="mk-chat-bubble">'+text+'</div>';
+messages.appendChild(msg);
+messages.scrollTop=messages.scrollHeight;
+}
+function showSugs(sugs){
+suggestions.innerHTML='';
+if(sugs){
+for(var i=0;i<sugs.length;i++){
+var btn=document.createElement('button');
+btn.className='mk-chat-suggestion';
+btn.textContent=sugs[i];
+btn.onclick=(function(t){
+return function(){handleMsg(t);};
+})(sugs[i]);
+suggestions.appendChild(btn);
+}
+}
+}
+function findKeyword(text){
+var lower=text.toLowerCase();
+for(var key in keywords){
+var data=keywords[key];
+for(var i=0;i<data.words.length;i++){
+if(lower.indexOf(data.words[i])>-1){
+return key;
+}
+}
+}
+return null;
+}
+function handleMsg(text){
+if(!text)return;
+addMsg(text,'user');
+input.value='';
+setTimeout(function(){
+var keyword=findKeyword(text);
+if(keyword){
+addMsg(keywords[keyword].answer,'bot');
+showSugs(keywords[keyword].suggestions);
+}else{
+addMsg('키워드를 찾지 못했습니다.<br>배송, 반품, 교환, 적립금 등으로 검색해보세요.<br><br><a class="mk-chat-link" onclick="connectLive()">상담원 연결</a>','bot');
+showSugs(['배송','반품','교환','적립금']);
+}
+},500);
+}
+window.handleMsg=handleMsg;
+if(send){
+send.onclick=function(){handleMsg(input.value);};
+}
+if(input){
+input.onkeypress=function(e){
+if(e.key==='Enter'){handleMsg(input.value);}
+};
+}
+addMsg('안녕하세요! 무엇을 도와드릴까요?','bot');
+showSugs(['배송 문의','반품/교환','적립금','쿠폰']);
+}
+function initFaq(){
+var input=document.getElementById('mkFaqInput');
+var results=document.getElementById('mkFaqResults');
+function search(q){
+if(!q||q.length<2){
+showPopular();
+return;
+}
+var lower=q.toLowerCase();
+var matched=[];
+for(var i=0;i<faqs.length;i++){
+if(faqs[i].q.toLowerCase().indexOf(lower)>-1||
+faqs[i].a.toLowerCase().indexOf(lower)>-1){
+matched.push(faqs[i]);
+}
+}
+showResults(matched);
+}
+function showResults(items){
+if(items.length===0){
+results.innerHTML='<p style="text-align:center;color:#999;padding:40px">검색 결과가 없습니다</p>';
+return;
+}
+var html='';
+for(var i=0;i<items.length;i++){
+var f=items[i];
+html+='<div class="mk-faq-result" data-id="'+f.id+'">'+
+'<span class="mk-faq-badge">'+f.cat+'</span>'+
+'<p class="mk-faq-result-q">'+f.q+'</p>'+
+'<p class="mk-faq-result-a">'+f.a+'</p></div>';
+}
+results.innerHTML=html;
+var items2=results.querySelectorAll('.mk-faq-result');
+for(var i=0;i<items2.length;i++){
+items2[i].onclick=function(){
+var isOpen=this.className.indexOf('open')>-1;
+var all=results.querySelectorAll('.mk-faq-result');
+for(var j=0;j<all.length;j++){
+all[j].className='mk-faq-result';
+}
+if(!isOpen){
+this.className='mk-faq-result open';
+}
+};
+}
+}
+function showPopular(){
+var html='<p style="font-weight:600;margin:0 0 12px">자주 묻는 질문 TOP 5</p>';
+for(var i=0;i<faqs.length&&i<5;i++){
+html+='<div class="mk-faq-result" data-id="'+faqs[i].id+'">'+
+'<span class="mk-faq-badge">'+faqs[i].cat+'</span>'+
+'<p class="mk-faq-result-q">'+faqs[i].q+'</p>'+
+'<p class="mk-faq-result-a">'+faqs[i].a+'</p></div>';
+}
+results.innerHTML=html;
+var items=results.querySelectorAll('.mk-faq-result');
+for(var i=0;i<items.length;i++){
+items[i].onclick=function(){
+var isOpen=this.className.indexOf('open')>-1;
+var all=results.querySelectorAll('.mk-faq-result');
+for(var j=0;j<all.length;j++){
+all[j].className='mk-faq-result';
+}
+if(!isOpen){
+this.className='mk-faq-result open';
+}
+};
+}
+}
+if(input){
+input.oninput=function(){search(input.value);};
+}
+showPopular();
+}
+function connectLive(){
+if(window.ChannelIO){
+ChannelIO('showMessenger');
+}else{
+alert('실시간 상담을 준비 중입니다.\n이메일: pressco5755@naver.com');
+}
+}
+function submitInquiry(){
+var name=document.getElementById('mkInqName');
+var email=document.getElementById('mkInqEmail');
+var msg=document.getElementById('mkInqMsg');
+if(!name||!name.value){
+alert('이름을 입력해주세요.');return;
+}
+if(!email||!email.value){
+alert('이메일을 입력해주세요.');return;
+}
+if(!msg||!msg.value){
+alert('문의 내용을 입력해주세요.');return;
+}
+alert('문의가 접수되었습니다!\n영업일 기준 24시간 내 '+email.value+'로 답변드리겠습니다.');
+name.value='';
+email.value='';
+msg.value='';
+}
+window.connectLive=connectLive;
+window.submitInquiry=submitInquiry;
+updateStatus();
+setInterval(updateStatus,60000);
+var tabs=document.querySelectorAll('.mk-smart-tab');
+for(var i=0;i<tabs.length;i++){
+tabs[i].onclick=function(){
+switchTab(this.getAttribute('data-tab'));
+};
+}
+var closeBtn=document.getElementById('mkSmartClose');
+if(closeBtn){
+closeBtn.onclick=function(){
+document.getElementById('mkSmartBot').className='mk-smart-bot';
+};
+}
+switchTab('chat');
+})();
+</script>
+

@@ -1,0 +1,278 @@
+<style>
+#ftWrap{margin:100px 0 0 0}
+#ftWrap .footerTop{background:#f6f6f6}
+#ftWrap .footerTop .footerTopInner{width:1200px;margin:0 auto;height:55px}
+#ftWrap .footerTop .footerTopInner .footerNav{float:left;line-height:55px}
+#ftWrap .footerTop .footerTopInner .footerNav li{display:inline-block}
+#ftWrap .footerTop .footerTopInner .footerNav li:nth-child(even){margin:0 12px}
+#ftWrap .footerTop .footerTopInner .footerNav li a{font-size:14px;color:#4c4c4c}
+#ftWrap .footerTop .footerTopInner .footerNav li a strong{color:#2c2c2c}
+#ftWrap .footerTop .footerTopInner .footerNav li.bar{color:#e5e5e5}
+#ftWrap .footerTop .footerTopInner .sns{float:right}
+#ftWrap .footerTop .footerTopInner .sns li{display:inline-block}
+#ftWrap .footerTop .footerTopInner .sns li a{font-size:22px;width:40px;height:55px;display:block;line-height:55px;text-align:center}
+#ftWrap .footerTop .footerTopInner .sns li a:hover{opacity:0.5}
+#ftWrap .footer{width:1200px;position:relative;min-width:1200px;margin:0 auto;background-color:#fff;padding:40px 0 60px}
+#ftWrap .footer .copy{padding-top:6px;color:#999}
+#ftWrap .footer .title{line-height:1;display:block;padding:40px 0 7px;font-size:13px;color:#292929}
+#ftWrap .footer .subTxt{float:left}
+#ftWrap .footer .subTxt p{line-height:22px;color:#2e2e2e;font-size:13px}
+.csArea{position:relative;float:left}
+.csArea dl{float:left;margin:0 110px 0 0}
+.csArea dt{font-size:13px;font-weight:bold;margin:0 0 6px}
+.csArea dd{font-size:13px;line-height:20px}
+.csArea dd.tel{font-size:16px;font-weight:bold}
+.mk-btn{position:fixed;bottom:30px;right:30px;width:60px;height:60px;
+border-radius:50%;background:#8B9D83;cursor:pointer;z-index:9998;
+text-align:center;border:none;color:#fff;font-size:24px;
+line-height:60px;box-shadow:0 4px 16px rgba(139,157,131,0.3);
+display:block}
+.mk-btn:hover{opacity:0.85}
+.mk-pop{position:fixed;bottom:100px;right:30px;width:360px;
+background:#fff;border-radius:16px;
+box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:9999;display:none}
+.mk-pop.on{display:block}
+.mk-hd{background:#8B9D83;padding:20px;color:#fff;
+border-radius:16px 16px 0 0;overflow:hidden}
+.mk-hd h3{font-size:18px;margin:0 0 4px 0;font-weight:700;float:left}
+.mk-hd p{font-size:13px;margin:0;clear:both}
+.mk-hd .x{background:rgba(255,255,255,0.2);border:none;
+width:32px;height:32px;border-radius:50%;cursor:pointer;
+position:absolute;top:18px;right:18px;color:#fff;
+font-size:18px;line-height:32px}
+.mk-hd .x:hover{background:rgba(255,255,255,0.3)}
+.mk-bd{padding:20px;max-height:420px;overflow-y:auto}
+.mk-menu{overflow:hidden;margin-bottom:16px}
+.mk-menu button{background:#fff;border:2px solid #E8EDE6;
+border-radius:12px;padding:16px;cursor:pointer;text-align:center;
+width:48%;float:left;margin-right:4%;margin-bottom:10px;
+box-sizing:border-box}
+.mk-menu button:nth-child(2n){margin-right:0}
+.mk-menu button:hover{border-color:#8B9D83;background:#F8FAF7}
+.mk-menu .n{display:block;font-size:24px;font-weight:700;
+color:#8B9D83;margin-bottom:4px}
+.mk-menu .t{display:block;font-size:14px;font-weight:600;
+color:#2c3e50}
+.mk-live{background:#8B9D83;border:none;color:#fff;
+padding:16px;border-radius:12px;font-size:15px;font-weight:700;
+cursor:pointer;width:100%;clear:both;margin-top:8px}
+.mk-live:hover{opacity:0.85}
+.mk-ans{background:#F8FAF7;border-radius:12px;padding:16px;
+margin-top:12px;display:none;border-left:3px solid #8B9D83}
+.mk-ans.on{display:block}
+.mk-ans h4{font-size:15px;font-weight:700;color:#8B9D83;
+margin:0 0 12px 0}
+.mk-ans p{font-size:13px;line-height:1.6;color:#555;margin:8px 0}
+.mk-back{background:#E8EDE6;border:none;padding:10px 16px;
+border-radius:8px;font-size:13px;font-weight:600;color:#555;
+cursor:pointer;margin-top:12px}
+.mk-back:hover{background:#D5DDD3}
+.mk-ft{padding:16px 20px;background:#F8FAF7;text-align:center;
+font-size:12px;color:#7A8A72;border-top:1px solid #E8EDE6;
+border-radius:0 0 16px 16px}
+</style>
+<div id="ftWrap">
+<div class="footerTop">
+<div class="footerTopInner clear">
+<ul class="footerNav">
+<li><a href="<!--/link_join_terms/-->">이용약관</a></li>
+<li class="bar">|</li>
+<li><a href="<!--/link_privacy/-->"><strong>개인정보처리방침</strong></a></li>
+<li class="bar">|</li>
+<li><a href="<!--/link_useinfo/-->">쇼핑몰 이용안내</a></li>
+<li class="bar">|</li>
+<li><a href="/board/board.html?code=<!--/shop_id/-->_board1">공지사항</a></li>
+</ul>
+<ul class="sns">
+<li><a href="https://www.youtube.com/channel/UCOt_7gyvjqHBw304hU4-FUw" target="_blank"><i class="xi-youtube"></i></a></li>
+<li><a href="https://www.instagram.com/pressco21_diy_studio/" target="_blank"><i class="xi-instagram"></i></a></li>
+<li><a href="https://section.blog.naver.com" target="_blank"><i class="xi-naver-square"></i></a></li>
+<li><a href="https://accounts.kakao.com/login/kakaostory" target="_blank"><i class="xi-kakaostory"></i></a></li>
+</ul>
+</div>
+</div>
+<div class="footer clear">
+<div class="csArea clear">
+<dl class="csCenter">
+<dt>CS Center</dt>
+<dd class="tel"><!--/shop_tel/--></dd>
+<!--/loop_shop_cs/-->
+<dd><!--/shop_cs@value/--></dd>
+<!--/end_loop/-->
+</dl>
+<dl class="bankInfo">
+<dt>Bank Info</dt>
+<!--/loop_shop_account/-->
+<dd><!--/shop_account@value/--></dd>
+<!--/end_loop/-->
+</dl>
+</div>
+<address class="subTxt">
+<p class="bold">Company Info</p>
+<p><strong>회사명</strong> <!--/company_name/--> <strong>대표</strong> <!--/company_owner/--> <strong>주소</strong> <!--/company_addr/--></p>
+<p><strong>사업자번호</strong> <!--/company_number/--> <a href="<!--/link_company_number/-->" target="_blank">[사업자정보확인]</a> <strong>통신판매번호</strong> <!--/online_sale_number/--></p>
+<p><strong>대표전화</strong> <!--/shop_tel/--> <!--/if_shop_fax/--><strong>팩스</strong> <!--/shop_fax/--> <!--/end_if/--><strong>개인정보보호책임자</strong> <!--/privacy_charge/--> <strong>이메일</strong> pressco5755@naver.com</p>
+<p class="copy">Copyright All Rights Reserved</p>
+</address>
+</div>
+</div>
+<button class="mk-btn" id="mb">?</button>
+<div class="mk-pop" id="mp">
+<div class="mk-hd">
+<button class="x" id="mx">X</button>
+<h3>고객센터</h3>
+<p>무엇을 도와드릴까요</p>
+</div>
+<div class="mk-bd">
+<div id="mm">
+<div class="mk-menu">
+<button data-q="1"><span class="n">[1]</span><span class="t">배송 안내</span></button>
+<button data-q="2"><span class="n">[2]</span><span class="t">교환/반품</span></button>
+<button data-q="3"><span class="n">[3]</span><span class="t">입금확인</span></button>
+<button data-q="4"><span class="n">[4]</span><span class="t">기타문의</span></button>
+</div>
+<button class="mk-live" id="ml">상담원 연결하기</button>
+</div>
+<div id="ma"></div>
+</div>
+<div class="mk-ft">평일 09:00-18:00 | 주말 휴무</div>
+</div>
+<script>
+(function(){
+var w=window;
+if(w.ChannelIO){return;}
+var ch=function(){ch.c(arguments);};
+ch.q=[];
+ch.c=function(a){ch.q.push(a);};
+w.ChannelIO=ch;
+function l(){
+if(w.ChannelIOInitialized){return;}
+w.ChannelIOInitialized=true;
+var s=document.createElement('script');
+s.type='text/javascript';
+s.async=true;
+s.src='https://cdn.channel.io/plugin/ch-plugin-web.js';
+s.charset='UTF-8';
+var x=document.getElementsByTagName('script')[0];
+if(x&&x.parentNode){
+x.parentNode.insertBefore(s,x);
+}
+}
+if(document.readyState==='complete'){
+l();
+}else{
+if(w.addEventListener){
+w.addEventListener('DOMContentLoaded',l);
+w.addEventListener('load',l);
+}
+}
+})();
+ChannelIO('boot',{
+pluginKey:'23176d41-2c63-435b-b393-8bc1dcecd925'
+});
+</script>
+<script>
+var D={
+'1':{
+t:'배송 안내',
+c:'<p><strong>배송 소요 시간</strong><br>주문 후 영업일 기준 2-3일 소요됩니다.</p><p><strong>배송비 안내</strong><br>50,000원 이상: 무료배송<br>50,000원 미만: 3,000원</p><p><strong>배송 조회</strong><br>마이페이지에서 실시간 확인 가능합니다.</p>'
+},
+'2':{
+t:'교환/반품 안내',
+c:'<p><strong>가능 기간</strong><br>상품 수령 후 7일 이내</p><p><strong>불가 사유</strong><br>제품 사용 또는 훼손된 경우<br>포장 개봉으로 상품가치 하락한 경우</p><p><strong>반품 배송비</strong><br>단순 변심: 왕복 6,000원<br>불량/오배송: 무료</p>'
+},
+'3':{
+t:'입금 확인 안내',
+c:'<p><strong>입금 확인 시간</strong><br>평일 오전 9시-오후 6시 (1시간 이내)<br>야간/주말: 다음 영업일</p><p><strong>입금자명이 다른 경우</strong><br>고객센터로 연락 주시면 빠르게 확인해드립니다.</p>'
+},
+'4':{
+t:'기타 문의사항',
+c:'<p><strong>회원 가입 혜택</strong><br>신규 회원 3,000원 적립금</p><p><strong>적립금 사용</strong><br>30,000원 이상 구매 시 사용 가능</p><p><strong>주문 취소</strong><br>발송 전: 마이페이지에서 가능<br>발송 후: 고객센터 문의</p>'
+}
+};
+var b=document.getElementById('mb');
+var p=document.getElementById('mp');
+var x=document.getElementById('mx');
+var m=document.getElementById('mm');
+var a=document.getElementById('ma');
+var l=document.getElementById('ml');
+var bs=document.querySelectorAll('[data-q]');
+function openP(){
+p.className='mk-pop on';
+m.style.display='block';
+a.style.display='none';
+}
+function closeP(){
+p.className='mk-pop';
+}
+function showA(k){
+var d=D[k];
+if(!d)return;
+m.style.display='none';
+var h='<div class="mk-ans on">';
+h+='<h4>'+d.t+'</h4>';
+h+=d.c;
+h+='<button class="mk-back" id="bk">메뉴로 돌아가기</button>';
+h+='</div>';
+a.innerHTML=h;
+a.style.display='block';
+var bk=document.getElementById('bk');
+if(bk){
+bk.onclick=function(){
+m.style.display='block';
+a.style.display='none';
+};
+}
+}
+function openC(){
+if(window.ChannelIO){
+try{
+ChannelIO('showMessenger');
+closeP();
+}catch(e){
+alert('실시간 상담 준비중입니다.\n이메일: pressco5755@naver.com');
+}
+}else{
+alert('실시간 상담 준비중입니다.\n이메일: pressco5755@naver.com');
+}
+}
+if(b){
+b.onclick=function(){
+if(p.className.indexOf('on')>-1){
+closeP();
+}else{
+openP();
+}
+};
+}
+if(x){
+x.onclick=closeP;
+}
+if(l){
+l.onclick=openC;
+}
+for(var i=0;i<bs.length;i++){
+(function(btn){
+btn.onclick=function(){
+var k=btn.getAttribute('data-q');
+showA(k);
+};
+})(bs[i]);
+}
+document.onclick=function(e){
+var t=e.target||e.srcElement;
+var inP=false;
+var n=t;
+while(n){
+if(n===p||n===b){
+inP=true;
+break;
+}
+n=n.parentNode;
+}
+if(!inP&&p.className.indexOf('on')>-1){
+closeP();
+}
+};
+</script>
+

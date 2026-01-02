@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>전국 파트너 공방 찾기 - 프레스코21</title>
+  
+  <!-- 브랜드 시스템 CSS -->
+  <link rel="stylesheet" href="01-brand-system.css">
+  
+  <!-- 네이버 지도 API (실제 사용 시 발급받은 Client ID 입력) -->
+  <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=YOUR_CLIENT_ID"></script>
+  
+  <style>
+    /* ========== 파트너 지도 페이지 전용 스타일 ========== */
+    .partner-map-page {
+      min-height: 100vh;
+      background-color: var(--color-background);
+    }
+    
+    .page-header {
+      background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%);
+      color: var(--color-white);
+      padding: var(--spacing-xxxl) 0;
+      text-align: center;
+    }
+    
+    .page-title {
+      font-size: var(--font-size-h1);
+      font-family: var(--font-serif);
+      color: var(--color-white);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .page-subtitle {
+      font-size: var(--font-size-large);
+      opacity: 0.95;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+    
+    /* ========== 필터 영역 ========== */
+    .filter-section {
+      background-color: var(--color-white);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: var(--z-sticky);
+    }
+    
+    .filter-container {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      display: flex;
+      gap: var(--spacing-lg);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .filter-label {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+    }
+    
+    .filter-buttons {
+      display: flex;
+      gap: var(--spacing-xs);
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      padding: 10px 16px;
+      font-size: var(--font-size-base);
+      background-color: var(--color-background);
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      white-space: nowrap;
+    }
+    
+    .filter-btn:hover {
+      border-color: var(--color-primary);
+      background-color: var(--color-primary-light);
+      color: var(--color-white);
+    }
+    
+    .filter-btn.active {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .search-input-group {
+      display: flex;
+      gap: var(--spacing-sm);
+      flex: 1;
+      min-width: 250px;
+    }
+    
+    .search-input {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: var(--font-size-base);
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-md);
+    }
+    
+    .search-btn {
+      padding: 12px 24px;
+      background-color: var(--color-secondary);
+      color: var(--color-white);
+      border: none;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      transition: all var(--transition-base);
+    }
+    
+    .search-btn:hover {
+      background-color: var(--color-secondary-dark);
+    }
+    
+    /* ========== 메인 컨텐츠 (지도 + 목록) ========== */
+    .map-content {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 0;
+      max-width: var(--container-max-width);
+      margin: var(--spacing-xl) auto;
+      box-shadow: var(--shadow-lg);
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      background-color: var(--color-white);
+    }
+    
+    /* 왼쪽: 공방 목록 */
+    .workshop-list {
+      background-color: var(--color-paper);
+      overflow-y: auto;
+      max-height: 700px;
+      border-right: 1px solid var(--color-border);
+    }
+    
+    .workshop-list-header {
+      padding: var(--spacing-lg);
+      background-color: var(--color-white);
+      border-bottom: 2px solid var(--color-border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .workshop-count {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-primary);
+    }
+    
+    .workshop-item {
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--color-border-light);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      background-color: var(--color-white);
+      margin: var(--spacing-sm);
+      border-radius: var(--border-radius-md);
+    }
+    
+    .workshop-item:hover,
+    .workshop-item.active {
+      background-color: var(--color-primary-light);
+      color: var(--color-white);
+      box-shadow: var(--shadow-md);
+      transform: translateX(4px);
+    }
+    
+    .workshop-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background-color: var(--color-secondary);
+      color: var(--color-white);
+      padding: 4px 10px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .workshop-item.active .workshop-badge {
+      background-color: var(--color-white);
+      color: var(--color-primary);
+    }
+    
+    .workshop-name {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .workshop-genres {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .workshop-item:hover .workshop-genres,
+    .workshop-item.active .workshop-genres {
+      color: var(--color-white);
+      opacity: 0.9;
+    }
+    
+    .workshop-address {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .workshop-item:hover .workshop-address,
+    .workshop-item.active .workshop-address {
+      color: var(--color-white);
+      opacity: 0.85;
+    }
+    
+    .workshop-contact {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-md);
+    }
+    
+    .contact-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background-color: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .contact-btn:hover {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+    }
+    
+    .workshop-item.active .contact-btn {
+      background-color: var(--color-white);
+      border-color: var(--color-white);
+      color: var(--color-primary);
+    }
+    
+    /* 오른쪽: 지도 */
+    .map-container {
+      position: relative;
+      height: 700px;
+      background-color: var(--color-border);
+    }
+    
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+    
+    /* 지도 위 레이어 (지도 로딩 전 안내) */
+    .map-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-large);
+    }
+    
+    .map-placeholder-icon {
+      font-size: 64px;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    /* ========== 커스텀 마커 팝업 ========== */
+    .custom-marker {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      box-shadow: var(--shadow-md);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+    
+    .custom-marker:hover {
+      background-color: var(--color-primary-dark);
+      transform: scale(1.1);
+    }
+    
+    .custom-marker.active {
+      background-color: var(--color-secondary);
+      transform: scale(1.15);
+    }
+    
+    /* 마커 팝업 */
+    .marker-popup {
+      position: absolute;
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow-lg);
+      min-width: 300px;
+      z-index: 1000;
+    }
+    
+    .popup-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--color-text-secondary);
+    }
+    
+    .popup-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+      color: var(--color-white);
+      padding: 6px 12px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .popup-name {
+      font-size: var(--font-size-h4);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .popup-info {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      line-height: 1.7;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .popup-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+    
+    .popup-actions .btn {
+      flex: 1;
+      padding: 12px;
+      font-size: var(--font-size-base);
+    }
+    
+    /* ========== 반응형 ========== */
+    @media (max-width: 1024px) {
+      .map-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .workshop-list {
+        max-height: 400px;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+      }
+      
+      .map-container {
+        height: 500px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .filter-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .filter-group {
+        min-width: 100%;
+      }
+      
+      .search-input-group {
+        min-width: 100%;
+      }
+      
+      .workshop-contact {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="partner-map-page">
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+      <div class="container">
+        <h1 class="page-title">🗺️ 전국 파트너 공방 찾기</h1>
+        <p class="page-subtitle">
+          이진선 장인의 공식 인증을 받은 전국의 파트너 공방들을 만나보세요.<br>
+          가까운 공방에서 직접 배우고, 재료도 구매할 수 있습니다.
+        </p>
+      </div>
+    </div>
+    
+    <!-- 필터 섹션 -->
+    <div class="filter-section">
+      <div class="filter-container">
+        <!-- 지역 필터 -->
+        <div class="filter-group">
+          <span class="filter-label">📍 지역</span>
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-region="all">전체</button>
+            <button class="filter-btn" data-region="서울">서울</button>
+            <button class="filter-btn" data-region="경기">경기</button>
+            <button class="filter-btn" data-region="인천">인천</button>
+            <button class="filter-btn" data-region="부산">부산</button>
+            <button class="filter-btn" data-region="대구">대구</button>
+            <button class="filter-btn" data-region="기타">기타</button>
+          </div>
+        </div>
+        
+        <!-- 공예 종류 필터 -->
+        <div class="filter-group">
+          <span class="filter-label">🎨 공예 종류</span>
+          <div class="filter-buttons">
+            <button class="filter-btn active" data-genre="all">전체</button>
+            <button class="filter-btn" data-genre="압화">압화</button>
+            <button class="filter-btn" data-genre="레진">레진</button>
+            <button class="filter-btn" data-genre="하바리움">하바리움</button>
+            <button class="filter-btn" data-genre="부케">부케기프트</button>
+          </div>
+        </div>
+        
+        <!-- 검색 -->
+        <div class="filter-group">
+          <span class="filter-label">🔍 검색</span>
+          <div class="search-input-group">
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="공방명이나 주소 검색"
+              id="search-input"
+            >
+            <button class="search-btn" id="search-btn">검색</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 메인 컨텐츠: 공방 목록 + 지도 -->
+    <div class="map-content">
+      <!-- 왼쪽: 공방 목록 -->
+      <div class="workshop-list">
+        <div class="workshop-list-header">
+          <div class="workshop-count">
+            <span id="visible-count">12</span>개의 파트너 공방
+          </div>
+        </div>
+        
+        <div id="workshop-list-container">
+          <!-- 공방 아이템 1 -->
+          <div class="workshop-item" data-id="1" data-region="서울" data-genres="압화,레진">
+            <span class="workshop-badge">⭐ 공식 파트너</span>
+            <div class="workshop-name">플로라 압화 공방</div>
+            <div class="workshop-genres">🌸 압화 | 💎 레진</div>
+            <div class="workshop-address">📍 서울특별시 강남구 테헤란로 123</div>
+            <div class="workshop-contact">
+              <button class="contact-btn" onclick="openInstagram('flora_art')">
+                📷 인스타그램
+              </button>
+              <button class="contact-btn" onclick="callPhone('02-1234-5678')">
+                📞 전화하기
+              </button>
+            </div>
+          </div>
+          
+          <!-- 공방 아이템 2 -->
+          <div class="workshop-item" data-id="2" data-region="서울" data-genres="압화,하바리움">
+            <span class="workshop-badge">⭐ 공식 파트너</span>
+            <div class="workshop-name">나무와 꽃 공방</div>
+            <div class="workshop-genres">🌸 압화 | 🌿 하바리움</div>
+            <div class="workshop-address">📍 서울특별시 마포구 연남동 456-7</div>
+            <div class="workshop-contact">
+              <button class="contact-btn" onclick="openInstagram('tree_flower')">
+                📷 인스타그램
+              </button>
+              <button class="contact-btn" onclick="callPhone('02-2345-6789')">
+                📞 전화하기
+              </button>
+            </div>
+          </div>
+          
+          <!-- 공방 아이템 3 -->
+          <div class="workshop-item" data-id="3" data-region="경기" data-genres="레진,부케">
+            <span class="workshop-badge">⭐ 공식 파트너</span>
+            <div class="workshop-name">크리스탈 레진 아뜰리에</div>
+            <div class="workshop-genres">💎 레진 | 💐 부케기프트</div>
+            <div class="workshop-address">📍 경기도 성남시 분당구 정자동 789</div>
+            <div class="workshop-contact">
+              <button class="contact-btn" onclick="openInstagram('crystal_resin')">
+                📷 인스타그램
+              </button>
+              <button class="contact-btn" onclick="callPhone('031-3456-7890')">
+                📞 전화하기
+              </button>
+            </div>
+          </div>
+          
+          <!-- 공방 아이템 4 -->
+          <div class="workshop-item" data-id="4" data-region="인천" data-genres="압화">
+            <span class="workshop-badge">⭐ 공식 파트너</span>
+            <div class="workshop-name">봄날의 압화 스튜디오</div>
+            <div class="workshop-genres">🌸 압화 전문</div>
+            <div class="workshop-address">📍 인천광역시 연수구 송도동 101-2</div>
+            <div class="workshop-contact">
+              <button class="contact-btn" onclick="openInstagram('spring_press')">
+                📷 인스타그램
+              </button>
+              <button class="contact-btn" onclick="callPhone('032-4567-8901')">
+                📞 전화하기
+              </button>
+            </div>
+          </div>
+          
+          <!-- 추가 공방들... (실제로는 데이터베이스에서 가져옴) -->
+          <div class="workshop-item" data-id="5" data-region="부산" data-genres="압화,레진,하바리움">
+            <span class="workshop-badge">⭐ 공식 파트너</span>
+            <div class="workshop-name">바다향기 플라워 공방</div>
+            <div class="workshop-genres">🌸 압화 | 💎 레진 | 🌿 하바리움</div>
+            <div class="workshop-address">📍 부산광역시 해운대구 우동 234-5</div>
+            <div class="workshop-contact">
+              <button class="contact-btn" onclick="openInstagram('ocean_flower')">
+                📷 인스타그램
+              </button>
+              <button class="contact-btn" onclick="callPhone('051-5678-9012')">
+                📞 전화하기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 오른쪽: 네이버 지도 -->
+      <div class="map-container">
+        <!-- 지도 로딩 전 플레이스홀더 -->
+        <div class="map-placeholder">
+          <div class="map-placeholder-icon">🗺️</div>
+          <div>지도를 불러오는 중...</div>
+          <div style="margin-top: 12px; font-size: 14px; color: var(--color-text-light);">
+            네이버 지도 API 연동이 필요합니다
+          </div>
+        </div>
+        <!-- 실제 지도가 여기에 렌더링됨 -->
+        <!-- <div id="map"></div> -->
+      </div>
+    </div>
+    
+    <!-- 파트너 등록 안내 섹션 -->
+    <div class="container" style="margin-top: var(--spacing-xxxl); margin-bottom: var(--spacing-xxxl);">
+      <div style="background: linear-gradient(135deg, #7B8E7E, #5A6B5D); color: white; border-radius: 16px; padding: 48px; text-align: center;">
+        <h2 style="font-size: 28px; margin-bottom: 16px; color: white;">
+          🤝 파트너 공방으로 등록하고 싶으신가요?
+        </h2>
+        <p style="font-size: 18px; margin-bottom: 32px; opacity: 0.95; line-height: 1.7;">
+          이진선 장인의 공식 파트너가 되어<br>
+          전국의 압화 애호가들과 함께 성장하세요!
+        </p>
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn btn-secondary btn-large" style="background: white; color: #7B8E7E;">
+            파트너 신청하기
+          </button>
+          <button class="btn btn-outline btn-large" style="border-color: white; color: white;">
+            혜택 자세히 보기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    // ========== 필터 기능 ==========
+    let currentFilters = {
+      region: 'all',
+      genre: 'all',
+      search: ''
+    };
+    
+    // 지역 필터
+    document.querySelectorAll('[data-region]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('[data-region]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentFilters.region = this.dataset.region;
+        filterWorkshops();
+      });
+    });
+    
+    // 공예 종류 필터
+    document.querySelectorAll('[data-genre]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('[data-genre]').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentFilters.genre = this.dataset.genre;
+        filterWorkshops();
+      });
+    });
+    
+    // 검색
+    document.getElementById('search-btn').addEventListener('click', () => {
+      currentFilters.search = document.getElementById('search-input').value.toLowerCase();
+      filterWorkshops();
+    });
+    
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        currentFilters.search = e.target.value.toLowerCase();
+        filterWorkshops();
+      }
+    });
+    
+    // 필터링 실행
+    function filterWorkshops() {
+      const workshops = document.querySelectorAll('.workshop-item');
+      let visibleCount = 0;
+      
+      workshops.forEach(workshop => {
+        const region = workshop.dataset.region;
+        const genres = workshop.dataset.genres;
+        const name = workshop.querySelector('.workshop-name').textContent.toLowerCase();
+        const address = workshop.querySelector('.workshop-address').textContent.toLowerCase();
+        
+        let show = true;
+        
+        // 지역 필터
+        if (currentFilters.region !== 'all' && region !== currentFilters.region) {
+          show = false;
+        }
+        
+        // 공예 종류 필터
+        if (currentFilters.genre !== 'all' && !genres.includes(currentFilters.genre)) {
+          show = false;
+        }
+        
+        // 검색어 필터
+        if (currentFilters.search && !name.includes(currentFilters.search) && !address.includes(currentFilters.search)) {
+          show = false;
+        }
+        
+        if (show) {
+          workshop.style.display = 'block';
+          visibleCount++;
+        } else {
+          workshop.style.display = 'none';
+        }
+      });
+      
+      document.getElementById('visible-count').textContent = visibleCount;
+    }
+    
+    // ========== 공방 아이템 클릭 ==========
+    document.querySelectorAll('.workshop-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        // 버튼 클릭은 무시
+        if (e.target.closest('.contact-btn')) return;
+        
+        // 활성 상태 토글
+        document.querySelectorAll('.workshop-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        
+        // 실제 지도가 구현되면 해당 위치로 이동
+        console.log('공방 선택:', this.dataset.id);
+      });
+    });
+    
+    // ========== 연락처 기능 ==========
+    function openInstagram(username) {
+      window.open(`https://instagram.com/${username}`, '_blank');
+    }
+    
+    function callPhone(number) {
+      window.location.href = `tel:${number}`;
+    }
+    
+    // ========== 네이버 지도 초기화 (실제 구현 예시) ==========
+    /*
+    // 실제 네이버 지도 API 사용 시:
+    
+    function initMap() {
+      const mapContainer = document.getElementById('map');
+      const mapPlaceholder = document.querySelector('.map-placeholder');
+      
+      // 플레이스홀더 제거
+      if (mapPlaceholder) {
+        mapPlaceholder.remove();
+      }
+      
+      // 지도 생성
+      const map = new naver.maps.Map(mapContainer, {
+        center: new naver.maps.LatLng(37.5665, 126.9780), // 서울 중심
+        zoom: 11,
+        zoomControl: true,
+        zoomControlOptions: {
+          position: naver.maps.Position.TOP_RIGHT
+        }
+      });
+      
+      // 공방 데이터 (실제로는 서버에서 가져옴)
+      const workshops = [
+        { id: 1, name: '플로라 압화 공방', lat: 37.5048, lng: 127.0496 },
+        { id: 2, name: '나무와 꽃 공방', lat: 37.5636, lng: 126.9269 },
+        // ... 더 많은 공방들
+      ];
+      
+      // 마커 생성
+      workshops.forEach(workshop => {
+        const marker = new naver.maps.Marker({
+          position: new naver.maps.LatLng(workshop.lat, workshop.lng),
+          map: map,
+          title: workshop.name
+        });
+        
+        // 마커 클릭 이벤트
+        naver.maps.Event.addListener(marker, 'click', function() {
+          // 정보창 표시 로직
+          showWorkshopInfo(workshop.id);
+        });
+      });
+    }
+    
+    // 페이지 로드 시 지도 초기화
+    if (typeof naver !== 'undefined') {
+      initMap();
+    }
+    */
+    
+    console.log(`
+===========================================
+🗺️  파트너 공방 지도 시안
+===========================================
+실제 구현을 위해 필요한 것:
+
+1. 네이버 지도 API 키 발급
+   https://www.ncloud.com/product/applicationService/maps
+
+2. HTML의 API 스크립트 태그에 Client ID 입력
+
+3. 공방 데이터베이스 구축
+   - 공방명, 주소, 좌표(위도/경도)
+   - 인스타그램, 전화번호
+   - 취급 공예 종류
+
+4. 서버 API 연동
+   GET /api/workshops?region=서울&genre=압화
+   
+===========================================
+    `);
+  </script>
+  
+</body>
+</html>

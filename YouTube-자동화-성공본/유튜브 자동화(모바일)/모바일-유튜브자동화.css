@@ -1,0 +1,324 @@
+/* 메인비주얼슬라이드 */
+ul.item-cont{display:flex; flex-wrap:wrap}
+#contents{height:auto; width:100%; clear:both;  }
+
+main{height:auto}
+main .main_visu{width: 100%;  position:relative}
+main .main_visu .swiper{}
+main .main_visu .swiper ul{}
+main .main_visu .swiper ul li{ }
+main .main_visu .swiper ul li a{display: block;}
+main .main_visu .swiper ul li a img{width:100%}
+
+.main_visu .swiper_btn_prev{cursor: pointer; width: 40px; height: 40px;  background: url(/design/jewoo/spring_market/MO_img/main_visu_prev.png) no-repeat center center; background-size: contain; position: absolute; top: 50%; left: 10px; z-index: 1000; transform: translateY(-50%);}
+.main_visu .swiper_btn_next{cursor: pointer; width: 40px; height: 40px;  background: url(/design/jewoo/spring_market/MO_img/main_visu_next.png) no-repeat center center; background-size: contain; position: absolute; top: 50%; right: 10px; z-index: 1000; transform: translateY(-50%);}
+.main_visu .swiper-pagination{position: absolute; left: 40px !important; width: 90px !important; text-align: left !important; bottom: 60px !important;}
+
+.btn_stop{line-height:20px; cursor:pointer; text-align:center; width:20px; height:20px;border-radius:50%; position: absolute;left:78px; bottom: 57px; z-index:9000; background-color:#fff }
+.btn_play{text-indent:0;line-height:20px;cursor:pointer;text-align:center; width:20px; height:20px;border-radius:50%; position: absolute;left: 78px; bottom: 57px; z-index:9000 ; background-color:#ddd; font-size:10px}
+.btn_stop{text-indent:-9999px;background: url(/design/jewoo/spring_market/MO_img/main_btn.png) no-repeat center center;background-size: contain;}
+.swiper-pagination{color:#747474}
+.swiper-pagination-current{font-weight:700; color:#000}
+
+
+/* //서브배너 */
+.banner_section{width: 100%; margin:30px 0}
+.banner_section ul{}
+.banner_section ul li{background: no-repeat center center; background-size: contain; width: 341px; height: 138px;}
+.banner_section ul li a{display: block;width:100%; height:100%}
+
+
+
+/* ===========================================
+   🎬 모바일 THIS WEEK YOUTUBE - 자동화 스타일
+   =========================================== */
+
+/* YouTube 섹션 전체 */
+.mobile-weekyoutube {
+    width: 100%;
+    padding: 50px 0;
+    background: #fff;
+    margin: 0 auto;
+}
+
+/* YouTube 헤더 */
+.youtube-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.youtube-header h2 {
+    font-size: 23px;
+    font-weight: 700;
+    color: #000;
+    margin: 0 0 10px 0;
+}
+
+.youtube-header p {
+    font-size: 14px;
+    color: #999;
+    margin: 0;
+}
+
+/* YouTube 그리드 컨테이너 - 모바일 1열 */
+.mobile-youtube-grid {
+    width: 100%;
+    padding: 0 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 각 영상 아이템 */
+.youtube-video-item {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.youtube-video-item.loaded {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 모바일에서는 hover 효과 제거 (터치 디바이스) */
+@media (hover: hover) {
+    .youtube-video-item:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        transform: translateY(-3px);
+    }
+}
+
+/* 영상 래퍼 (16:9 비율 유지) */
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 비율 */
+    height: 0;
+    overflow: hidden;
+    background: #000;
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* 영상 정보 */
+.video-info {
+    padding: 18px;
+    background: #fff;
+}
+
+.video-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.3px;
+}
+
+.video-date {
+    font-size: 13px;
+    color: #888;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* 로딩 메시지 */
+.loading-message {
+    text-align: center;
+    padding: 70px 20px;
+}
+
+.loading-message p {
+    font-size: 15px;
+    color: #555;
+    margin: 18px 0 0 0;
+    animation: pulse 1.5s ease-in-out infinite;
+    font-weight: 600;
+}
+
+/* 로딩 스피너 */
+.spinner {
+    width: 45px;
+    height: 45px;
+    margin: 0 auto;
+    border: 5px solid #f0f0f0;
+    border-top: 5px solid #ff6b6b;
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 에러 메시지 */
+.error-message {
+    text-align: center;
+    padding: 50px 20px;
+    background: #fff;
+    border-radius: 14px;
+    margin: 0 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.error-message p {
+    margin: 0 0 10px 0;
+    font-size: 15px;
+    color: #555;
+}
+
+.error-message a {
+    color: #ff6b6b;
+    text-decoration: none;
+    font-weight: 700;
+    border-bottom: 2px solid #ff6b6b;
+    transition: all 0.2s ease;
+}
+
+/* 페이드 인 애니메이션 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 펄스 애니메이션 (로딩) */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* 영상 아이템 순차 애니메이션 */
+.youtube-video-item:nth-child(1) { animation-delay: 0.1s; }
+.youtube-video-item:nth-child(2) { animation-delay: 0.2s; }
+.youtube-video-item:nth-child(3) { animation-delay: 0.3s; }
+
+/* 작은 화면 최적화 */
+@media (max-width: 360px) {
+    .mobile-weekyoutube {
+        padding: 40px 0;
+    }
+    
+    .youtube-header h2 {
+        font-size: 20px;
+    }
+    
+    .youtube-header p {
+        font-size: 13px;
+    }
+    
+    .mobile-youtube-grid {
+        padding: 0 10px;
+        gap: 15px;
+    }
+    
+    .video-info {
+        padding: 12px;
+    }
+    
+    .video-title {
+        font-size: 14px;
+    }
+    
+    .video-date {
+        font-size: 12px;
+    }
+}
+
+
+
+/* //카테고리 탭 영역 */
+.tap_section{max-width: 850px; width: 100%; background-color:#fff; padding-top: 50px; height: auto;}
+.tap_section>h2{text-align: center; font-size: 23px; font-weight: 700; color: #000; margin-bottom: 15px;}
+.tap_section>p{text-align: center;font-size: 14px; color: #999; margin-bottom: 10px;}
+.tap_section ul.category_name{width: 320px; margin: 30px auto; display:flex; flex-wrap:wrap; align-items:center; justify-content:center;  }
+.tap_section ul.category_name>li{display: inline-block; text-align: center; margin:10px 5px}
+
+
+.tap_section ul.category_name>li>a{font-weight:400 !important; padding: 4px 14px; background-color: #eee; border-radius:30px; font-size: 12px; color: #999; border:1px solid #eee}
+.tap_section ul.category_name>li>a.on{background-color: #fff; color: #000; border-color:#000; font-weight: 500;}
+    
+    
+.tap_section .tap_cont_wrap{padding:0 13px;}
+.tap_section .tap_cont_wrap ul.tap_cont{width: 100%; position: relative;}
+.tap_section .tap_cont_wrap ul.tap_cont>li{ width: 100%;display: none; background-color:#fff}
+.tap_section .tap_cont_wrap ul.tap_cont>li.show{display: block;}
+
+/* //카테고리 탭 컨텐츠 영역 */
+li .item-wrap{}
+
+
+ul.item-cont{width: 100%; display:flex }
+.item-list{width: 49%; margin-right: 2%; float:left }
+.item-list:nth-child(2){margin-right: 0 !important;}
+.item-list .thumb{width: 100%; ;}
+.item-list .thumb>a{width: 100%; height: 50vw; max-height:250px}
+.item-list .thumb>a>img{width: 100%; height: 100%; object-fit: cover;}
+.item-list .prd-info{width: 100%; padding:10px 0 20px}
+.item-list .prd-info .prd-color{}
+.item-list .prd-info .prd-color span{}
+.item-list .prd-info .prd-name{margin:4px 0 8px; font-size:14px}
+.item-list .prd-info .prd-subname{color:#aaa; margin-bottom:3px; font-size:13px; font-weight:300;}
+.item-list .prd-info .prd-price{margin-bottom:10px; font-size:14px}
+.item-list .prd-info .prd-price span.price{color:#000; font-weight:600}
+.item-list .prd-info .prd-price strike{color:#aaa}
+.item-list .prd-info .prd-review{font-size:12px !important}
+.item-list .prd-info .prd-review span{font-weight:600}
+
+
+/* //카테고리 탭 영역 끝 */
+
+
+
+.img_banner{width: 100% ;margin-bottom:70px}
+.img_banner a{display: block; width:100%}
+.img_banner a img{width:100%}
+
+
+
+
+
+
+
+
+
+
+
+
+.best_seller_section{width:100%;}
+.best_seller_section>h3{text-align: center; font-size: 23px; font-weight: 700; color: #000; margin-bottom: 15px;}
+.best_seller_section>p{text-align: center;font-size: 14px; color: #999; margin-bottom: 35px;}
+.best_seller_section .item-cont{width: 100% !important;}
+.best_seller_section .item-cont .item-list{ width: 49% !important; float: left;}
+.best_seller_section .item-cont .item-list .thumb{}
+.best_seller_section .item-cont .item-list .thumb a{}
+.best_seller_section .item-cont .item-list .prd-info{padding-left:10px}
+

@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>작품 갤러리 - 프레스코21 커뮤니티</title>
+  
+  <!-- 브랜드 시스템 CSS -->
+  <link rel="stylesheet" href="01-brand-system.css">
+  
+  <style>
+    /* ========== 커뮤니티 갤러리 페이지 ========== */
+    .gallery-page {
+      min-height: 100vh;
+      background-color: var(--color-background);
+    }
+    
+    /* 페이지 헤더 */
+    .gallery-hero {
+      background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%);
+      color: var(--color-white);
+      padding: var(--spacing-xxxl) 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .gallery-hero::before {
+      content: '🌸';
+      position: absolute;
+      top: -50px;
+      right: 10%;
+      font-size: 200px;
+      opacity: 0.1;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    .gallery-title {
+      font-size: var(--font-size-h1);
+      font-family: var(--font-serif);
+      color: var(--color-white);
+      margin-bottom: var(--spacing-md);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .gallery-subtitle {
+      font-size: var(--font-size-large);
+      opacity: 0.95;
+      max-width: 700px;
+      margin: 0 auto var(--spacing-xl);
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .upload-work-btn {
+      background-color: var(--color-secondary);
+      color: var(--color-white);
+      padding: 16px 32px;
+      border: none;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      box-shadow: var(--shadow-md);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .upload-work-btn:hover {
+      background-color: var(--color-secondary-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    /* 통계 섹션 */
+    .gallery-stats {
+      background-color: var(--color-white);
+      padding: var(--spacing-xl) 0;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .stats-container {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-xl);
+      text-align: center;
+    }
+    
+    .stat-item {
+      padding: var(--spacing-md);
+    }
+    
+    .stat-number {
+      font-size: 36px;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      font-family: var(--font-serif);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .stat-label {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+    }
+    
+    /* 필터 및 정렬 */
+    .gallery-controls {
+      max-width: var(--container-max-width);
+      margin: var(--spacing-xxl) auto;
+      padding: 0 var(--container-padding);
+    }
+    
+    .controls-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+    }
+    
+    .filter-tabs {
+      display: flex;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+    }
+    
+    .filter-tab {
+      padding: 12px 24px;
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      background-color: var(--color-white);
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+    
+    .filter-tab:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+    
+    .filter-tab.active {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+    }
+    
+    .sort-dropdown {
+      position: relative;
+    }
+    
+    .sort-btn {
+      padding: 12px 20px;
+      font-size: var(--font-size-base);
+      background-color: var(--color-white);
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      transition: all var(--transition-base);
+    }
+    
+    .sort-btn:hover {
+      border-color: var(--color-primary);
+    }
+    
+    /* 작품 그리드 */
+    .works-grid {
+      max-width: var(--container-max-width);
+      margin: 0 auto var(--spacing-xxxl);
+      padding: 0 var(--container-padding);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--spacing-xl);
+    }
+    
+    /* 작품 카드 */
+    .work-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-base);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .work-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-8px);
+    }
+    
+    .work-image-container {
+      position: relative;
+      width: 100%;
+      padding-top: 100%; /* 1:1 비율 */
+      overflow: hidden;
+      background-color: var(--color-background);
+    }
+    
+    .work-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--transition-slow);
+    }
+    
+    .work-card:hover .work-image {
+      transform: scale(1.08);
+    }
+    
+    .work-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%);
+      opacity: 0;
+      transition: opacity var(--transition-base);
+      display: flex;
+      align-items: flex-end;
+      padding: var(--spacing-md);
+      color: var(--color-white);
+    }
+    
+    .work-card:hover .work-overlay {
+      opacity: 1;
+    }
+    
+    .work-quick-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+    
+    .quick-action-btn {
+      background-color: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-size: 18px;
+    }
+    
+    .quick-action-btn:hover {
+      background-color: var(--color-white);
+      transform: scale(1.1);
+    }
+    
+    .featured-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+      color: var(--color-white);
+      padding: 6px 12px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      z-index: 1;
+    }
+    
+    .work-content {
+      padding: var(--spacing-lg);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .work-title {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-xs);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .work-description {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-md);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.6;
+      flex: 1;
+    }
+    
+    .work-tags {
+      display: flex;
+      gap: var(--spacing-xs);
+      margin-bottom: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+    
+    .work-tag {
+      padding: 4px 10px;
+      font-size: var(--font-size-small);
+      background-color: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-sm);
+      color: var(--color-text-secondary);
+      transition: all var(--transition-fast);
+    }
+    
+    .work-tag:hover {
+      background-color: var(--color-primary-light);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+    }
+    
+    .work-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: var(--spacing-md);
+      border-top: 1px solid var(--color-border-light);
+    }
+    
+    .work-author {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+    
+    .author-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--color-primary-light);
+      overflow: hidden;
+    }
+    
+    .author-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .author-name {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+    
+    .work-stats {
+      display: flex;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+    
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    /* 작품 상세 모달 */
+    .work-modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: var(--z-modal-backdrop);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-lg);
+    }
+    
+    .work-modal-backdrop.active {
+      display: flex;
+    }
+    
+    .work-modal {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: modalSlideUp 0.3s ease;
+    }
+    
+    @keyframes modalSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .modal-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: var(--color-white);
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 10;
+      transition: all var(--transition-fast);
+    }
+    
+    .modal-close-btn:hover {
+      background-color: rgba(0, 0, 0, 0.8);
+      transform: scale(1.1);
+    }
+    
+    .modal-image {
+      width: 100%;
+      max-height: 500px;
+      object-fit: contain;
+      background-color: var(--color-background);
+    }
+    
+    .modal-content {
+      padding: var(--spacing-xxl);
+    }
+    
+    .modal-header {
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .modal-title {
+      font-size: var(--font-size-h2);
+      font-family: var(--font-serif);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .modal-author-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+      padding: var(--spacing-md);
+      background-color: var(--color-background);
+      border-radius: var(--border-radius-md);
+    }
+    
+    .modal-author-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: var(--color-primary);
+      overflow: hidden;
+    }
+    
+    .modal-author-details {
+      flex: 1;
+    }
+    
+    .modal-author-name {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: 4px;
+    }
+    
+    .modal-author-level {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+    
+    .modal-description {
+      font-size: var(--font-size-base);
+      line-height: 1.8;
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .modal-materials {
+      background-color: var(--color-paper);
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .materials-title {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    
+    .materials-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+    
+    .material-chip {
+      padding: 8px 16px;
+      background-color: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .material-chip:hover {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid var(--color-border);
+    }
+    
+    /* 반응형 */
+    @media (max-width: 768px) {
+      .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+      }
+      
+      .controls-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .filter-tabs {
+        justify-content: center;
+      }
+      
+      .works-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: var(--spacing-md);
+      }
+      
+      .modal-content {
+        padding: var(--spacing-lg);
+      }
+      
+      .modal-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="gallery-page">
+    <!-- 히어로 섹션 -->
+    <div class="gallery-hero">
+      <div class="container">
+        <h1 class="gallery-title">🎨 작품 갤러리</h1>
+        <p class="gallery-subtitle">
+          프레스코21 커뮤니티 회원들의 멋진 작품을 감상하고<br>
+          당신의 작품도 공유해보세요!
+        </p>
+        <button class="upload-work-btn">
+          📸 내 작품 올리기
+        </button>
+      </div>
+    </div>
+    
+    <!-- 통계 섹션 -->
+    <div class="gallery-stats">
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-number">2,847</div>
+          <div class="stat-label">공유된 작품</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">1,234</div>
+          <div class="stat-label">활동 중인 회원</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">15,692</div>
+          <div class="stat-label">총 좋아요</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">3,421</div>
+          <div class="stat-label">댓글</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 필터 및 정렬 -->
+    <div class="gallery-controls">
+      <div class="controls-top">
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">전체</button>
+          <button class="filter-tab" data-filter="압화">🌸 압화</button>
+          <button class="filter-tab" data-filter="레진">💎 레진</button>
+          <button class="filter-tab" data-filter="하바리움">🌿 하바리움</button>
+          <button class="filter-tab" data-filter="부케">💐 부케기프트</button>
+          <button class="filter-tab" data-filter="featured">⭐ 이달의 작품</button>
+        </div>
+        
+        <div class="sort-dropdown">
+          <button class="sort-btn">
+            <span>최신순</span>
+            <span>▼</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 작품 그리드 -->
+    <div class="works-grid" id="works-grid">
+      <!-- 작품 카드 1 (이달의 작품) -->
+      <div class="work-card" data-category="압화" data-featured="true">
+        <div class="work-image-container">
+          <img class="work-image" src="https://via.placeholder.com/400" alt="작품">
+          <span class="featured-badge">⭐ 이달의 작품</span>
+          <div class="work-overlay">
+            <div class="work-quick-actions">
+              <button class="quick-action-btn">❤️</button>
+              <button class="quick-action-btn">💬</button>
+              <button class="quick-action-btn">🔖</button>
+            </div>
+          </div>
+        </div>
+        <div class="work-content">
+          <h3 class="work-title">봄날의 추억 - 장미 압화 액자</h3>
+          <p class="work-description">
+            장미와 안개꽃을 활용한 로맨틱한 압화 작품입니다. 
+            프레스코21 입문 세트로 3주 만에 완성했어요!
+          </p>
+          <div class="work-tags">
+            <span class="work-tag">#압화</span>
+            <span class="work-tag">#장미</span>
+            <span class="work-tag">#봄</span>
+          </div>
+          <div class="work-footer">
+            <div class="work-author">
+              <div class="author-avatar">
+                <img src="https://via.placeholder.com/32" alt="작가">
+              </div>
+              <span class="author-name">꽃사랑님</span>
+            </div>
+            <div class="work-stats">
+              <span class="stat">❤️ 127</span>
+              <span class="stat">💬 23</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 작품 카드 2 -->
+      <div class="work-card" data-category="레진">
+        <div class="work-image-container">
+          <img class="work-image" src="https://via.placeholder.com/400" alt="작품">
+          <div class="work-overlay">
+            <div class="work-quick-actions">
+              <button class="quick-action-btn">❤️</button>
+              <button class="quick-action-btn">💬</button>
+              <button class="quick-action-btn">🔖</button>
+            </div>
+          </div>
+        </div>
+        <div class="work-content">
+          <h3 class="work-title">크리스탈 꽃 목걸이</h3>
+          <p class="work-description">
+            작은 꽃잎을 레진에 담아 투명한 목걸이로 만들었습니다.
+            선물용으로 제작했는데 너무 예뻐서 자랑합니다 ^^
+          </p>
+          <div class="work-tags">
+            <span class="work-tag">#레진</span>
+            <span class="work-tag">#목걸이</span>
+            <span class="work-tag">#선물</span>
+          </div>
+          <div class="work-footer">
+            <div class="work-author">
+              <div class="author-avatar">
+                <img src="https://via.placeholder.com/32" alt="작가">
+              </div>
+              <span class="author-name">레진공주</span>
+            </div>
+            <div class="work-stats">
+              <span class="stat">❤️ 94</span>
+              <span class="stat">💬 15</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 작품 카드 3 -->
+      <div class="work-card" data-category="하바리움">
+        <div class="work-image-container">
+          <img class="work-image" src="https://via.placeholder.com/400" alt="작품">
+          <div class="work-overlay">
+            <div class="work-quick-actions">
+              <button class="quick-action-btn">❤️</button>
+              <button class="quick-action-btn">💬</button>
+              <button class="quick-action-btn">🔖</button>
+            </div>
+          </div>
+        </div>
+        <div class="work-content">
+          <h3 class="work-title">라벤더 힐링 하바리움</h3>
+          <p class="work-description">
+            라벤더를 주제로 만든 하바리움입니다.
+            침실에 두니 은은한 향과 함께 너무 힐링되네요 🌿
+          </p>
+          <div class="work-tags">
+            <span class="work-tag">#하바리움</span>
+            <span class="work-tag">#라벤더</span>
+            <span class="work-tag">#힐링</span>
+          </div>
+          <div class="work-footer">
+            <div class="work-author">
+              <div class="author-avatar">
+                <img src="https://via.placeholder.com/32" alt="작가">
+              </div>
+              <span class="author-name">힐링타임</span>
+            </div>
+            <div class="work-stats">
+              <span class="stat">❤️ 86</span>
+              <span class="stat">💬 12</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 작품 카드 4 -->
+      <div class="work-card" data-category="압화">
+        <div class="work-image-container">
+          <img class="work-image" src="https://via.placeholder.com/400" alt="작품">
+          <div class="work-overlay">
+            <div class="work-quick-actions">
+              <button class="quick-action-btn">❤️</button>
+              <button class="quick-action-btn">💬</button>
+              <button class="quick-action-btn">🔖</button>
+            </div>
+          </div>
+        </div>
+        <div class="work-content">
+          <h3 class="work-title">가을 단풍 압화 북마크</h3>
+          <p class="work-description">
+            가을 단풍잎으로 만든 북마크 세트입니다.
+            책 읽을 때마다 가을이 느껴져요 🍂
+          </p>
+          <div class="work-tags">
+            <span class="work-tag">#압화</span>
+            <span class="work-tag">#북마크</span>
+            <span class="work-tag">#가을</span>
+          </div>
+          <div class="work-footer">
+            <div class="work-author">
+              <div class="author-avatar">
+                <img src="https://via.placeholder.com/32" alt="작가">
+              </div>
+              <span class="author-name">책읽는나무</span>
+            </div>
+            <div class="work-stats">
+              <span class="stat">❤️ 73</span>
+              <span class="stat">💬 9</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 작품 카드 5 -->
+      <div class="work-card" data-category="부케">
+        <div class="work-image-container">
+          <img class="work-image" src="https://via.placeholder.com/400" alt="작품">
+          <div class="work-overlay">
+            <div class="work-quick-actions">
+              <button class="quick-action-btn">❤️</button>
+              <button class="quick-action-btn">💬</button>
+              <button class="quick-action-btn">🔖</button>
+            </div>
+          </div>
+        </div>
+        <div class="work-content">
+          <h3 class="work-title">웨딩 부케 - 화이트 로즈</h3>
+          <p class="work-description">
+            친구 결혼식 부케를 직접 만들었어요.
+            너무 감동해하더라구요 💐
+          </p>
+          <div class="work-tags">
+            <span class="work-tag">#부케</span>
+            <span class="work-tag">#웨딩</span>
+            <span class="work-tag">#화이트</span>
+          </div>
+          <div class="work-footer">
+            <div class="work-author">
+              <div class="author-avatar">
+                <img src="https://via.placeholder.com/32" alt="작가">
+              </div>
+              <span class="author-name">플라워디자이너</span>
+            </div>
+            <div class="work-stats">
+              <span class="stat">❤️ 156</span>
+              <span class="stat">💬 31</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 작품 카드 6 -->
+      <div class="work-card" data-category="레진">
+        <div class="work-image-container">
+          <img class="work-image" src="https://via.placeholder.com/400" alt="작품">
+          <div class="work-overlay">
+            <div class="work-quick-actions">
+              <button class="quick-action-btn">❤️</button>
+              <button class="quick-action-btn">💬</button>
+              <button class="quick-action-btn">🔖</button>
+            </div>
+          </div>
+        </div>
+        <div class="work-content">
+          <h3 class="work-title">은하수 레진 트레이</h3>
+          <p class="work-description">
+            별자리를 테마로 만든 레진 트레이입니다.
+            야광 파우더를 섞어서 밤에 빛나요 ✨
+          </p>
+          <div class="work-tags">
+            <span class="work-tag">#레진</span>
+            <span class="work-tag">#트레이</span>
+            <span class="work-tag">#별</span>
+          </div>
+          <div class="work-footer">
+            <div class="work-author">
+              <div class="author-avatar">
+                <img src="https://via.placeholder.com/32" alt="작가">
+              </div>
+              <span class="author-name">별빛공방</span>
+            </div>
+            <div class="work-stats">
+              <span class="stat">❤️ 112</span>
+              <span class="stat">💬 18</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 더 보기 버튼 -->
+    <div style="text-align: center; margin-bottom: var(--spacing-xxxl);">
+      <button class="btn btn-outline btn-large" id="load-more-btn">
+        더 많은 작품 보기
+      </button>
+    </div>
+  </div>
+  
+  <!-- 작품 상세 모달 -->
+  <div class="work-modal-backdrop" id="work-modal">
+    <div class="work-modal">
+      <button class="modal-close-btn">×</button>
+      <img class="modal-image" src="https://via.placeholder.com/900x600" alt="작품 상세">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">봄날의 추억 - 장미 압화 액자</h2>
+        </div>
+        
+        <div class="modal-author-info">
+          <div class="modal-author-avatar">
+            <img src="https://via.placeholder.com/60" alt="작가">
+          </div>
+          <div class="modal-author-details">
+            <div class="modal-author-name">꽃사랑님</div>
+            <div class="modal-author-level">🌸 압화 중급 | 작품 15개 | 팔로워 234명</div>
+          </div>
+          <button class="btn btn-primary">팔로우</button>
+        </div>
+        
+        <p class="modal-description">
+          장미와 안개꽃을 활용한 로맨틱한 압화 작품입니다. 
+          프레스코21 입문 세트로 3주 만에 완성했어요!<br><br>
+          처음에는 꽃을 누르는 것부터 어려웠는데, 
+          이진선 대표님의 유튜브 영상을 보면서 따라하니 생각보다 쉽더라구요.
+          특히 물기 제거하는 팁이 정말 유용했습니다.<br><br>
+          이제 압화의 매력에 푹 빠져서 매일 새로운 작품을 구상하고 있어요 💚
+        </p>
+        
+        <div class="modal-materials">
+          <h3 class="materials-title">🛒 사용한 재료</h3>
+          <div class="materials-list">
+            <span class="material-chip">압화 입문 세트</span>
+            <span class="material-chip">장미 생화 10송이</span>
+            <span class="material-chip">안개꽃</span>
+            <span class="material-chip">압화지 A4</span>
+            <span class="material-chip">압화 액자</span>
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button class="btn btn-outline flex-1">❤️ 좋아요 (127)</button>
+          <button class="btn btn-outline flex-1">💬 댓글 (23)</button>
+          <button class="btn btn-outline flex-1">🔖 저장하기</button>
+          <button class="btn btn-primary flex-1">📦 재료 구매하기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    // ========== 필터링 기능 ==========
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const workCards = document.querySelectorAll('.work-card');
+    
+    filterTabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        // 활성 탭 변경
+        filterTabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        const filter = this.dataset.filter;
+        
+        // 카드 필터링
+        workCards.forEach(card => {
+          if (filter === 'all') {
+            card.style.display = 'block';
+          } else if (filter === 'featured') {
+            card.style.display = card.dataset.featured === 'true' ? 'block' : 'none';
+          } else {
+            card.style.display = card.dataset.category === filter ? 'block' : 'none';
+          }
+        });
+      });
+    });
+    
+    // ========== 작품 카드 클릭 → 모달 열기 ==========
+    const modal = document.getElementById('work-modal');
+    const modalCloseBtn = document.querySelector('.modal-close-btn');
+    
+    workCards.forEach(card => {
+      card.addEventListener('click', function(e) {
+        // 빠른 액션 버튼 클릭은 무시
+        if (e.target.closest('.quick-action-btn')) return;
+        
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+    
+    // 모달 닫기
+    modalCloseBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    });
+    
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    });
+    
+    // ========== 빠른 액션 버튼 ==========
+    document.querySelectorAll('.quick-action-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const emoji = this.textContent;
+        
+        if (emoji === '❤️') {
+          this.style.color = this.style.color === 'red' ? '' : 'red';
+        }
+        
+        console.log('액션:', emoji);
+      });
+    });
+    
+    // ========== 더 보기 버튼 ==========
+    document.getElementById('load-more-btn').addEventListener('click', () => {
+      alert('더 많은 작품을 불러옵니다...\n(실제로는 서버에서 추가 데이터를 가져옴)');
+    });
+    
+    // ========== 내 작품 올리기 버튼 ==========
+    document.querySelector('.upload-work-btn').addEventListener('click', () => {
+      alert('작품 업로드 페이지로 이동합니다!\n\n필요한 정보:\n- 작품 사진\n- 제목 및 설명\n- 공예 종류\n- 사용한 재료\n- 제작 소요 시간');
+    });
+    
+    console.log(`
+===========================================
+🎨 커뮤니티 갤러리 시안
+===========================================
+구현된 기능:
+✓ 카테고리별 필터링
+✓ 작품 그리드 레이아웃
+✓ 호버 효과 및 애니메이션
+✓ 작품 상세 모달
+✓ 이달의 작품 배지
+
+추가 구현 필요:
+□ 실제 이미지 업로드 시스템
+□ 댓글 및 좋아요 백엔드 연동
+□ 인피니트 스크롤 (무한 로딩)
+□ 작품 검색 기능
+□ 사용자 프로필 페이지
+□ 소셜 공유 기능
+===========================================
+    `);
+  </script>
+  
+</body>
+</html>

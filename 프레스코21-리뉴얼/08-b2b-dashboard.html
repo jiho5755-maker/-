@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B2B 도매회원 대시보드 - 프레스코21</title>
+  
+  <!-- 브랜드 시스템 CSS -->
+  <link rel="stylesheet" href="01-brand-system.css">
+  
+  <!-- Chart.js 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <style>
+    /* ========== B2B 대시보드 전용 CSS ========== */
+    
+    .b2b-dashboard {
+      background-color: var(--color-background);
+      min-height: 100vh;
+      padding: var(--spacing-xxl) 0;
+    }
+    
+    .dashboard-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+    }
+    
+    /* 헤더 */
+    .dashboard-header {
+      background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%);
+      color: white;
+      padding: var(--spacing-xxl) var(--spacing-xl);
+      border-radius: var(--border-radius-xl);
+      margin-bottom: var(--spacing-xxl);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .dashboard-header::before {
+      content: '💼';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      font-size: 150px;
+      opacity: 0.1;
+    }
+    
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .welcome-message {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .user-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 4px solid rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+    }
+    
+    .welcome-text h1 {
+      font-size: var(--font-size-h2);
+      font-family: var(--font-serif);
+      margin-bottom: 4px;
+    }
+    
+    .member-grade-badge {
+      display: inline-block;
+      background-color: var(--color-secondary);
+      padding: 6px 16px;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .header-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-xl);
+    }
+    
+    .stat-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      text-align: center;
+      transition: all var(--transition-base);
+    }
+    
+    .stat-card:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-4px);
+    }
+    
+    .stat-label {
+      font-size: var(--font-size-small);
+      opacity: 0.9;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .stat-value {
+      font-size: var(--font-size-h2);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: 4px;
+    }
+    
+    .stat-change {
+      font-size: var(--font-size-small);
+      opacity: 0.8;
+    }
+    
+    .stat-change.positive {
+      color: #A8D5BA;
+    }
+    
+    /* 그리드 레이아웃 */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--spacing-xl);
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    /* 카드 공통 스타일 */
+    .dashboard-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition-base);
+    }
+    
+    .dashboard-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--color-border);
+    }
+    
+    .card-title {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-semibold);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+    
+    .card-action {
+      font-size: var(--font-size-small);
+      color: var(--color-primary);
+      cursor: pointer;
+      transition: color var(--transition-fast);
+    }
+    
+    .card-action:hover {
+      color: var(--color-primary-dark);
+      text-decoration: underline;
+    }
+    
+    /* 구매 패턴 분석 */
+    .purchase-pattern {
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .pattern-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md);
+      background-color: var(--color-background);
+      border-radius: var(--border-radius-md);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .pattern-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .pattern-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+    
+    .pattern-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--border-radius-md);
+      background-color: var(--color-primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    
+    .pattern-details h4 {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: 4px;
+    }
+    
+    .pattern-details p {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+    
+    .pattern-action {
+      padding: 8px 16px;
+      background-color: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-medium);
+      transition: all var(--transition-fast);
+    }
+    
+    .pattern-action:hover {
+      background-color: var(--color-primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    /* 등급 진행바 */
+    .grade-progress-card {
+      background: linear-gradient(135deg, #F9F8F5 0%, #FFFEF9 100%);
+      border: 2px solid var(--color-border);
+    }
+    
+    .current-grade {
+      text-align: center;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .grade-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto var(--spacing-md);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .grade-name {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      margin-bottom: 4px;
+    }
+    
+    .grade-benefits {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+    
+    .progress-section {
+      margin-top: var(--spacing-xl);
+    }
+    
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .progress-label {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+    }
+    
+    .progress-amount {
+      font-size: var(--font-size-base);
+      color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .progress-bar-container {
+      width: 100%;
+      height: 24px;
+      background-color: var(--color-border-light);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+      border-radius: var(--border-radius-lg);
+      transition: width 1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: var(--spacing-sm);
+      color: white;
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .next-grade-preview {
+      background-color: rgba(123, 142, 126, 0.1);
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-md);
+      margin-top: var(--spacing-md);
+    }
+    
+    .next-grade-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .next-grade-benefits {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      line-height: 1.8;
+    }
+    
+    /* 자동 재발주 */
+    .reorder-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    
+    .reorder-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md);
+      background-color: var(--color-background);
+      border-radius: var(--border-radius-md);
+      border: 2px solid var(--color-border);
+      transition: all var(--transition-base);
+    }
+    
+    .reorder-item:hover {
+      border-color: var(--color-primary);
+      background-color: var(--color-white);
+    }
+    
+    .reorder-checkbox {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+    
+    .reorder-product {
+      flex: 1;
+    }
+    
+    .reorder-product h4 {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: 4px;
+    }
+    
+    .reorder-product p {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+    
+    .reorder-quantity {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    
+    .quantity-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--color-border);
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all var(--transition-fast);
+    }
+    
+    .quantity-btn:hover {
+      background-color: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+    
+    .quantity-input {
+      width: 60px;
+      text-align: center;
+      padding: 6px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-base);
+    }
+    
+    .reorder-price {
+      text-align: right;
+      min-width: 100px;
+    }
+    
+    .reorder-price .original {
+      font-size: var(--font-size-small);
+      color: var(--color-text-light);
+      text-decoration: line-through;
+    }
+    
+    .reorder-price .discounted {
+      font-size: var(--font-size-large);
+      color: var(--color-primary);
+      font-weight: var(--font-weight-bold);
+    }
+    
+    .reorder-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: var(--spacing-lg);
+      padding-top: var(--spacing-lg);
+      border-top: 2px solid var(--color-border);
+    }
+    
+    .reorder-total {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+    }
+    
+    /* 차트 컨테이너 */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-top: var(--spacing-lg);
+    }
+    
+    /* 인센티브 프로그램 */
+    .incentive-tiers {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    
+    .tier-card {
+      background: linear-gradient(135deg, #F9F8F5 0%, #FFFEF9 100%);
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tier-card.active {
+      border-color: var(--color-primary);
+      background: linear-gradient(135deg, rgba(123, 142, 126, 0.1), rgba(123, 142, 126, 0.05));
+    }
+    
+    .tier-card.active::before {
+      content: '✅ 달성';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background-color: var(--color-primary);
+      color: white;
+      padding: 4px 12px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .tier-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .tier-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    
+    .tier-info h4 {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: 4px;
+    }
+    
+    .tier-info p {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+    
+    .tier-rewards {
+      font-size: var(--font-size-base);
+      color: var(--color-text-primary);
+      line-height: 1.8;
+    }
+    
+    /* 전담 매니저 섹션 */
+    .manager-card {
+      background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%);
+      color: white;
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xl);
+      text-align: center;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .manager-avatar {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto var(--spacing-md);
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 4px solid rgba(255, 255, 255, 0.4);
+      overflow: hidden;
+    }
+    
+    .manager-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .manager-name {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: 4px;
+    }
+    
+    .manager-title {
+      font-size: var(--font-size-base);
+      opacity: 0.9;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .manager-contact {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+    
+    .contact-btn {
+      padding: 12px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: var(--border-radius-md);
+      color: white;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+    }
+    
+    .contact-btn:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    /* 반응형 */
+    @media (max-width: 1200px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .header-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .welcome-message {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="b2b-dashboard">
+    <div class="dashboard-container">
+      
+      <!-- 헤더 -->
+      <div class="dashboard-header">
+        <div class="header-content">
+          <div class="welcome-message">
+            <div class="user-avatar">👨‍🏫</div>
+            <div class="welcome-text">
+              <h1>안녕하세요, 김강사님!</h1>
+              <span class="member-grade-badge">⭐ 강사 회원 | 25% 할인</span>
+            </div>
+          </div>
+          
+          <div class="header-stats">
+            <div class="stat-card">
+              <div class="stat-label">이번 달 구매액</div>
+              <div class="stat-value">2,450,000원</div>
+              <div class="stat-change positive">▲ 15% 전월 대비</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">총 절약 금액</div>
+              <div class="stat-value">612,500원</div>
+              <div class="stat-change">25% 할인 적용</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">누적 구매액</div>
+              <div class="stat-value">18,250,000원</div>
+              <div class="stat-change positive">연간 목표 73%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">다음 등급까지</div>
+              <div class="stat-value">1,750,000원</div>
+              <div class="stat-change">협회 회원 (30%)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 메인 그리드 -->
+      <div class="dashboard-grid">
+        
+        <!-- 구매 패턴 분석 -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span>📊</span>
+              <span>나의 구매 패턴 분석</span>
+            </h2>
+            <span class="card-action">상세보기</span>
+          </div>
+          
+          <div class="purchase-pattern">
+            <div class="pattern-item">
+              <div class="pattern-info">
+                <div class="pattern-icon">📄</div>
+                <div class="pattern-details">
+                  <h4>가장 많이 구매한 상품</h4>
+                  <p>압화지 A4 (50매) - 월평균 20팩</p>
+                </div>
+              </div>
+              <button class="pattern-action">재구매</button>
+            </div>
+            
+            <div class="pattern-item">
+              <div class="pattern-info">
+                <div class="pattern-icon">🔥</div>
+                <div class="pattern-details">
+                  <h4>추천 재구매 상품</h4>
+                  <p>프레싱 툴 세트 - 재고 소진 예상 (7일 후)</p>
+                </div>
+              </div>
+              <button class="pattern-action">장바구니</button>
+            </div>
+            
+            <div class="pattern-item">
+              <div class="pattern-info">
+                <div class="pattern-icon">📈</div>
+                <div class="pattern-details">
+                  <h4>인기 급상승 상품</h4>
+                  <p>UV레진 500ml - 다른 강사들이 많이 구매 중</p>
+                </div>
+              </div>
+              <button class="pattern-action">상세보기</button>
+            </div>
+          </div>
+          
+          <!-- 차트 -->
+          <div class="chart-container">
+            <canvas id="purchaseChart"></canvas>
+          </div>
+        </div>
+        
+        <!-- 등급 진행 상황 -->
+        <div class="dashboard-card grade-progress-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span>⭐</span>
+              <span>등급 진행 상황</span>
+            </h2>
+          </div>
+          
+          <div class="current-grade">
+            <div class="grade-icon">👨‍🏫</div>
+            <div class="grade-name">강사 회원</div>
+            <div class="grade-benefits">
+              25% 할인 | 무료배송 | 월간 샘플
+            </div>
+          </div>
+          
+          <div class="progress-section">
+            <div class="progress-header">
+              <span class="progress-label">협회 회원까지</span>
+              <span class="progress-amount">1,750,000원 남음</span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width: 73%;">73%</div>
+            </div>
+            <p style="font-size: var(--font-size-small); color: var(--color-text-secondary); text-align: center;">
+              연간 2,000만원 달성 시 협회 회원으로 승급
+            </p>
+            
+            <div class="next-grade-preview">
+              <div class="next-grade-title">🏆 협회 회원 혜택 미리보기</div>
+              <div class="next-grade-benefits">
+                ✓ 모든 상품 30% 할인<br>
+                ✓ 우선 배송 서비스<br>
+                ✓ 신상품 선공개 (일반 출시 1주 전)<br>
+                ✓ 전담 매니저 배정<br>
+                ✓ 분기별 특별 사은품
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      <!-- 자동 재발주 시스템 -->
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span>🔄</span>
+            <span>자동 재발주 리스트</span>
+          </h2>
+          <span class="card-action">지난달과 동일하게 주문</span>
+        </div>
+        
+        <div class="reorder-list">
+          <div class="reorder-item">
+            <input type="checkbox" class="reorder-checkbox" checked>
+            <div class="reorder-product">
+              <h4>압화지 A4 (50매)</h4>
+              <p>지난달 20팩 구매 | 평균 주기: 30일</p>
+            </div>
+            <div class="reorder-quantity">
+              <button class="quantity-btn">-</button>
+              <input type="number" class="quantity-input" value="20" min="1">
+              <button class="quantity-btn">+</button>
+            </div>
+            <div class="reorder-price">
+              <div class="original">300,000원</div>
+              <div class="discounted">225,000원</div>
+            </div>
+          </div>
+          
+          <div class="reorder-item">
+            <input type="checkbox" class="reorder-checkbox" checked>
+            <div class="reorder-product">
+              <h4>프레싱 툴 세트 (중형)</h4>
+              <p>지난달 5개 구매 | 평균 주기: 60일</p>
+            </div>
+            <div class="reorder-quantity">
+              <button class="quantity-btn">-</button>
+              <input type="number" class="quantity-input" value="5" min="1">
+              <button class="quantity-btn">+</button>
+            </div>
+            <div class="reorder-price">
+              <div class="original">250,000원</div>
+              <div class="discounted">187,500원</div>
+            </div>
+          </div>
+          
+          <div class="reorder-item">
+            <input type="checkbox" class="reorder-checkbox">
+            <div class="reorder-product">
+              <h4>UV레진 500ml</h4>
+              <p>💡 인기 급상승! 다른 강사들이 많이 구매 중</p>
+            </div>
+            <div class="reorder-quantity">
+              <button class="quantity-btn">-</button>
+              <input type="number" class="quantity-input" value="3" min="1">
+              <button class="quantity-btn">+</button>
+            </div>
+            <div class="reorder-price">
+              <div class="original">120,000원</div>
+              <div class="discounted">90,000원</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="reorder-footer">
+          <div class="reorder-total">
+            선택 상품 총액: <span style="color: var(--color-primary);">502,500원</span>
+          </div>
+          <button class="btn btn-primary btn-large">
+            자동 발주 신청
+          </button>
+        </div>
+      </div>
+      
+      <!-- 인센티브 & 전담 매니저 -->
+      <div class="dashboard-grid">
+        
+        <!-- 인센티브 프로그램 -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span>🎁</span>
+              <span>매출 인센티브 프로그램</span>
+            </h2>
+          </div>
+          
+          <div class="incentive-tiers">
+            <div class="tier-card active">
+              <div class="tier-header">
+                <div class="tier-icon">🥉</div>
+                <div class="tier-info">
+                  <h4>월 100만원 달성</h4>
+                  <p>이번 달 245만원 구매 (달성)</p>
+                </div>
+              </div>
+              <div class="tier-rewards">
+                ✓ 추가 5% 할인 쿠폰<br>
+                ✓ 포인트 10,000점 적립
+              </div>
+            </div>
+            
+            <div class="tier-card">
+              <div class="tier-header">
+                <div class="tier-icon">🥈</div>
+                <div class="tier-info">
+                  <h4>분기 500만원 달성</h4>
+                  <p>현재 진행률: 68% (340만원/500만원)</p>
+                </div>
+              </div>
+              <div class="tier-rewards">
+                ✓ 특별 사은품 (5만원 상당)<br>
+                ✓ 신상품 선체험 기회
+              </div>
+            </div>
+            
+            <div class="tier-card">
+              <div class="tier-header">
+                <div class="tier-icon">🥇</div>
+                <div class="tier-info">
+                  <h4>연간 MVP 강사</h4>
+                  <p>2025년 랭킹: 전국 23위</p>
+                </div>
+              </div>
+              <div class="tier-rewards">
+                ✓ 시상식 초대 및 트로피<br>
+                ✓ 프레스코21 공식 파트너 현판<br>
+                ✓ 이진선 대표 1:1 멘토링
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 전담 매니저 (VIP만 표시) -->
+        <div class="manager-card">
+          <div class="manager-avatar">
+            <img src="https://via.placeholder.com/100" alt="매니저">
+          </div>
+          <div class="manager-name">박지원 매니저</div>
+          <div class="manager-title">프레스코21 B2B 전담 매니저</div>
+          <p style="font-size: var(--font-size-small); opacity: 0.9; margin-bottom: var(--spacing-lg);">
+            협회 회원 승급 시 전담 매니저가 배정됩니다.<br>
+            맞춤형 상담과 특별 지원을 받으실 수 있습니다.
+          </p>
+          <div class="manager-contact">
+            <button class="contact-btn">📞 전화 상담 신청</button>
+            <button class="contact-btn">💬 카카오톡 문의</button>
+            <button class="contact-btn">📧 이메일 보내기</button>
+          </div>
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    // ========== 차트 생성 ==========
+    const ctx = document.getElementById('purchaseChart').getContext('2d');
+    const purchaseChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['7월', '8월', '9월', '10월', '11월', '12월', '1월'],
+        datasets: [{
+          label: '월별 구매액',
+          data: [1800000, 2100000, 1950000, 2300000, 2050000, 2150000, 2450000],
+          borderColor: '#7B8E7E',
+          backgroundColor: 'rgba(123, 142, 126, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return '구매액: ' + context.parsed.y.toLocaleString() + '원';
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: {
+              callback: function(value) {
+                return (value / 10000) + '만원';
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    // ========== 수량 조절 버튼 ==========
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('.quantity-input');
+        const currentValue = parseInt(input.value);
+        
+        if (this.textContent === '+') {
+          input.value = currentValue + 1;
+        } else if (this.textContent === '-' && currentValue > 1) {
+          input.value = currentValue - 1;
+        }
+        
+        updateTotalPrice();
+      });
+    });
+    
+    // ========== 체크박스 변경 시 총액 업데이트 ==========
+    document.querySelectorAll('.reorder-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', updateTotalPrice);
+    });
+    
+    function updateTotalPrice() {
+      let total = 0;
+      document.querySelectorAll('.reorder-item').forEach(item => {
+        const checkbox = item.querySelector('.reorder-checkbox');
+        if (checkbox.checked) {
+          const priceText = item.querySelector('.discounted').textContent;
+          const price = parseInt(priceText.replace(/[^0-9]/g, ''));
+          const quantity = parseInt(item.querySelector('.quantity-input').value);
+          total += price * quantity;
+        }
+      });
+      
+      document.querySelector('.reorder-total span').textContent = total.toLocaleString() + '원';
+    }
+    
+    // ========== 지난달과 동일하게 주문 ==========
+    document.querySelector('.card-action').addEventListener('click', function() {
+      if (confirm('지난달 주문 내역으로 자동 발주하시겠습니까?\n\n총 502,500원이 결제됩니다.')) {
+        alert('✅ 자동 발주가 완료되었습니다!\n\n주문번호: ORD-2026-0102-001\n배송 예정일: 2026년 1월 5일');
+      }
+    });
+    
+    // ========== 자동 발주 신청 ==========
+    document.querySelector('.reorder-footer .btn').addEventListener('click', function() {
+      const totalText = document.querySelector('.reorder-total span').textContent;
+      
+      if (confirm(`선택하신 상품으로 발주하시겠습니까?\n\n총 결제 금액: ${totalText}`)) {
+        alert('✅ 발주 신청이 완료되었습니다!\n\n- 25% 할인 적용\n- 무료 배송\n- 배송 예정일: 2026년 1월 5일\n\n주문 내역은 마이페이지에서 확인하실 수 있습니다.');
+      }
+    });
+    
+    // ========== 재구매 버튼 ==========
+    document.querySelectorAll('.pattern-action').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const productName = this.parentElement.querySelector('h4').textContent;
+        alert(`✅ "${productName}"을(를) 장바구니에 담았습니다!`);
+      });
+    });
+    
+    // ========== 매니저 연락 버튼 ==========
+    document.querySelectorAll('.contact-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const action = this.textContent.trim();
+        alert(`${action}\n\n협회 회원으로 승급하시면 전담 매니저 서비스를 이용하실 수 있습니다.\n\n현재 진행률: 73%\n필요 금액: 1,750,000원`);
+      });
+    });
+    
+    console.log(`
+===========================================
+💼 B2B 도매회원 대시보드 v1.0
+===========================================
+✅ 구현된 기능:
+
+📌 대시보드 헤더
+- 회원 정보 및 등급 표시
+- 4가지 핵심 지표 (구매액, 절약액, 누적액, 승급까지)
+- 전월 대비 증감률
+
+📌 구매 패턴 분석
+- 가장 많이 구매한 상품
+- 재구매 추천 (재고 소진 예측)
+- 인기 급상승 상품 (다른 강사 구매 패턴)
+- 월별 구매액 차트 (Chart.js)
+
+📌 등급 진행 상황
+- 현재 등급 및 혜택
+- 다음 등급까지 진행률 (프로그레스 바)
+- 다음 등급 혜택 미리보기
+
+📌 자동 재발주 시스템
+- 지난달 구매 내역 기반
+- 수량 조절 (+ / - 버튼)
+- 체크박스로 선택 구매
+- "지난달과 동일하게 주문" 원클릭
+- 총액 자동 계산
+
+📌 매출 인센티브
+- 월 100만원 / 분기 500만원 / 연간 MVP
+- 티어별 보상 표시
+- 달성 상태 표시
+
+📌 전담 매니저 (VIP)
+- 협회 회원 이상만 배정
+- 전화/카톡/이메일 상담
+- 승급 유도 문구
+
+===========================================
+    `);
+  </script>
+  
+</body>
+</html>
+

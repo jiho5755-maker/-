@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>포인트 & 리워드 - 프레스코21</title>
+  
+  <!-- 브랜드 시스템 CSS -->
+  <link rel="stylesheet" href="01-brand-system.css">
+  
+  <style>
+    /* ========== 포인트 & 리워드 시스템 CSS ========== */
+    
+    .rewards-page {
+      background-color: var(--color-background);
+      min-height: 100vh;
+      padding: var(--spacing-xl) 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+    }
+    
+    /* 포인트 대시보드 카드 */
+    .point-dashboard {
+      background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%);
+      color: white;
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xxl);
+      margin-bottom: var(--spacing-xxl);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .point-dashboard::before {
+      content: '💎';
+      position: absolute;
+      top: -30px;
+      right: -20px;
+      font-size: 200px;
+      opacity: 0.1;
+    }
+    
+    .dashboard-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .point-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--spacing-xl);
+      flex-wrap: wrap;
+      gap: var(--spacing-lg);
+    }
+    
+    .point-summary {
+      flex: 1;
+    }
+    
+    .point-label {
+      font-size: var(--font-size-large);
+      opacity: 0.9;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .point-amount {
+      font-size: 56px;
+      font-weight: var(--font-weight-bold);
+      font-family: var(--font-serif);
+      line-height: 1;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .point-expiry {
+      font-size: var(--font-size-base);
+      opacity: 0.8;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: var(--border-radius-md);
+      display: inline-block;
+    }
+    
+    .point-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+    
+    .point-btn {
+      padding: 12px 24px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: var(--border-radius-md);
+      color: white;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+    }
+    
+    .point-btn:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .point-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-xl);
+    }
+    
+    .stat-box {
+      background-color: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      font-size: var(--font-size-small);
+      opacity: 0.9;
+    }
+    
+    /* 등급 시스템 */
+    .grade-system {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-xxl);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .section-title {
+      font-size: var(--font-size-h2);
+      font-family: var(--font-serif);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+    
+    .grade-track {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: var(--spacing-xl);
+      position: relative;
+    }
+    
+    .grade-track::before {
+      content: '';
+      position: absolute;
+      bottom: 60px;
+      left: 10%;
+      right: 10%;
+      height: 4px;
+      background: linear-gradient(90deg, 
+        #C9B8A3 0%, 
+        #D4C4B0 25%, 
+        #BFA88C 50%, 
+        #968870 75%, 
+        #7B8E7E 100%
+      );
+      border-radius: var(--border-radius-sm);
+    }
+    
+    .grade-item {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+      transition: transform var(--transition-base);
+    }
+    
+    .grade-item:hover {
+      transform: translateY(-8px);
+    }
+    
+    .grade-item.active {
+      transform: scale(1.1);
+    }
+    
+    .grade-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto var(--spacing-md);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      background-color: var(--color-white);
+      box-shadow: var(--shadow-md);
+      border: 4px solid var(--color-border);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .grade-item.active .grade-icon {
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 16px rgba(123, 142, 126, 0.4);
+    }
+    
+    .grade-name {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: 4px;
+    }
+    
+    .grade-requirement {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+    
+    .grade-benefits {
+      background-color: var(--color-background);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      margin-top: var(--spacing-xl);
+    }
+    
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-md);
+    }
+    
+    .benefit-card {
+      padding: var(--spacing-md);
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-md);
+      text-align: center;
+    }
+    
+    .benefit-icon {
+      font-size: 32px;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .benefit-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: 4px;
+    }
+    
+    .benefit-desc {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+    
+    /* 미션 시스템 */
+    .mission-section {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-xxl);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .mission-tabs {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .mission-tab {
+      padding: 12px 24px;
+      background-color: var(--color-background);
+      border: none;
+      border-radius: var(--border-radius-lg);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      font-weight: var(--font-weight-medium);
+    }
+    
+    .mission-tab:hover {
+      background-color: var(--color-primary-light);
+      color: white;
+    }
+    
+    .mission-tab.active {
+      background-color: var(--color-primary);
+      color: white;
+    }
+    
+    .mission-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    
+    .mission-card {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg);
+      background: linear-gradient(135deg, #F9F8F5 0%, #FFFEF9 100%);
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      transition: all var(--transition-base);
+    }
+    
+    .mission-card:hover {
+      border-color: var(--color-primary);
+      transform: translateX(4px);
+    }
+    
+    .mission-card.completed {
+      opacity: 0.6;
+      background: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%);
+    }
+    
+    .mission-icon-box {
+      width: 60px;
+      height: 60px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      border-radius: var(--border-radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    
+    .mission-card.completed .mission-icon-box {
+      background: linear-gradient(135deg, #81C784, #66BB6A);
+    }
+    
+    .mission-info {
+      flex: 1;
+    }
+    
+    .mission-title {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: 4px;
+    }
+    
+    .mission-desc {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .mission-progress {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+    
+    .progress-bar-mini {
+      flex: 1;
+      height: 8px;
+      background-color: var(--color-border-light);
+      border-radius: var(--border-radius-sm);
+      overflow: hidden;
+    }
+    
+    .progress-bar-mini-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+      border-radius: var(--border-radius-sm);
+      transition: width 1s ease;
+    }
+    
+    .progress-text {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+    }
+    
+    .mission-reward {
+      text-align: right;
+    }
+    
+    .reward-amount {
+      font-size: var(--font-size-h4);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+    }
+    
+    .reward-label {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+    
+    .mission-complete-btn {
+      padding: 8px 20px;
+      background-color: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      transition: all var(--transition-fast);
+    }
+    
+    .mission-complete-btn:hover {
+      background-color: var(--color-primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    .mission-complete-btn:disabled {
+      background-color: var(--color-border);
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* 이벤트 & 배수 적립 */
+    .events-section {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-xxl);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-lg);
+    }
+    
+    .event-card {
+      background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
+      border: 2px solid #FFD54F;
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .event-badge {
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      background: linear-gradient(135deg, #FF6B6B, #C92A2A);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-bold);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .event-title {
+      font-size: var(--font-size-h4);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: var(--spacing-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    
+    .event-desc {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .event-multiplier {
+      display: inline-block;
+      background-color: #FF6B6B;
+      color: white;
+      padding: 8px 16px;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-bold);
+    }
+    
+    /* 포인트 사용처 */
+    .use-points-section {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .use-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-lg);
+    }
+    
+    .use-card {
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+    
+    .use-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+    
+    .use-icon {
+      font-size: 48px;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .use-title {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .use-desc {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+    
+    /* 반응형 */
+    @media (max-width: 1024px) {
+      .point-stats,
+      .benefits-grid,
+      .event-grid,
+      .use-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .grade-track {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .grade-item {
+        flex: 0 0 calc(33.333% - 20px);
+        margin: 10px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .point-amount {
+        font-size: 42px;
+      }
+      
+      .point-stats,
+      .use-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .benefits-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .event-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .grade-item {
+        flex: 0 0 calc(50% - 20px);
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="rewards-page">
+    <div class="container">
+      
+      <!-- 포인트 대시보드 -->
+      <div class="point-dashboard">
+        <div class="dashboard-content">
+          <div class="point-header">
+            <div class="point-summary">
+              <div class="point-label">보유 포인트</div>
+              <div class="point-amount">15,420<span style="font-size: 32px;">P</span></div>
+              <div class="point-expiry">⏰ 3,000P 소멸 예정 (30일 후)</div>
+            </div>
+            <div class="point-actions">
+              <button class="point-btn">📜 사용 내역</button>
+              <button class="point-btn">🎁 포인트 선물</button>
+            </div>
+          </div>
+          
+          <div class="point-stats">
+            <div class="stat-box">
+              <div class="stat-value">+2,500P</div>
+              <div class="stat-label">이번 달 적립</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value">5%</div>
+              <div class="stat-label">기본 적립률</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value">127,850P</div>
+              <div class="stat-label">누적 적립</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value">3일</div>
+              <div class="stat-label">연속 로그인</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 등급 시스템 -->
+      <section class="grade-system">
+        <h2 class="section-title">
+          <span>🌱</span>
+          <span>나의 등급</span>
+        </h2>
+        
+        <div class="grade-track">
+          <div class="grade-item">
+            <div class="grade-icon">🌱</div>
+            <div class="grade-name">새싹</div>
+            <div class="grade-requirement">0~10만원</div>
+          </div>
+          <div class="grade-item active">
+            <div class="grade-icon">🌸</div>
+            <div class="grade-name">꽃봉오리</div>
+            <div class="grade-requirement">10~50만원</div>
+          </div>
+          <div class="grade-item">
+            <div class="grade-icon">🌺</div>
+            <div class="grade-name">만개</div>
+            <div class="grade-requirement">50~100만원</div>
+          </div>
+          <div class="grade-item">
+            <div class="grade-icon">🌳</div>
+            <div class="grade-name">나무</div>
+            <div class="grade-requirement">100만원 이상</div>
+          </div>
+        </div>
+        
+        <div class="grade-benefits">
+          <h3 style="font-size: var(--font-size-h4); margin-bottom: var(--spacing-md);">
+            🌸 꽃봉오리 등급 혜택
+          </h3>
+          <div class="benefits-grid">
+            <div class="benefit-card">
+              <div class="benefit-icon">💰</div>
+              <div class="benefit-title">5% 적립</div>
+              <div class="benefit-desc">구매 시 기본 적립</div>
+            </div>
+            <div class="benefit-card">
+              <div class="benefit-icon">🎂</div>
+              <div class="benefit-title">생일 3배</div>
+              <div class="benefit-desc">생일 달 15% 적립</div>
+            </div>
+            <div class="benefit-card">
+              <div class="benefit-icon">🎁</div>
+              <div class="benefit-title">월간 쿠폰</div>
+              <div class="benefit-desc">5천원 할인 쿠폰</div>
+            </div>
+          </div>
+          
+          <div style="margin-top: var(--spacing-lg); padding: var(--spacing-md); background-color: rgba(123, 142, 126, 0.1); border-radius: var(--border-radius-md); text-align: center;">
+            <p style="font-size: var(--font-size-base); color: var(--color-text-secondary); margin-bottom: var(--spacing-xs);">
+              🌺 만개 등급까지
+            </p>
+            <p style="font-size: var(--font-size-h4); font-weight: var(--font-weight-bold); color: var(--color-primary);">
+              320,000원 남음
+            </p>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 미션 시스템 -->
+      <section class="mission-section">
+        <h2 class="section-title">
+          <span>🎯</span>
+          <span>오늘의 미션</span>
+        </h2>
+        
+        <div class="mission-tabs">
+          <button class="mission-tab active" data-mission="daily">일간 미션</button>
+          <button class="mission-tab" data-mission="weekly">주간 미션</button>
+          <button class="mission-tab" data-mission="monthly">월간 미션</button>
+        </div>
+        
+        <div class="mission-list" id="daily-missions">
+          <div class="mission-card completed">
+            <div class="mission-icon-box">✅</div>
+            <div class="mission-info">
+              <div class="mission-title">오늘 로그인 하기</div>
+              <div class="mission-desc">매일 로그인하고 포인트 받기!</div>
+              <div class="mission-progress">
+                <div class="progress-bar-mini">
+                  <div class="progress-bar-mini-fill" style="width: 100%;"></div>
+                </div>
+                <span class="progress-text">완료!</span>
+              </div>
+            </div>
+            <div class="mission-reward">
+              <div class="reward-amount">+10P</div>
+              <div class="reward-label">적립 완료</div>
+            </div>
+          </div>
+          
+          <div class="mission-card">
+            <div class="mission-icon-box">❤️</div>
+            <div class="mission-info">
+              <div class="mission-title">상품 1개 찜하기</div>
+              <div class="mission-desc">마음에 드는 상품을 찜 목록에 추가하세요</div>
+              <div class="mission-progress">
+                <div class="progress-bar-mini">
+                  <div class="progress-bar-mini-fill" style="width: 0%;"></div>
+                </div>
+                <span class="progress-text">0/1</span>
+              </div>
+            </div>
+            <div class="mission-reward">
+              <div class="reward-amount">+20P</div>
+              <div class="reward-label">달성 시</div>
+            </div>
+          </div>
+          
+          <div class="mission-card">
+            <div class="mission-icon-box">🎨</div>
+            <div class="mission-info">
+              <div class="mission-title">작품 갤러리 둘러보기</div>
+              <div class="mission-desc">다른 회원들의 작품 3개 이상 감상하기</div>
+              <div class="mission-progress">
+                <div class="progress-bar-mini">
+                  <div class="progress-bar-mini-fill" style="width: 33%;"></div>
+                </div>
+                <span class="progress-text">1/3</span>
+              </div>
+            </div>
+            <div class="mission-reward">
+              <div class="reward-amount">+30P</div>
+              <div class="reward-label">달성 시</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mission-list" id="weekly-missions" style="display: none;">
+          <div class="mission-card">
+            <div class="mission-icon-box">🛒</div>
+            <div class="mission-info">
+              <div class="mission-title">3개 상품 구매하기</div>
+              <div class="mission-desc">이번 주 3개 이상 상품 구매</div>
+              <div class="mission-progress">
+                <div class="progress-bar-mini">
+                  <div class="progress-bar-mini-fill" style="width: 66%;"></div>
+                </div>
+                <span class="progress-text">2/3</span>
+              </div>
+            </div>
+            <div class="mission-reward">
+              <div class="reward-amount">+500P</div>
+              <div class="reward-label">달성 시</div>
+            </div>
+          </div>
+          
+          <div class="mission-card">
+            <div class="mission-icon-box">✍️</div>
+            <div class="mission-info">
+              <div class="mission-title">리뷰 2개 작성하기</div>
+              <div class="mission-desc">구매한 상품의 리뷰 작성</div>
+              <div class="mission-progress">
+                <div class="progress-bar-mini">
+                  <div class="progress-bar-mini-fill" style="width: 50%;"></div>
+                </div>
+                <span class="progress-text">1/2</span>
+              </div>
+            </div>
+            <div class="mission-reward">
+              <div class="reward-amount">+1,000P</div>
+              <div class="reward-label">달성 시</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mission-list" id="monthly-missions" style="display: none;">
+          <div class="mission-card">
+            <div class="mission-icon-box">📸</div>
+            <div class="mission-info">
+              <div class="mission-title">작품 갤러리에 작품 업로드</div>
+              <div class="mission-desc">나만의 작품을 커뮤니티에 공유하기</div>
+              <div class="mission-progress">
+                <div class="progress-bar-mini">
+                  <div class="progress-bar-mini-fill" style="width: 0%;"></div>
+                </div>
+                <span class="progress-text">0/1</span>
+              </div>
+            </div>
+            <div class="mission-reward">
+              <div class="reward-amount">+2,000P</div>
+              <div class="reward-label">달성 시</div>
+            </div>
+          </div>
+          
+          <div class="mission-card">
+            <div class="mission-icon-box">🏆</div>
+            <div class="mission-info">
+              <div class="mission-title">챌린지 참여하기</div>
+              <div class="mission-desc">이번 달 월간 챌린지 참여</div>
+              <div class="mission-progress">
+                <div class="progress-bar-mini">
+                  <div class="progress-bar-mini-fill" style="width: 0%;"></div>
+                </div>
+                <span class="progress-text">0/1</span>
+              </div>
+            </div>
+            <div class="mission-reward">
+              <div class="reward-amount">+3,000P</div>
+              <div class="reward-label">달성 시</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 이벤트 & 배수 적립 -->
+      <section class="events-section">
+        <h2 class="section-title">
+          <span>🎉</span>
+          <span>진행 중인 이벤트</span>
+        </h2>
+        
+        <div class="event-grid">
+          <div class="event-card">
+            <span class="event-badge">🎂 내 생일</span>
+            <h3 class="event-title">
+              <span>🎂</span>
+              <span>생일 축하해요!</span>
+            </h3>
+            <p class="event-desc">
+              1월은 당신의 생일 달! 구매 시 포인트를 3배로 드립니다.
+            </p>
+            <div class="event-multiplier">15% 적립 (3배)</div>
+            <p style="font-size: var(--font-size-small); color: var(--color-text-light); margin-top: var(--spacing-sm);">
+              ⏰ 1월 31일까지
+            </p>
+          </div>
+          
+          <div class="event-card">
+            <span class="event-badge">🔥 HOT</span>
+            <h3 class="event-title">
+              <span>✍️</span>
+              <span>리뷰 쓰고 포인트 2배</span>
+            </h3>
+            <p class="event-desc">
+              상품 리뷰 작성 시 기본 1,000P + 보너스 1,000P 추가 지급!
+            </p>
+            <div class="event-multiplier">2,000P 적립</div>
+            <p style="font-size: var(--font-size-small); color: var(--color-text-light); margin-top: var(--spacing-sm);">
+              ⏰ 1월 15일까지
+            </p>
+          </div>
+          
+          <div class="event-card">
+            <h3 class="event-title">
+              <span>👥</span>
+              <span>친구 추천 프로그램</span>
+            </h3>
+            <p class="event-desc">
+              친구를 초대하면 추천인과 피추천인 모두에게 3,000P씩!
+            </p>
+            <div class="event-multiplier">3,000P x 2</div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);">
+              추천 링크 복사하기
+            </button>
+          </div>
+          
+          <div class="event-card">
+            <h3 class="event-title">
+              <span>📱</span>
+              <span>SNS 공유 보너스</span>
+            </h3>
+            <p class="event-desc">
+              작품을 인스타그램에 공유하고 #프레스코21 태그 시 500P 적립
+            </p>
+            <div class="event-multiplier">500P</div>
+            <p style="font-size: var(--font-size-small); color: var(--color-text-light); margin-top: var(--spacing-sm);">
+              ⏰ 월 3회 한정
+            </p>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 포인트 사용처 -->
+      <section class="use-points-section">
+        <h2 class="section-title">
+          <span>💳</span>
+          <span>포인트 사용하기</span>
+        </h2>
+        
+        <div class="use-grid">
+          <div class="use-card">
+            <div class="use-icon">🛒</div>
+            <h3 class="use-title">상품 구매</h3>
+            <p class="use-desc">1,000P = 1,000원<br>전액 포인트 결제 가능</p>
+          </div>
+          
+          <div class="use-card">
+            <div class="use-icon">🎫</div>
+            <h3 class="use-title">쿠폰으로 전환</h3>
+            <p class="use-desc">5,000P → 5,000원 쿠폰<br>10,000P → 12,000원 쿠폰</p>
+          </div>
+          
+          <div class="use-card">
+            <div class="use-icon">🎁</div>
+            <h3 class="use-title">포인트 선물</h3>
+            <p class="use-desc">친구에게 포인트 선물<br>최소 1,000P부터</p>
+          </div>
+          
+          <div class="use-card">
+            <div class="use-icon">🌳</div>
+            <h3 class="use-title">기부하기</h3>
+            <p class="use-desc">환경 보호 단체에 기부<br>나무 심기 캠페인</p>
+          </div>
+          
+          <div class="use-card">
+            <div class="use-icon">🎓</div>
+            <h3 class="use-title">강의 수강</h3>
+            <p class="use-desc">온라인 클래스 수강료<br>포인트로 결제 가능</p>
+          </div>
+          
+          <div class="use-card">
+            <div class="use-icon">🏆</div>
+            <h3 class="use-title">프리미엄 혜택</h3>
+            <p class="use-desc">VIP 라운지 이용권<br>20,000P</p>
+          </div>
+        </div>
+      </section>
+      
+    </div>
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    // ========== 미션 탭 전환 ==========
+    const missionTabs = document.querySelectorAll('.mission-tab');
+    const missionLists = {
+      'daily': document.getElementById('daily-missions'),
+      'weekly': document.getElementById('weekly-missions'),
+      'monthly': document.getElementById('monthly-missions')
+    };
+    
+    missionTabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        missionTabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        const missionType = this.dataset.mission;
+        Object.values(missionLists).forEach(list => list.style.display = 'none');
+        missionLists[missionType].style.display = 'flex';
+      });
+    });
+    
+    // ========== 등급 클릭 ==========
+    document.querySelectorAll('.grade-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.grade-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        
+        const gradeName = this.querySelector('.grade-name').textContent;
+        const requirement = this.querySelector('.grade-requirement').textContent;
+        
+        alert(`🌸 ${gradeName} 등급\n\n구매 금액: ${requirement}\n\n등급별 혜택이 다릅니다!\n더 많이 구매하고 더 많은 혜택을 누리세요.`);
+      });
+    });
+    
+    // ========== 포인트 버튼 ==========
+    document.querySelectorAll('.point-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const action = this.textContent.trim();
+        
+        if (action.includes('사용 내역')) {
+          alert('📜 포인트 사용 내역\n\n2026.01.02: 상품 구매 (-5,000P)\n2026.01.01: 로그인 (+10P)\n2025.12.31: 리뷰 작성 (+1,000P)\n2025.12.30: 상품 구매 적립 (+2,500P)');
+        } else if (action.includes('선물')) {
+          alert('🎁 포인트 선물하기\n\n친구의 이메일이나 아이디를 입력하고\n원하는 포인트를 선물하세요!\n\n최소 1,000P부터 가능합니다.');
+        }
+      });
+    });
+    
+    // ========== 미션 카드 클릭 ==========
+    document.querySelectorAll('.mission-card').forEach(card => {
+      card.addEventListener('click', function() {
+        if (this.classList.contains('completed')) {
+          alert('✅ 이미 완료한 미션입니다!\n포인트가 적립되었습니다.');
+          return;
+        }
+        
+        const title = this.querySelector('.mission-title').textContent;
+        const reward = this.querySelector('.reward-amount').textContent;
+        
+        alert(`🎯 ${title}\n\n미션을 완료하면 ${reward}를 받을 수 있습니다!\n\n지금 바로 도전해보세요!`);
+      });
+    });
+    
+    // ========== 포인트 사용 카드 클릭 ==========
+    document.querySelectorAll('.use-card').forEach(card => {
+      card.addEventListener('click', function() {
+        const title = this.querySelector('.use-title').textContent;
+        const desc = this.querySelector('.use-desc').textContent;
+        
+        alert(`💳 ${title}\n\n${desc}\n\n보유 포인트: 15,420P\n사용 가능합니다!`);
+      });
+    });
+    
+    // ========== 친구 추천 버튼 ==========
+    document.querySelector('.event-grid .btn-primary').addEventListener('click', function() {
+      const referralLink = 'https://presco21.com/ref/USER123456';
+      
+      // 실제로는 클립보드에 복사
+      alert(`📋 추천 링크가 복사되었습니다!\n\n${referralLink}\n\n친구에게 공유하면:\n✓ 추천인: 3,000P\n✓ 피추천인: 3,000P\n\n총 6,000P 혜택!`);
+    });
+    
+    // ========== 소멸 예정 포인트 알림 ==========
+    setTimeout(() => {
+      if (confirm('⚠️ 포인트 소멸 알림\n\n30일 후 3,000P가 소멸됩니다.\n지금 사용하시겠습니까?')) {
+        window.scrollTo({
+          top: document.querySelector('.use-points-section').offsetTop - 100,
+          behavior: 'smooth'
+        });
+      }
+    }, 3000);
+    
+    console.log(`
+===========================================
+💎 포인트 & 리워드 시스템 v2.0
+===========================================
+✅ 구현된 기능:
+
+📌 포인트 대시보드
+- 보유 포인트 대형 표시
+- 소멸 예정 포인트 알림
+- 이번 달 적립, 기본 적립률, 누적 적립
+- 연속 로그인 일수
+
+📌 등급 시스템
+- 4단계 등급 (새싹/꽃봉오리/만개/나무)
+- 구매 금액 기준
+- 등급별 혜택 차별화
+- 다음 등급까지 진행률
+
+📌 미션 시스템
+- 일간 미션 (로그인, 찜하기, 갤러리)
+- 주간 미션 (구매, 리뷰)
+- 월간 미션 (작품 업로드, 챌린지)
+- 진행률 프로그레스 바
+- 완료 상태 표시
+
+📌 포인트 적립 강화
+- 기본 적립: 3% → 5%
+- 생일 달: 3배 적립 (15%)
+- 리뷰 작성: 1,000P → 2,000P (이벤트)
+- 친구 추천: 3,000P (양쪽)
+- SNS 공유: 500P (월 3회)
+
+📌 포인트 사용처
+- 상품 구매 (1P = 1원)
+- 쿠폰 전환 (10,000P → 12,000원)
+- 포인트 선물
+- 기부하기
+- 강의 수강
+- 프리미엄 혜택
+
+📌 사용 기한 도입
+- 적립일로부터 1년
+- 30일 전 알림
+- 긴급성 부여
+
+===========================================
+    `);
+  </script>
+  
+</body>
+</html>
+

@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>압화 입문 세트 - 프레스코21</title>
+  
+  <!-- 브랜드 시스템 CSS -->
+  <link rel="stylesheet" href="01-brand-system.css">
+  
+  <style>
+    /* ========== 상세 페이지 레이아웃 ========== */
+    .product-detail-container {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: var(--spacing-xl) var(--container-padding);
+    }
+    
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      margin-bottom: var(--spacing-xl);
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+    
+    .breadcrumb a {
+      color: var(--color-text-secondary);
+    }
+    
+    .breadcrumb a:hover {
+      color: var(--color-primary);
+    }
+    
+    /* ========== 교육형 커머스 레이아웃 ========== */
+    .education-commerce-section {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xxl);
+      box-shadow: var(--shadow-md);
+      margin-bottom: var(--spacing-xxl);
+    }
+    
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+      color: var(--color-white);
+      padding: 8px 16px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .product-title-area {
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .product-main-title {
+      font-size: var(--font-size-h1);
+      font-family: var(--font-serif);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .product-subtitle {
+      font-size: var(--font-size-large);
+      color: var(--color-text-secondary);
+    }
+    
+    /* 비디오 + 재료 그리드 */
+    .video-materials-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: var(--spacing-xxl);
+      margin-bottom: var(--spacing-xxl);
+    }
+    
+    /* 비디오 영역 */
+    .video-area {
+      position: relative;
+    }
+    
+    .video-wrapper {
+      position: relative;
+      aspect-ratio: 16/9;
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      background-color: #000;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    
+    .video-info {
+      padding: var(--spacing-md);
+      background-color: var(--color-paper);
+      border-radius: var(--border-radius-md);
+    }
+    
+    .video-title {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .video-description {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      line-height: 1.7;
+    }
+    
+    .video-chapters {
+      margin-top: var(--spacing-lg);
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid var(--color-border);
+    }
+    
+    .chapters-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    
+    .chapter-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
+    
+    .chapter-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background-color: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      text-align: left;
+    }
+    
+    .chapter-btn:hover {
+      background-color: var(--color-primary-light);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+      transform: translateX(4px);
+    }
+    
+    .chapter-time {
+      font-family: monospace;
+      font-size: var(--font-size-small);
+      color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+      flex-shrink: 0;
+      margin-right: var(--spacing-md);
+    }
+    
+    .chapter-btn:hover .chapter-time {
+      color: var(--color-white);
+    }
+    
+    .chapter-text {
+      flex: 1;
+      font-size: var(--font-size-base);
+    }
+    
+    /* 재료 영역 */
+    .materials-area {
+      background-color: var(--color-paper);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: var(--spacing-lg);
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+    }
+    
+    .materials-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--color-border);
+    }
+    
+    .materials-title {
+      font-size: var(--font-size-h4);
+      font-weight: var(--font-weight-semibold);
+      margin: 0;
+    }
+    
+    .material-item {
+      display: flex;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md);
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-md);
+      margin-bottom: var(--spacing-md);
+      transition: all var(--transition-base);
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    
+    .material-item:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .material-item.in-cart {
+      background-color: #F1F8F4;
+      border-color: var(--color-primary);
+    }
+    
+    .material-checkbox {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      margin-top: 4px;
+    }
+    
+    .material-image {
+      width: 70px;
+      height: 70px;
+      border-radius: var(--border-radius-sm);
+      overflow: hidden;
+      background-color: var(--color-background);
+      flex-shrink: 0;
+    }
+    
+    .material-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .material-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .material-name {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    
+    .timeline-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      border-radius: var(--border-radius-sm);
+      font-size: 11px;
+      font-family: monospace;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .timeline-badge:hover {
+      background-color: var(--color-primary-dark);
+      transform: scale(1.05);
+    }
+    
+    .material-price {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-primary);
+    }
+    
+    .material-quantity {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      margin-top: var(--spacing-xs);
+    }
+    
+    .quantity-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--color-border);
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    
+    .quantity-btn:hover {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+    }
+    
+    .quantity-input {
+      width: 50px;
+      text-align: center;
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-sm);
+      padding: 4px;
+      font-size: var(--font-size-base);
+    }
+    
+    /* 가격 요약 */
+    .price-summary {
+      margin-top: var(--spacing-lg);
+      padding: var(--spacing-lg);
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-md);
+      border: 2px solid var(--color-primary-light);
+    }
+    
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-sm);
+      font-size: var(--font-size-base);
+    }
+    
+    .price-row.total {
+      margin-top: var(--spacing-md);
+      padding-top: var(--spacing-md);
+      border-top: 2px solid var(--color-border);
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+    }
+    
+    .discount-badge {
+      display: inline-block;
+      background-color: var(--color-error);
+      color: var(--color-white);
+      padding: 2px 8px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      margin-left: var(--spacing-xs);
+    }
+    
+    .cart-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-lg);
+    }
+    
+    .cart-actions .btn {
+      flex: 1;
+    }
+    
+    /* ========== 이진선 대표 노하우 박스 ========== */
+    .master-tip-box {
+      background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%);
+      color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xxl);
+      margin-bottom: var(--spacing-xxl);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .master-tip-box::before {
+      content: '"';
+      position: absolute;
+      top: -20px;
+      left: 20px;
+      font-size: 120px;
+      font-family: Georgia, serif;
+      opacity: 0.1;
+    }
+    
+    .master-tip-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .master-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid var(--color-white);
+      background-color: var(--color-background);
+      overflow: hidden;
+    }
+    
+    .master-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .master-info h3 {
+      font-size: var(--font-size-h3);
+      margin: 0 0 4px 0;
+      color: var(--color-white);
+    }
+    
+    .master-info p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: var(--font-size-small);
+    }
+    
+    .master-tip-content {
+      font-size: var(--font-size-large);
+      line-height: 1.8;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .tip-highlight {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 2px 8px;
+      border-radius: var(--border-radius-sm);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    /* ========== 상품 정보 탭 ========== */
+    .product-tabs {
+      margin-top: var(--spacing-xxl);
+    }
+    
+    .tab-buttons {
+      display: flex;
+      gap: var(--spacing-sm);
+      border-bottom: 2px solid var(--color-border);
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .tab-btn {
+      padding: 16px 32px;
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+      background-color: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      margin-bottom: -2px;
+    }
+    
+    .tab-btn:hover {
+      color: var(--color-primary);
+    }
+    
+    .tab-btn.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .tab-panel {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-xxl);
+    }
+    
+    /* ========== B2B 회원 전용 UI ========== */
+    .b2b-exclusive {
+      background: linear-gradient(135deg, #B5A48B 0%, #968870 100%);
+      color: var(--color-white);
+      padding: var(--spacing-lg);
+      border-radius: var(--border-radius-md);
+      margin-bottom: var(--spacing-lg);
+      display: none; /* 기본적으로 숨김, JS로 표시 */
+    }
+    
+    .b2b-exclusive.visible {
+      display: block;
+    }
+    
+    .b2b-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 6px 12px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .b2b-price-compare {
+      display: flex;
+      gap: var(--spacing-lg);
+      align-items: center;
+      margin-top: var(--spacing-sm);
+    }
+    
+    .b2b-price-item {
+      flex: 1;
+    }
+    
+    .b2b-price-label {
+      font-size: var(--font-size-small);
+      opacity: 0.9;
+      margin-bottom: 4px;
+    }
+    
+    .b2b-price-value {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-bold);
+    }
+    
+    .b2b-price-value.strike {
+      text-decoration: line-through;
+      opacity: 0.6;
+      font-size: var(--font-size-large);
+    }
+    
+    /* ========== 반응형 ========== */
+    @media (max-width: 1024px) {
+      .video-materials-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .materials-area {
+        position: static;
+        max-height: none;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .education-commerce-section {
+        padding: var(--spacing-lg);
+      }
+      
+      .tab-buttons {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      .tab-btn {
+        white-space: nowrap;
+        padding: 12px 20px;
+        font-size: var(--font-size-base);
+      }
+      
+      .material-item {
+        flex-wrap: wrap;
+      }
+      
+      .cart-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="product-detail-container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a href="/">홈</a>
+      <span>›</span>
+      <a href="/category/pressed-flower">압화</a>
+      <span>›</span>
+      <span>압화 입문 세트</span>
+    </nav>
+    
+    <!-- 교육형 커머스 섹션 -->
+    <div class="education-commerce-section">
+      <span class="section-badge">
+        📚 영상으로 배우는 쉬운 압화
+      </span>
+      
+      <div class="product-title-area">
+        <h1 class="product-main-title">압화 입문 세트 (액자 포함)</h1>
+        <p class="product-subtitle">
+          이진선 대표가 직접 알려주는 입문 가이드 영상과 함께 시작하세요
+        </p>
+      </div>
+      
+      <!-- 비디오 + 재료 그리드 -->
+      <div class="video-materials-grid">
+        <!-- 왼쪽: 가이드 영상 -->
+        <div class="video-area">
+          <div class="video-wrapper">
+            <iframe 
+              id="tutorial-video"
+              src="https://www.youtube.com/embed/VIDEO_ID_HERE?enablejsapi=1" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+              title="압화 입문 가이드">
+            </iframe>
+          </div>
+          
+          <div class="video-info">
+            <h3 class="video-title">🎬 [초보자 필수] 압화 입문 완벽 가이드</h3>
+            <p class="video-description">
+              재료 준비부터 꽃 누르는 법, 액자에 담는 완성 단계까지!
+              이진선 대표가 40년 노하우를 담아 쉽게 알려드립니다.
+            </p>
+            
+            <div class="video-chapters">
+              <h4 class="chapters-title">
+                🕐 타임라인
+              </h4>
+              <div class="chapter-list">
+                <button class="chapter-btn" data-time="0">
+                  <span class="chapter-time">00:00</span>
+                  <span class="chapter-text">인트로 및 재료 소개</span>
+                </button>
+                <button class="chapter-btn" data-time="165">
+                  <span class="chapter-time">02:45</span>
+                  <span class="chapter-text">꽃 선택과 전처리 방법</span>
+                </button>
+                <button class="chapter-btn" data-time="420">
+                  <span class="chapter-time">07:00</span>
+                  <span class="chapter-text">프레싱 툴 사용법</span>
+                </button>
+                <button class="chapter-btn" data-time="720">
+                  <span class="chapter-time">12:00</span>
+                  <span class="chapter-text">건조 시간과 보관 방법</span>
+                </button>
+                <button class="chapter-btn" data-time="960">
+                  <span class="chapter-time">16:00</span>
+                  <span class="chapter-text">액자 구도 잡기와 완성</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 오른쪽: 재료 목록 -->
+        <div class="materials-area">
+          <!-- B2B 회원 전용 안내 (조건부 표시) -->
+          <div class="b2b-exclusive" id="b2b-notice">
+            <div class="b2b-badge">⭐ 강사 회원 특별 혜택</div>
+            <div class="b2b-price-compare">
+              <div class="b2b-price-item">
+                <div class="b2b-price-label">일반 가격</div>
+                <div class="b2b-price-value strike">60,000원</div>
+              </div>
+              <div class="b2b-price-item">
+                <div class="b2b-price-label">강사 특별가</div>
+                <div class="b2b-price-value">45,000원</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="materials-header">
+            <h3 class="materials-title">📦 영상 속 재료 한 번에 담기</h3>
+          </div>
+          
+          <!-- 재료 아이템 1 -->
+          <div class="material-item" data-material-id="1">
+            <input type="checkbox" class="material-checkbox" checked>
+            <div class="material-image">
+              <img src="https://via.placeholder.com/70" alt="압화 입문 키트">
+            </div>
+            <div class="material-info">
+              <div class="material-name">
+                압화 입문 키트 (기본 20종)
+                <span class="timeline-badge" data-time="0">00:00</span>
+              </div>
+              <div class="material-price">35,000원</div>
+              <div class="material-quantity">
+                <button class="quantity-btn minus">−</button>
+                <input type="number" class="quantity-input" value="1" min="1">
+                <button class="quantity-btn plus">+</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 재료 아이템 2 -->
+          <div class="material-item" data-material-id="2">
+            <input type="checkbox" class="material-checkbox" checked>
+            <div class="material-image">
+              <img src="https://via.placeholder.com/70" alt="프레싱 툴">
+            </div>
+            <div class="material-info">
+              <div class="material-name">
+                프레싱 툴 세트 (소형)
+                <span class="timeline-badge" data-time="420">07:00</span>
+              </div>
+              <div class="material-price">15,000원</div>
+              <div class="material-quantity">
+                <button class="quantity-btn minus">−</button>
+                <input type="number" class="quantity-input" value="1" min="1">
+                <button class="quantity-btn plus">+</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 재료 아이템 3 -->
+          <div class="material-item" data-material-id="3">
+            <input type="checkbox" class="material-checkbox" checked>
+            <div class="material-image">
+              <img src="https://via.placeholder.com/70" alt="압화 액자">
+            </div>
+            <div class="material-info">
+              <div class="material-name">
+                압화 전용 액자 (A4)
+                <span class="timeline-badge" data-time="960">16:00</span>
+              </div>
+              <div class="material-price">10,000원</div>
+              <div class="material-quantity">
+                <button class="quantity-btn minus">−</button>
+                <input type="number" class="quantity-input" value="1" min="1">
+                <button class="quantity-btn plus">+</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 가격 요약 -->
+          <div class="price-summary">
+            <div class="price-row">
+              <span>상품 금액</span>
+              <span id="subtotal">60,000원</span>
+            </div>
+            <div class="price-row">
+              <span>
+                세트 할인
+                <span class="discount-badge">-25%</span>
+              </span>
+              <span id="discount">-15,000원</span>
+            </div>
+            <div class="price-row">
+              <span>배송비</span>
+              <span id="shipping">무료</span>
+            </div>
+            <div class="price-row total">
+              <span>총 결제 금액</span>
+              <span id="total">45,000원</span>
+            </div>
+          </div>
+          
+          <!-- 장바구니 버튼 -->
+          <div class="cart-actions">
+            <button class="btn btn-outline" id="cart-btn">
+              장바구니
+            </button>
+            <button class="btn btn-primary" id="buy-now-btn">
+              바로 구매
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 이진선 대표 한 끗 노하우 -->
+    <div class="master-tip-box">
+      <div class="master-tip-header">
+        <div class="master-avatar">
+          <img src="https://via.placeholder.com/80" alt="이진선 대표">
+        </div>
+        <div class="master-info">
+          <h3>이진선 대표의 한 끗 노하우</h3>
+          <p>40년 장인의 실전 팁</p>
+        </div>
+      </div>
+      <div class="master-tip-content">
+        <p>
+          압화를 처음 시작하시는 분들이 가장 많이 실패하는 부분이 
+          <span class="tip-highlight">꽃의 수분 제거</span>입니다.
+        </p>
+        <p>
+          꽃을 누르기 전에 <span class="tip-highlight">키친타올로 물기를 완전히 제거</span>하고,
+          프레싱 툴에 넣을 때는 <span class="tip-highlight">꽃잎이 겹치지 않도록</span> 배치하세요.
+        </p>
+        <p>
+          이 두 가지만 지켜도 완성도가 2배 이상 높아집니다! 💚
+        </p>
+      </div>
+    </div>
+    
+    <!-- 상품 정보 탭 -->
+    <div class="product-tabs">
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="detail">상세정보</button>
+        <button class="tab-btn" data-tab="review">후기 (243)</button>
+        <button class="tab-btn" data-tab="qna">문의 (18)</button>
+        <button class="tab-btn" data-tab="guide">교환/환불</button>
+      </div>
+      
+      <!-- 상세정보 탭 -->
+      <div class="tab-content active" data-tab-content="detail">
+        <div class="tab-panel">
+          <h3>📦 구성품 상세</h3>
+          <p>압화 입문에 필요한 모든 재료가 한 세트에!</p>
+          <ul style="line-height: 2; font-size: var(--font-size-base); margin-left: var(--spacing-lg);">
+            <li>압화용 생화 20종 (장미, 안개꽃, 팬지 등)</li>
+            <li>압화지 (A4) 10매</li>
+            <li>프레싱 보드 1세트</li>
+            <li>핀셋 1개</li>
+            <li>압화 전용 풀 1개</li>
+            <li>A4 액자 (유리 포함) 1개</li>
+            <li>초보자 가이드 북 1권</li>
+          </ul>
+          
+          <h3 style="margin-top: var(--spacing-xl);">🎓 이런 분들께 추천해요</h3>
+          <ul style="line-height: 2; font-size: var(--font-size-base); margin-left: var(--spacing-lg);">
+            <li>압화를 처음 시작하시는 분</li>
+            <li>집에서 여유롭게 취미 생활을 즐기고 싶으신 분</li>
+            <li>DIY 인테리어 소품을 직접 만들고 싶으신 분</li>
+            <li>선물용 작품을 만들고 싶으신 분</li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- 후기 탭 (시안) -->
+      <div class="tab-content" data-tab-content="review">
+        <div class="tab-panel">
+          <h3>고객 후기</h3>
+          <p style="color: var(--color-text-secondary);">실제 구매 고객들의 생생한 후기를 확인하세요.</p>
+          <!-- 여기에 리뷰 컴포넌트 추가 -->
+        </div>
+      </div>
+      
+      <!-- 문의 탭 -->
+      <div class="tab-content" data-tab-content="qna">
+        <div class="tab-panel">
+          <h3>상품 문의</h3>
+          <p style="color: var(--color-text-secondary);">궁금하신 점을 남겨주세요.</p>
+        </div>
+      </div>
+      
+      <!-- 교환/환불 탭 -->
+      <div class="tab-content" data-tab-content="guide">
+        <div class="tab-panel">
+          <h3>교환 및 반품 안내</h3>
+          <p style="line-height: 1.8;">
+            생화는 신선도가 중요한 상품으로, 수령 후 즉시 확인 부탁드립니다.<br>
+            상품 불량 시 사진과 함께 고객센터로 연락주시면 신속히 처리해드립니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    // ========== 유튜브 타임라인 이동 기능 ==========
+    let player;
+    
+    // YouTube IFrame API 로드
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    
+    // API 준비 완료 시 플레이어 초기화
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('tutorial-video', {
+        events: {
+          'onReady': onPlayerReady
+        }
+      });
+    }
+    
+    function onPlayerReady(event) {
+      console.log('유튜브 플레이어 준비 완료');
+    }
+    
+    // 타임라인 버튼 클릭 시 영상 이동
+    document.querySelectorAll('.chapter-btn, .timeline-badge').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const time = parseInt(this.dataset.time);
+        if (player && player.seekTo) {
+          player.seekTo(time);
+          player.playVideo();
+          
+          // 스크롤 애니메이션으로 영상 영역으로 이동
+          document.querySelector('.video-wrapper').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      });
+    });
+    
+    // ========== 수량 조절 ==========
+    document.querySelectorAll('.material-item').forEach(item => {
+      const minusBtn = item.querySelector('.minus');
+      const plusBtn = item.querySelector('.plus');
+      const input = item.querySelector('.quantity-input');
+      
+      minusBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const current = parseInt(input.value);
+        if (current > 1) {
+          input.value = current - 1;
+          updateTotalPrice();
+        }
+      });
+      
+      plusBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        input.value = parseInt(input.value) + 1;
+        updateTotalPrice();
+      });
+      
+      input.addEventListener('change', () => {
+        if (input.value < 1) input.value = 1;
+        updateTotalPrice();
+      });
+    });
+    
+    // ========== 체크박스로 재료 선택/해제 ==========
+    document.querySelectorAll('.material-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', function(e) {
+        e.stopPropagation();
+        const item = this.closest('.material-item');
+        if (this.checked) {
+          item.classList.add('in-cart');
+        } else {
+          item.classList.remove('in-cart');
+        }
+        updateTotalPrice();
+      });
+    });
+    
+    // ========== 총 가격 계산 ==========
+    function updateTotalPrice() {
+      let subtotal = 0;
+      
+      document.querySelectorAll('.material-item').forEach(item => {
+        const checkbox = item.querySelector('.material-checkbox');
+        if (checkbox.checked) {
+          const priceText = item.querySelector('.material-price').textContent;
+          const price = parseInt(priceText.replace(/[^0-9]/g, ''));
+          const quantity = parseInt(item.querySelector('.quantity-input').value);
+          subtotal += price * quantity;
+        }
+      });
+      
+      const discount = Math.floor(subtotal * 0.25);
+      const total = subtotal - discount;
+      
+      document.getElementById('subtotal').textContent = subtotal.toLocaleString() + '원';
+      document.getElementById('discount').textContent = '-' + discount.toLocaleString() + '원';
+      document.getElementById('total').textContent = total.toLocaleString() + '원';
+    }
+    
+    // ========== 탭 전환 ==========
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetTab = btn.dataset.tab;
+        
+        // 모든 탭 비활성화
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        
+        // 선택된 탭 활성화
+        btn.classList.add('active');
+        const targetContent = document.querySelector(`[data-tab-content="${targetTab}"]`);
+        if (targetContent) {
+          targetContent.classList.add('active');
+        }
+      });
+    });
+    
+    // ========== 장바구니/구매 버튼 ==========
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => toast.classList.add('active'), 100);
+      setTimeout(() => {
+        toast.classList.remove('active');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+    
+    document.getElementById('cart-btn').addEventListener('click', () => {
+      showToast('✅ 장바구니에 추가되었습니다!');
+    });
+    
+    document.getElementById('buy-now-btn').addEventListener('click', () => {
+      showToast('🛒 주문 페이지로 이동합니다...');
+      // 실제로는 결제 페이지로 이동
+    });
+    
+    // ========== B2B 회원 확인 (시뮬레이션) ==========
+    // 실제로는 메이크샵 API에서 회원 등급 확인
+    function checkMemberGrade() {
+      // 예시: 로컬스토리지나 쿠키에서 회원 등급 확인
+      const memberGrade = 'instructor'; // 'normal', 'instructor', 'association'
+      
+      if (memberGrade === 'instructor' || memberGrade === 'association') {
+        document.getElementById('b2b-notice').classList.add('visible');
+      }
+    }
+    
+    // 페이지 로드 시 실행
+    checkMemberGrade();
+    updateTotalPrice();
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="1982년부터 이어온 이진선 장인의 압화 예술. 프레스코21은 압화, 레진, 하바리움 등 프리미엄 공예 재료와 교육을 제공합니다.">
+  <title>프레스코21 - 이진선 장인의 압화 예술 40년</title>
+  
+  <!-- 브랜드 시스템 CSS -->
+  <link rel="stylesheet" href="01-brand-system.css">
+  
+  <!-- 메인 페이지 전용 CSS -->
+  <style>
+    /* ========== 헤더 영역 ========== */
+    .site-header {
+      background-color: var(--color-white);
+      border-bottom: 1px solid var(--color-border-light);
+      position: sticky;
+      top: 0;
+      z-index: var(--z-sticky);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-md) var(--container-padding);
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+    }
+    
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+    }
+    
+    .nav-menu {
+      display: flex;
+      gap: var(--spacing-xl);
+      list-style: none;
+    }
+    
+    .nav-menu a {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      transition: color var(--transition-base);
+    }
+    
+    .nav-menu a:hover {
+      color: var(--color-primary);
+    }
+    
+    /* ========== 히어로 섹션 (이진선 헤리티지) ========== */
+    .heritage-hero {
+      background: linear-gradient(135deg, #F9F8F5 0%, #FFFEF9 100%);
+      padding: var(--spacing-xxxl) 0;
+      overflow: hidden;
+    }
+    
+    .heritage-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-xxl);
+      align-items: center;
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+    }
+    
+    .heritage-video {
+      position: relative;
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      aspect-ratio: 16/9;
+      background-color: var(--color-border);
+    }
+    
+    .heritage-video video,
+    .heritage-video iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    
+    .heritage-info {
+      padding: var(--spacing-lg);
+    }
+    
+    .heritage-badge {
+      display: inline-block;
+      background-color: var(--color-secondary);
+      color: var(--color-white);
+      padding: 8px 16px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .heritage-title {
+      font-size: var(--font-size-h1);
+      font-family: var(--font-serif);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-md);
+      line-height: 1.3;
+    }
+    
+    .heritage-description {
+      font-size: var(--font-size-large);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-xl);
+      line-height: 1.8;
+    }
+    
+    /* 타임라인 */
+    .timeline {
+      margin-top: var(--spacing-xl);
+    }
+    
+    .timeline-item {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+      opacity: 0;
+      transform: translateX(-20px);
+      animation: fadeInLeft 0.6s ease forwards;
+    }
+    
+    .timeline-item:nth-child(1) { animation-delay: 0.1s; }
+    .timeline-item:nth-child(2) { animation-delay: 0.2s; }
+    .timeline-item:nth-child(3) { animation-delay: 0.3s; }
+    .timeline-item:nth-child(4) { animation-delay: 0.4s; }
+    
+    @keyframes fadeInLeft {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .timeline-year {
+      flex-shrink: 0;
+      width: 80px;
+      font-family: var(--font-serif);
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+    }
+    
+    .timeline-content {
+      border-left: 2px solid var(--color-border);
+      padding-left: var(--spacing-md);
+      padding-bottom: var(--spacing-md);
+    }
+    
+    .timeline-content h4 {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: 4px;
+    }
+    
+    .timeline-content p {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+    
+    /* ========== 장르 탭 섹션 ========== */
+    .genre-section {
+      padding: var(--spacing-xxxl) 0;
+      background-color: var(--color-white);
+    }
+    
+    .genre-tabs {
+      display: flex;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-xxl);
+      flex-wrap: wrap;
+      max-width: var(--container-max-width);
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0 var(--container-padding);
+    }
+    
+    .genre-tab {
+      padding: 16px 32px;
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+      background-color: transparent;
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      min-width: 140px;
+      text-align: center;
+    }
+    
+    .genre-tab:hover {
+      border-color: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+    
+    .genre-tab.active {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .genre-tab-icon {
+      font-size: 24px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    
+    /* 장르 콘텐츠 */
+    .genre-content {
+      display: none;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    .genre-content.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    
+    .genre-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: var(--spacing-xxl);
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+    }
+    
+    .genre-video-area {
+      position: relative;
+    }
+    
+    .genre-video-wrapper {
+      position: relative;
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      aspect-ratio: 16/9;
+      background-color: var(--color-border);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .genre-video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    
+    .genre-video-title {
+      font-size: var(--font-size-h3);
+      font-family: var(--font-serif);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .genre-video-description {
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-base);
+    }
+    
+    .genre-products {
+      background-color: var(--color-paper);
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .genre-products-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--color-border);
+    }
+    
+    .genre-products-title {
+      font-size: var(--font-size-h4);
+      font-weight: var(--font-weight-semibold);
+      margin: 0;
+    }
+    
+    .difficulty-filter {
+      display: flex;
+      gap: var(--spacing-xs);
+    }
+    
+    .difficulty-btn {
+      padding: 6px 12px;
+      font-size: var(--font-size-small);
+      background-color: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .difficulty-btn:hover,
+    .difficulty-btn.active {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+    }
+    
+    .product-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    
+    .product-item {
+      display: flex;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md);
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-md);
+      transition: all var(--transition-base);
+      cursor: pointer;
+    }
+    
+    .product-item:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    
+    .product-image {
+      width: 100px;
+      height: 100px;
+      border-radius: var(--border-radius-sm);
+      overflow: hidden;
+      flex-shrink: 0;
+      background-color: var(--color-background);
+    }
+    
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .product-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .product-badges {
+      display: flex;
+      gap: var(--spacing-xs);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .product-name {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      margin-bottom: 4px;
+    }
+    
+    .product-price {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-primary);
+    }
+    
+    .product-original-price {
+      font-size: var(--font-size-small);
+      color: var(--color-text-light);
+      text-decoration: line-through;
+      margin-left: var(--spacing-xs);
+    }
+    
+    .add-all-btn {
+      margin-top: var(--spacing-lg);
+      width: 100%;
+    }
+    
+    /* ========== 큐레이션 섹션 ========== */
+    .curation-section {
+      padding: var(--spacing-xxxl) 0;
+      background: linear-gradient(180deg, var(--color-background) 0%, var(--color-white) 100%);
+    }
+    
+    .curation-header {
+      text-align: center;
+      margin-bottom: var(--spacing-xxl);
+    }
+    
+    .curation-title {
+      font-size: var(--font-size-h2);
+      font-family: var(--font-serif);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .curation-subtitle {
+      font-size: var(--font-size-large);
+      color: var(--color-text-secondary);
+    }
+    
+    .curation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-xl);
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+    }
+    
+    .curation-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-base);
+      cursor: pointer;
+      text-align: center;
+    }
+    
+    .curation-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-8px);
+    }
+    
+    .curation-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto var(--spacing-lg);
+      background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+    }
+    
+    .curation-card-title {
+      font-size: var(--font-size-h4);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .curation-card-description {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .curation-items {
+      font-size: var(--font-size-small);
+      color: var(--color-text-light);
+      line-height: 1.6;
+    }
+    
+    /* ========== 반응형 ========== */
+    @media (max-width: 768px) {
+      .nav-menu {
+        display: none;
+      }
+      
+      .heritage-content {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+      }
+      
+      .genre-tabs {
+        gap: var(--spacing-xs);
+      }
+      
+      .genre-tab {
+        min-width: 100px;
+        padding: 12px 16px;
+        font-size: var(--font-size-base);
+      }
+      
+      .genre-layout {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+      }
+      
+      .curation-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+      }
+    }
+    
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .curation-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- 헤더 -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="logo">프레스코21</div>
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="#heritage">장인 이야기</a></li>
+          <li><a href="#genre">공예 시작하기</a></li>
+          <li><a href="#curation">추천 코스</a></li>
+          <li><a href="#community">작품 갤러리</a></li>
+          <li><a href="#partners">파트너 공방</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  
+  <!-- 히어로: 이진선 헤리티지 섹션 -->
+  <section class="heritage-hero" id="heritage">
+    <div class="heritage-content">
+      <!-- 왼쪽: 대표님 작업 영상 -->
+      <div class="heritage-video">
+        <!-- 실제 영상 URL로 교체 필요 -->
+        <iframe 
+          src="https://www.youtube.com/embed/YOUR_VIDEO_ID?autoplay=1&mute=1&loop=1&playlist=YOUR_VIDEO_ID" 
+          frameborder="0" 
+          allow="autoplay; encrypted-media" 
+          allowfullscreen
+          title="이진선 대표의 압화 작업 과정">
+        </iframe>
+      </div>
+      
+      <!-- 오른쪽: 연혁 타임라인 -->
+      <div class="heritage-info">
+        <span class="heritage-badge">1982년부터 이어온 장인 정신</span>
+        <h1 class="heritage-title">
+          이진선 장인과 함께하는<br>
+          압화 예술의 세계
+        </h1>
+        <p class="heritage-description">
+          40년 넘게 한국 압화 예술을 이끌어온 이진선 대표의 노하우와 철학이 담긴
+          프리미엄 공예 재료와 교육 콘텐츠를 만나보세요.
+        </p>
+        
+        <!-- 인터랙티브 타임라인 -->
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-year">1982</div>
+            <div class="timeline-content">
+              <h4>압화 예술의 시작</h4>
+              <p>일본 유학 후 한국 최초 압화 강사 활동 시작</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-year">1999</div>
+            <div class="timeline-content">
+              <h4>프레스코21 설립</h4>
+              <p>국내 최초 압화 전문 재료 공급 시스템 구축</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-year">2008</div>
+            <div class="timeline-content">
+              <h4>전국 강사 양성 프로그램</h4>
+              <p>1,000명 이상의 공인 강사 배출</p>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-year">2025</div>
+            <div class="timeline-content">
+              <h4>디지털 교육 혁신</h4>
+              <p>유튜브 기반 온라인 교육 플랫폼 구축</p>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary btn-large" style="margin-top: var(--spacing-xl);">
+          이진선 대표 더 알아보기
+        </button>
+      </div>
+    </div>
+  </section>
+  
+  <!-- 장르 탭 섹션 -->
+  <section class="genre-section" id="genre">
+    <div class="container">
+      <div class="section-title">
+        <h2 class="curation-title">어떤 공예를 시작하고 싶으세요?</h2>
+        <p class="curation-subtitle">초보자도 쉽게 따라할 수 있는 입문 가이드</p>
+      </div>
+    </div>
+    
+    <!-- 장르 탭 메뉴 -->
+    <div class="genre-tabs">
+      <button class="genre-tab active" data-genre="pressed-flower">
+        <span class="genre-tab-icon">🌸</span>
+        압화
+      </button>
+      <button class="genre-tab" data-genre="resin">
+        <span class="genre-tab-icon">💎</span>
+        레진
+      </button>
+      <button class="genre-tab" data-genre="herbarium">
+        <span class="genre-tab-icon">🌿</span>
+        하바리움
+      </button>
+      <button class="genre-tab" data-genre="bouquet">
+        <span class="genre-tab-icon">💐</span>
+        부케기프트
+      </button>
+    </div>
+    
+    <!-- 압화 콘텐츠 -->
+    <div class="genre-content active" data-genre-content="pressed-flower">
+      <div class="genre-layout">
+        <div class="genre-video-area">
+          <div class="genre-video-wrapper">
+            <!-- 실제 유튜브 영상 임베드 -->
+            <iframe 
+              src="https://www.youtube.com/embed/PRESSED_FLOWER_VIDEO_ID" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+              title="압화 입문 가이드">
+            </iframe>
+          </div>
+          <h3 class="genre-video-title">🌸 압화 입문: 나만의 꽃 액자 만들기</h3>
+          <p class="genre-video-description">
+            생화를 평평하게 눌러 말린 후 예술 작품으로 재탄생시키는 압화의 세계.
+            이진선 대표가 직접 알려드리는 기초부터 완성까지!
+          </p>
+        </div>
+        
+        <div class="genre-products">
+          <div class="genre-products-header">
+            <h4 class="genre-products-title">영상 속 재료 한 번에 담기</h4>
+            <div class="difficulty-filter">
+              <button class="difficulty-btn active" data-level="all">전체</button>
+              <button class="difficulty-btn" data-level="beginner">초급</button>
+              <button class="difficulty-btn" data-level="intermediate">중급</button>
+              <button class="difficulty-btn" data-level="advanced">고급</button>
+            </div>
+          </div>
+          
+          <div class="product-list">
+            <div class="product-item" data-level="beginner">
+              <div class="product-image">
+                <img src="https://via.placeholder.com/100" alt="압화 입문 세트">
+              </div>
+              <div class="product-info">
+                <div class="product-badges">
+                  <span class="badge badge-level-beginner">초급</span>
+                  <span class="badge badge-secondary">인기</span>
+                </div>
+                <div class="product-name">압화 입문 세트 (액자 포함)</div>
+                <div class="product-price">
+                  45,000원
+                  <span class="product-original-price">60,000원</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="product-item" data-level="beginner">
+              <div class="product-image">
+                <img src="https://via.placeholder.com/100" alt="압화지 50매">
+              </div>
+              <div class="product-info">
+                <div class="product-badges">
+                  <span class="badge badge-level-beginner">초급</span>
+                </div>
+                <div class="product-name">압화지 50매 (A4 사이즈)</div>
+                <div class="product-price">15,000원</div>
+              </div>
+            </div>
+            
+            <div class="product-item" data-level="intermediate">
+              <div class="product-image">
+                <img src="https://via.placeholder.com/100" alt="프레싱툴 세트">
+              </div>
+              <div class="product-info">
+                <div class="product-badges">
+                  <span class="badge badge-level-intermediate">중급</span>
+                </div>
+                <div class="product-name">프레싱툴 세트 (중형 6매)</div>
+                <div class="product-price">43,700원</div>
+              </div>
+            </div>
+          </div>
+          
+          <button class="btn btn-primary add-all-btn">
+            전체 재료 한 번에 담기 (3개)
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 레진 콘텐츠 (같은 구조 반복) -->
+    <div class="genre-content" data-genre-content="resin">
+      <div class="genre-layout">
+        <div class="genre-video-area">
+          <div class="genre-video-wrapper">
+            <iframe 
+              src="https://www.youtube.com/embed/RESIN_VIDEO_ID" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+              title="레진 입문 가이드">
+            </iframe>
+          </div>
+          <h3 class="genre-video-title">💎 레진 입문: 투명한 보석 만들기</h3>
+          <p class="genre-video-description">
+            액체 레진에 꽃이나 장식을 넣어 투명하게 굳히는 레진 공예.
+            반지, 목걸이, 키링 등 다양한 소품을 만들어보세요!
+          </p>
+        </div>
+        
+        <div class="genre-products">
+          <div class="genre-products-header">
+            <h4 class="genre-products-title">영상 속 재료 한 번에 담기</h4>
+            <div class="difficulty-filter">
+              <button class="difficulty-btn active" data-level="all">전체</button>
+              <button class="difficulty-btn" data-level="beginner">초급</button>
+              <button class="difficulty-btn" data-level="intermediate">중급</button>
+            </div>
+          </div>
+          
+          <div class="product-list">
+            <div class="product-item" data-level="beginner">
+              <div class="product-image">
+                <img src="https://via.placeholder.com/100" alt="레진 스타터 키트">
+              </div>
+              <div class="product-info">
+                <div class="product-badges">
+                  <span class="badge badge-level-beginner">초급</span>
+                  <span class="badge badge-secondary">베스트</span>
+                </div>
+                <div class="product-name">레진 스타터 키트 (UV램프 포함)</div>
+                <div class="product-price">65,000원</div>
+              </div>
+            </div>
+          </div>
+          
+          <button class="btn btn-primary add-all-btn">
+            전체 재료 한 번에 담기
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 하바리움, 부케기프트도 동일 구조 -->
+  </section>
+  
+  <!-- 큐레이션 섹션 -->
+  <section class="curation-section" id="curation">
+    <div class="curation-header">
+      <h2 class="curation-title">어떤 목적으로 시작하시나요?</h2>
+      <p class="curation-subtitle">당신에게 맞는 추천 코스를 찾아드려요</p>
+    </div>
+    
+    <div class="curation-grid">
+      <div class="curation-card">
+        <div class="curation-icon">🎨</div>
+        <h3 class="curation-card-title">취미로 시작하기</h3>
+        <p class="curation-card-description">
+          처음 시작하는 분들을 위한 쉽고 재미있는 입문 코스
+        </p>
+        <div class="curation-items">
+          ✓ 압화 입문 세트<br>
+          ✓ 초보자 가이드 영상 5편<br>
+          ✓ 완성 작품 보장
+        </div>
+        <button class="btn btn-outline" style="margin-top: var(--spacing-md);">
+          자세히 보기
+        </button>
+      </div>
+      
+      <div class="curation-card">
+        <div class="curation-icon">👩‍🏫</div>
+        <h3 class="curation-card-title">강사로 성장하기</h3>
+        <p class="curation-card-description">
+          전문 강사 자격증까지 취득하는 전문가 코스
+        </p>
+        <div class="curation-items">
+          ✓ 프로페셔널 장비 세트<br>
+          ✓ 강사 양성 과정 20시간<br>
+          ✓ 자격증 발급 지원
+        </div>
+        <button class="btn btn-outline" style="margin-top: var(--spacing-md);">
+          자세히 보기
+        </button>
+      </div>
+      
+      <div class="curation-card">
+        <div class="curation-icon">💼</div>
+        <h3 class="curation-card-title">사업으로 확장하기</h3>
+        <p class="curation-card-description">
+          공방 창업부터 온라인 판매까지 비즈니스 코스
+        </p>
+        <div class="curation-items">
+          ✓ 도매 가격 적용<br>
+          ✓ 마케팅 노하우 공유<br>
+          ✓ 파트너 네트워크 지원
+        </div>
+        <button class="btn btn-outline" style="margin-top: var(--spacing-md);">
+          자세히 보기
+        </button>
+      </div>
+    </div>
+  </section>
+  
+  <!-- JavaScript -->
+  <script>
+    // ========== 장르 탭 전환 ==========
+    const genreTabs = document.querySelectorAll('.genre-tab');
+    const genreContents = document.querySelectorAll('.genre-content');
+    
+    genreTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetGenre = tab.dataset.genre;
+        
+        // 모든 탭 비활성화
+        genreTabs.forEach(t => t.classList.remove('active'));
+        genreContents.forEach(c => c.classList.remove('active'));
+        
+        // 선택된 탭 활성화
+        tab.classList.add('active');
+        const targetContent = document.querySelector(`[data-genre-content="${targetGenre}"]`);
+        if (targetContent) {
+          targetContent.classList.add('active');
+        }
+      });
+    });
+    
+    // ========== 난이도 필터 ==========
+    const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+    
+    difficultyBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const level = btn.dataset.level;
+        const parentSection = btn.closest('.genre-products');
+        const products = parentSection.querySelectorAll('.product-item');
+        
+        // 버튼 활성화 상태 변경
+        parentSection.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // 상품 필터링
+        products.forEach(product => {
+          if (level === 'all' || product.dataset.level === level) {
+            product.style.display = 'flex';
+          } else {
+            product.style.display = 'none';
+          }
+        });
+        
+        // "한 번에 담기" 버튼 텍스트 업데이트
+        const visibleCount = Array.from(products).filter(p => p.style.display !== 'none').length;
+        const addAllBtn = parentSection.querySelector('.add-all-btn');
+        addAllBtn.textContent = `전체 재료 한 번에 담기 (${visibleCount}개)`;
+      });
+    });
+    
+    // ========== 토스트 알림 함수 ==========
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => toast.classList.add('active'), 100);
+      setTimeout(() => {
+        toast.classList.remove('active');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+    
+    // ========== 전체 재료 담기 버튼 ==========
+    const addAllBtns = document.querySelectorAll('.add-all-btn');
+    addAllBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        showToast('✅ 장바구니에 추가되었습니다!');
+      });
+    });
+    
+    // ========== 개별 상품 클릭 ==========
+    const productItems = document.querySelectorAll('.product-item');
+    productItems.forEach(item => {
+      item.addEventListener('click', () => {
+        showToast('✅ 장바구니에 추가되었습니다!');
+      });
+    });
+    
+    // ========== 스크롤 애니메이션 (심플 버전) ==========
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+    
+    // 큐레이션 카드에 스크롤 애니메이션 적용
+    document.querySelectorAll('.curation-card').forEach(card => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(30px)';
+      card.style.transition = 'all 0.6s ease';
+      observer.observe(card);
+    });
+  </script>
+  
+</body>
+</html>

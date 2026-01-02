@@ -1,0 +1,160 @@
+<style>
+.mk-vip-overlay{position:fixed;top:0;left:0;right:0;bottom:0;
+background:rgba(0,0,0,0.6);z-index:99999;display:none;opacity:0}
+.mk-vip-overlay.show{display:block;opacity:1}
+.mk-vip-modal{position:fixed;top:50%;left:50%;
+transform:translate(-50%,-50%);background:#fff;border-radius:24px;
+padding:0;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+z-index:100000;opacity:0;transform:translate(-50%,-50%) scale(0.9)}
+.mk-vip-modal.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.mk-vip-header{background:linear-gradient(135deg,#8B9D83 0%,#6B7D63 100%);
+color:#fff;padding:40px 30px;text-align:center;border-radius:24px 24px 0 0;
+position:relative}
+.mk-vip-close{position:absolute;top:15px;right:15px;
+background:rgba(255,255,255,0.2);border:none;width:40px;height:40px;
+border-radius:50%;color:#fff;font-size:24px;cursor:pointer;line-height:40px}
+.mk-vip-close:hover{background:rgba(255,255,255,0.3)}
+.mk-vip-badge{display:inline-block;background:rgba(255,255,255,0.2);
+padding:8px 20px;border-radius:20px;font-size:13px;font-weight:700;
+margin-bottom:15px;letter-spacing:1px}
+.mk-vip-title{font-size:28px;font-weight:700;margin:0 0 10px 0}
+.mk-vip-subtitle{font-size:15px;opacity:0.95;margin:0}
+.mk-vip-body{padding:40px 30px}
+.mk-vip-offer{background:#F8FAF7;border:3px solid #8B9D83;
+border-radius:16px;padding:30px;text-align:center;margin-bottom:30px}
+.mk-vip-discount{font-size:48px;font-weight:700;color:#8B9D83;
+margin:0 0 8px 0}
+.mk-vip-desc{font-size:16px;color:#555;margin:0 0 20px 0}
+.mk-vip-code{background:#fff;border:2px dashed #8B9D83;
+border-radius:8px;padding:15px;font-size:20px;font-weight:700;
+color:#8B9D83;letter-spacing:2px;margin:0}
+.mk-vip-benefits{text-align:left;margin:20px 0}
+.mk-vip-benefit{display:block;padding:12px 0;border-bottom:1px solid #E8EDE6;
+font-size:14px;color:#555}
+.mk-vip-benefit:last-child{border-bottom:none}
+.mk-vip-benefit:before{content:'✓';color:#8B9D83;font-weight:700;
+margin-right:10px;font-size:16px}
+.mk-vip-btn{background:#8B9D83;color:#fff;border:none;
+padding:18px 40px;border-radius:12px;font-size:18px;font-weight:700;
+cursor:pointer;width:100%;margin-top:20px}
+.mk-vip-btn:hover{opacity:0.9}
+.mk-vip-footer{padding:0 30px 30px;text-align:center}
+.mk-vip-note{font-size:12px;color:#999;line-height:1.6}
+@media (max-width:768px){
+.mk-vip-modal{max-width:90%;padding:0}
+.mk-vip-header{padding:30px 20px}
+.mk-vip-body{padding:25px 20px}
+.mk-vip-title{font-size:24px}
+.mk-vip-discount{font-size:40px}
+}
+</style>
+<div class="mk-vip-overlay" id="mkVipOverlay">
+<div class="mk-vip-modal" id="mkVipModal">
+<div class="mk-vip-header">
+<button class="mk-vip-close" id="mkVipClose">×</button>
+<div class="mk-vip-badge">VIP MEMBER EXCLUSIVE</div>
+<h2 class="mk-vip-title">특별한 당신을 위한 혜택</h2>
+<p class="mk-vip-subtitle">VIP 회원님만을 위한 프리미엄 할인</p>
+</div>
+<div class="mk-vip-body">
+<div class="mk-vip-offer">
+<p class="mk-vip-discount">20% OFF</p>
+<p class="mk-vip-desc">전 상품 적용 가능한 특별 할인</p>
+<p class="mk-vip-code" id="mkVipCode">VIP2025</p>
+</div>
+<div class="mk-vip-benefits">
+<span class="mk-vip-benefit">전 상품 20% 할인 (중복 불가)</span>
+<span class="mk-vip-benefit">무료배송 (금액 제한 없음)</span>
+<span class="mk-vip-benefit">적립금 2배 적립</span>
+<span class="mk-vip-benefit">신상품 우선 구매 기회</span>
+</div>
+<button class="mk-vip-btn" id="mkVipShop">지금 쇼핑하기</button>
+</div>
+<div class="mk-vip-footer">
+<p class="mk-vip-note">
+* 쿠폰은 자동으로 발급되었습니다<br>
+* 마이페이지에서 확인 가능합니다<br>
+* 유효기간: 발급일로부터 30일
+</p>
+</div>
+</div>
+</div>
+<script>
+(function(){
+function getCookie(n){
+var v=document.cookie.match('(^|;) ?'+n+'=([^;]*)(;|$)');
+return v?v[2]:null;
+}
+function setCookie(n,v,d){
+var date=new Date();
+date.setTime(date.getTime()+(d*24*60*60*1000));
+document.cookie=n+'='+v+';expires='+date.toUTCString()+';path=/';
+}
+function showVip(){
+var overlay=document.getElementById('mkVipOverlay');
+var modal=document.getElementById('mkVipModal');
+if(overlay&&modal){
+overlay.className='mk-vip-overlay show';
+setTimeout(function(){
+modal.className='mk-vip-modal show';
+},100);
+}
+}
+function hideVip(){
+var overlay=document.getElementById('mkVipOverlay');
+var modal=document.getElementById('mkVipModal');
+if(modal){
+modal.className='mk-vip-modal';
+}
+setTimeout(function(){
+if(overlay){
+overlay.className='mk-vip-overlay';
+}
+},300);
+setCookie('mk_vip_seen','1',7);
+}
+var userLevel='<!--/user_level/-->';
+var seenVip=getCookie('mk_vip_seen');
+if(userLevel&&(userLevel==='VIP'||userLevel==='VVIP'||userLevel==='특별회원')&&!seenVip){
+setTimeout(showVip,5000);
+}
+var closeBtn=document.getElementById('mkVipClose');
+if(closeBtn){
+closeBtn.onclick=hideVip;
+}
+var overlay=document.getElementById('mkVipOverlay');
+if(overlay){
+overlay.onclick=function(e){
+if(e.target===overlay){
+hideVip();
+}
+};
+}
+var shopBtn=document.getElementById('mkVipShop');
+if(shopBtn){
+shopBtn.onclick=function(){
+setCookie('mk_vip_seen','1',7);
+window.location.href='/product/list.html';
+};
+}
+var codeEl=document.getElementById('mkVipCode');
+if(codeEl){
+codeEl.onclick=function(){
+var code=codeEl.textContent;
+var temp=document.createElement('textarea');
+temp.value=code;
+document.body.appendChild(temp);
+temp.select();
+document.execCommand('copy');
+document.body.removeChild(temp);
+codeEl.style.background='#8B9D83';
+codeEl.style.color='#fff';
+setTimeout(function(){
+codeEl.style.background='#fff';
+codeEl.style.color='#8B9D83';
+},500);
+};
+}
+})();
+</script>
+

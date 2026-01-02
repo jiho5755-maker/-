@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>강사 매칭 & 원데이 클래스 - 프레스코21</title>
+  
+  <!-- 브랜드 시스템 CSS -->
+  <link rel="stylesheet" href="01-brand-system.css">
+  
+  <style>
+    /* ========== 강사 매칭 플랫폼 CSS ========== */
+    
+    .teacher-platform {
+      background-color: var(--color-background);
+      min-height: 100vh;
+    }
+    
+    /* 히어로 섹션 */
+    .platform-hero {
+      background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%);
+      color: white;
+      padding: var(--spacing-xxxl) 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .platform-hero::before {
+      content: '👩‍🏫';
+      position: absolute;
+      top: -40px;
+      right: 10%;
+      font-size: 200px;
+      opacity: 0.1;
+    }
+    
+    .hero-content {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .platform-hero h1 {
+      font-size: var(--font-size-h1);
+      font-family: var(--font-serif);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .platform-hero p {
+      font-size: var(--font-size-large);
+      opacity: 0.95;
+      margin-bottom: var(--spacing-xl);
+      line-height: 1.7;
+    }
+    
+    /* 검색 필터 */
+    .search-filters {
+      background-color: var(--color-white);
+      padding: var(--spacing-xl) 0;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: var(--z-sticky);
+    }
+    
+    .filter-container {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+    }
+    
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      gap: var(--spacing-md);
+      align-items: center;
+    }
+    
+    .filter-input {
+      padding: 12px 16px;
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+      transition: border-color var(--transition-fast);
+    }
+    
+    .filter-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+    
+    .filter-select {
+      padding: 12px 16px;
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+      cursor: pointer;
+      transition: border-color var(--transition-fast);
+    }
+    
+    .filter-select:hover,
+    .filter-select:focus {
+      border-color: var(--color-primary);
+      outline: none;
+    }
+    
+    .search-btn {
+      padding: 12px 32px;
+      background-color: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+    
+    .search-btn:hover {
+      background-color: var(--color-primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    /* 메인 콘텐츠 */
+    .platform-content {
+      max-width: var(--container-max-width);
+      margin: var(--spacing-xxl) auto;
+      padding: 0 var(--container-padding);
+    }
+    
+    /* 강사 카드 */
+    .teachers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: var(--spacing-xl);
+      margin-bottom: var(--spacing-xxl);
+    }
+    
+    .teacher-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-base);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .teacher-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-8px);
+    }
+    
+    .teacher-header {
+      padding: var(--spacing-lg);
+      display: flex;
+      gap: var(--spacing-md);
+      background: linear-gradient(135deg, #F9F8F5 0%, #FFFEF9 100%);
+    }
+    
+    .teacher-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+      background-color: var(--color-border);
+      flex-shrink: 0;
+      border: 3px solid white;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .teacher-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .teacher-info {
+      flex: 1;
+    }
+    
+    .teacher-name {
+      font-size: var(--font-size-h4);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    
+    .certified-badge {
+      background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+      color: white;
+      padding: 4px 8px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .teacher-location {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .teacher-rating {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+    }
+    
+    .stars {
+      color: #FFD700;
+      font-size: var(--font-size-base);
+    }
+    
+    .rating-score {
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+    
+    .review-count {
+      font-size: var(--font-size-small);
+      color: var(--color-text-light);
+    }
+    
+    .teacher-body {
+      padding: var(--spacing-lg);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .teacher-specialty {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-xs);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .specialty-tag {
+      padding: 6px 12px;
+      background-color: var(--color-primary-light);
+      color: white;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-medium);
+    }
+    
+    .teacher-desc {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      margin-bottom: var(--spacing-md);
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .teacher-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+      padding-top: var(--spacing-md);
+      border-top: 1px solid var(--color-border);
+    }
+    
+    .stat-item {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+    
+    .teacher-footer {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+    
+    .class-price {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .price-label {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+    
+    .price-amount {
+      font-size: var(--font-size-h4);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+    }
+    
+    .book-btn {
+      padding: 12px 24px;
+      background-color: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+    
+    .book-btn:hover {
+      background-color: var(--color-primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    /* 온라인 레슨 배지 */
+    .online-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+      color: white;
+      padding: 6px 12px;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      box-shadow: var(--shadow-md);
+    }
+    
+    /* 예약 모달 */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: var(--z-modal-backdrop);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-lg);
+    }
+    
+    .modal-backdrop.active {
+      display: flex;
+    }
+    
+    .booking-modal {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: modalSlideUp 0.3s ease;
+    }
+    
+    @keyframes modalSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(0, 0, 0, 0.1);
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      z-index: 10;
+    }
+    
+    .modal-close:hover {
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+    
+    .modal-header {
+      padding: var(--spacing-xxl);
+      background: linear-gradient(135deg, #F9F8F5 0%, #FFFEF9 100%);
+      border-bottom: 2px solid var(--color-border);
+    }
+    
+    .modal-teacher-info {
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: center;
+    }
+    
+    .modal-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: var(--color-border);
+      overflow: hidden;
+    }
+    
+    .modal-teacher-name {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: 4px;
+    }
+    
+    .modal-body {
+      padding: var(--spacing-xxl);
+    }
+    
+    .booking-section {
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .booking-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section-label {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    /* 캘린더 */
+    .calendar {
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+    }
+    
+    .calendar-header {
+      background-color: var(--color-primary);
+      color: white;
+      padding: var(--spacing-md);
+      text-align: center;
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+    }
+    
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--color-border-light);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-size: var(--font-size-base);
+    }
+    
+    .calendar-day.weekend {
+      background-color: var(--color-background);
+    }
+    
+    .calendar-day.disabled {
+      color: var(--color-text-light);
+      cursor: not-allowed;
+      background-color: var(--color-border-light);
+    }
+    
+    .calendar-day.available:hover {
+      background-color: var(--color-primary-light);
+      color: white;
+    }
+    
+    .calendar-day.selected {
+      background-color: var(--color-primary);
+      color: white;
+      font-weight: var(--font-weight-bold);
+    }
+    
+    /* 시간 슬롯 */
+    .time-slots {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-sm);
+    }
+    
+    .time-slot {
+      padding: 12px;
+      background-color: var(--color-background);
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-md);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .time-slot:hover {
+      border-color: var(--color-primary);
+      background-color: var(--color-primary-light);
+      color: white;
+    }
+    
+    .time-slot.selected {
+      background-color: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+    
+    .time-slot.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    
+    /* 예약 요약 */
+    .booking-summary {
+      background: linear-gradient(135deg, #F9F8F5 0%, #FFFEF9 100%);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      margin-top: var(--spacing-lg);
+    }
+    
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--spacing-sm) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .summary-item:last-child {
+      border-bottom: none;
+      padding-top: var(--spacing-md);
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-bold);
+    }
+    
+    .confirm-btn {
+      width: 100%;
+      padding: 16px;
+      background-color: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      margin-top: var(--spacing-md);
+    }
+    
+    .confirm-btn:hover {
+      background-color: var(--color-primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    /* 반응형 */
+    @media (max-width: 1024px) {
+      .teachers-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .teachers-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .time-slots {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .teacher-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="teacher-platform">
+    
+    <!-- 히어로 섹션 -->
+    <section class="platform-hero">
+      <div class="hero-content">
+        <h1>👩‍🏫 강사 매칭 & 원데이 클래스</h1>
+        <p>
+          전국의 이진선 대표 공인 강사들과 함께하는<br>
+          압화, 레진, 하바리움 원데이 클래스 및 1:1 레슨
+        </p>
+      </div>
+    </section>
+    
+    <!-- 검색 필터 -->
+    <div class="search-filters">
+      <div class="filter-container">
+        <div class="filter-grid">
+          <input 
+            type="text" 
+            class="filter-input" 
+            placeholder="지역 검색 (예: 강남구, 부산)"
+          >
+          <select class="filter-select">
+            <option>공예 종류</option>
+            <option>압화</option>
+            <option>레진</option>
+            <option>하바리움</option>
+            <option>부케기프트</option>
+          </select>
+          <select class="filter-select">
+            <option>수업 형태</option>
+            <option>오프라인</option>
+            <option>온라인 (Zoom)</option>
+            <option>모두</option>
+          </select>
+          <select class="filter-select">
+            <option>가격대</option>
+            <option>3만원 이하</option>
+            <option>3~5만원</option>
+            <option>5~10만원</option>
+            <option>10만원 이상</option>
+          </select>
+          <button class="search-btn">🔍 검색</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 강사 목록 -->
+    <div class="platform-content">
+      
+      <div style="margin-bottom: var(--spacing-lg); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: var(--font-size-h3); color: var(--color-text-primary);">
+          🎯 총 24명의 강사를 찾았습니다
+        </h2>
+        <select class="filter-select" style="width: auto;">
+          <option>추천순</option>
+          <option>평점 높은 순</option>
+          <option>리뷰 많은 순</option>
+          <option>가격 낮은 순</option>
+          <option>가격 높은 순</option>
+        </select>
+      </div>
+      
+      <div class="teachers-grid">
+        
+        <!-- 강사 카드 1 -->
+        <div class="teacher-card" data-teacher-id="1">
+          <div class="teacher-header" style="position: relative;">
+            <span class="online-badge">💻 온라인 가능</span>
+            <div class="teacher-avatar">
+              <img src="https://via.placeholder.com/80" alt="김미선 강사">
+            </div>
+            <div class="teacher-info">
+              <h3 class="teacher-name">
+                김미선 강사
+                <span class="certified-badge">⭐ 공인</span>
+              </h3>
+              <div class="teacher-location">📍 서울 강남구</div>
+              <div class="teacher-rating">
+                <span class="stars">★★★★★</span>
+                <span class="rating-score">4.9</span>
+                <span class="review-count">(127)</span>
+              </div>
+            </div>
+          </div>
+          <div class="teacher-body">
+            <div class="teacher-specialty">
+              <span class="specialty-tag">압화</span>
+              <span class="specialty-tag">레진</span>
+            </div>
+            <p class="teacher-desc">
+              10년 경력의 압화 전문 강사입니다. 
+              초보자도 쉽게 따라할 수 있도록 친절하게 가르쳐드립니다. 
+              소규모 클래스로 1:1 밀착 지도합니다.
+            </p>
+            <div class="teacher-stats">
+              <div class="stat-item">
+                <div class="stat-value">10년</div>
+                <div class="stat-label">경력</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">840명</div>
+                <div class="stat-label">수강생</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">98%</div>
+                <div class="stat-label">만족도</div>
+              </div>
+            </div>
+            <div class="teacher-footer">
+              <div class="class-price">
+                <div class="price-label">원데이 클래스</div>
+                <div class="price-amount">45,000원</div>
+              </div>
+              <button class="book-btn">예약하기</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 강사 카드 2 -->
+        <div class="teacher-card" data-teacher-id="2">
+          <div class="teacher-header">
+            <div class="teacher-avatar">
+              <img src="https://via.placeholder.com/80" alt="박지영 강사">
+            </div>
+            <div class="teacher-info">
+              <h3 class="teacher-name">
+                박지영 강사
+                <span class="certified-badge">⭐ 공인</span>
+              </h3>
+              <div class="teacher-location">📍 경기 분당구</div>
+              <div class="teacher-rating">
+                <span class="stars">★★★★★</span>
+                <span class="rating-score">5.0</span>
+                <span class="review-count">(89)</span>
+              </div>
+            </div>
+          </div>
+          <div class="teacher-body">
+            <div class="teacher-specialty">
+              <span class="specialty-tag">레진</span>
+              <span class="specialty-tag">하바리움</span>
+            </div>
+            <p class="teacher-desc">
+              레진 아트 전문가입니다. 
+              독특한 디자인과 색감으로 나만의 작품을 만들어보세요. 
+              초급부터 고급까지 맞춤 수업 가능합니다.
+            </p>
+            <div class="teacher-stats">
+              <div class="stat-item">
+                <div class="stat-value">8년</div>
+                <div class="stat-label">경력</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">620명</div>
+                <div class="stat-label">수강생</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">만족도</div>
+              </div>
+            </div>
+            <div class="teacher-footer">
+              <div class="class-price">
+                <div class="price-label">원데이 클래스</div>
+                <div class="price-amount">50,000원</div>
+              </div>
+              <button class="book-btn">예약하기</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 강사 카드 3 (이진선 대표 특별 레슨) -->
+        <div class="teacher-card" data-teacher-id="3" style="border: 3px solid var(--color-secondary);">
+          <div class="teacher-header" style="position: relative; background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);">
+            <span class="online-badge" style="background: linear-gradient(135deg, #FFD700, #FFA500);">👑 프리미엄</span>
+            <div class="teacher-avatar" style="border-color: var(--color-secondary);">
+              <img src="https://via.placeholder.com/80" alt="이진선 대표">
+            </div>
+            <div class="teacher-info">
+              <h3 class="teacher-name">
+                이진선 대표
+                <span class="certified-badge" style="background: linear-gradient(135deg, #FFD700, #FFA500);">👑 장인</span>
+              </h3>
+              <div class="teacher-location">📍 서울 송파구 본사</div>
+              <div class="teacher-rating">
+                <span class="stars">★★★★★</span>
+                <span class="rating-score">5.0</span>
+                <span class="review-count">(1,234)</span>
+              </div>
+            </div>
+          </div>
+          <div class="teacher-body">
+            <div class="teacher-specialty">
+              <span class="specialty-tag" style="background: var(--color-secondary);">압화</span>
+              <span class="specialty-tag" style="background: var(--color-secondary);">레진</span>
+              <span class="specialty-tag" style="background: var(--color-secondary);">하바리움</span>
+            </div>
+            <p class="teacher-desc">
+              40년 경력의 압화 예술 장인. 
+              한국 압화 예술의 1세대이자 1,000명 이상의 강사를 배출했습니다. 
+              특별한 날, 장인에게 직접 배우는 기회를 놓치지 마세요.
+            </p>
+            <div class="teacher-stats">
+              <div class="stat-item">
+                <div class="stat-value">40년</div>
+                <div class="stat-label">경력</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">1,000+</div>
+                <div class="stat-label">배출 강사</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">만족도</div>
+              </div>
+            </div>
+            <div class="teacher-footer">
+              <div class="class-price">
+                <div class="price-label">1:1 특별 레슨</div>
+                <div class="price-amount">150,000원</div>
+              </div>
+              <button class="book-btn" style="background: linear-gradient(135deg, #FFD700, #FFA500);">예약하기</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 추가 강사 카드들... -->
+        <div class="teacher-card" data-teacher-id="4">
+          <div class="teacher-header" style="position: relative;">
+            <span class="online-badge">💻 온라인 가능</span>
+            <div class="teacher-avatar">
+              <img src="https://via.placeholder.com/80" alt="최수진 강사">
+            </div>
+            <div class="teacher-info">
+              <h3 class="teacher-name">
+                최수진 강사
+                <span class="certified-badge">⭐ 공인</span>
+              </h3>
+              <div class="teacher-location">📍 부산 해운대구</div>
+              <div class="teacher-rating">
+                <span class="stars">★★★★☆</span>
+                <span class="rating-score">4.8</span>
+                <span class="review-count">(64)</span>
+              </div>
+            </div>
+          </div>
+          <div class="teacher-body">
+            <div class="teacher-specialty">
+              <span class="specialty-tag">부케기프트</span>
+              <span class="specialty-tag">압화</span>
+            </div>
+            <p class="teacher-desc">
+              웨딩 부케 전문가입니다. 
+              특별한 날을 위한 맞춤 부케와 기프트를 함께 만들어보세요. 
+              온라인 수업도 가능합니다.
+            </p>
+            <div class="teacher-stats">
+              <div class="stat-item">
+                <div class="stat-value">6년</div>
+                <div class="stat-label">경력</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">380명</div>
+                <div class="stat-label">수강생</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">96%</div>
+                <div class="stat-label">만족도</div>
+              </div>
+            </div>
+            <div class="teacher-footer">
+              <div class="class-price">
+                <div class="price-label">원데이 클래스</div>
+                <div class="price-amount">55,000원</div>
+              </div>
+              <button class="book-btn">예약하기</button>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+    </div>
+    
+  </div>
+  
+  <!-- 예약 모달 -->
+  <div class="modal-backdrop" id="booking-modal">
+    <div class="booking-modal">
+      <button class="modal-close">×</button>
+      
+      <div class="modal-header">
+        <div class="modal-teacher-info">
+          <div class="modal-avatar">
+            <img src="https://via.placeholder.com/80" alt="강사">
+          </div>
+          <div>
+            <h2 class="modal-teacher-name">김미선 강사</h2>
+            <p style="color: var(--color-text-secondary);">
+              📍 서울 강남구 | ⭐ 4.9 (127개 리뷰)
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-body">
+        
+        <!-- 날짜 선택 -->
+        <div class="booking-section">
+          <h3 class="section-label">📅 날짜 선택</h3>
+          <div class="calendar">
+            <div class="calendar-header">2026년 1월</div>
+            <div class="calendar-grid">
+              <!-- 요일 헤더 -->
+              <div class="calendar-day" style="font-weight: bold; background: var(--color-background);">일</div>
+              <div class="calendar-day" style="font-weight: bold; background: var(--color-background);">월</div>
+              <div class="calendar-day" style="font-weight: bold; background: var(--color-background);">화</div>
+              <div class="calendar-day" style="font-weight: bold; background: var(--color-background);">수</div>
+              <div class="calendar-day" style="font-weight: bold; background: var(--color-background);">목</div>
+              <div class="calendar-day" style="font-weight: bold; background: var(--color-background);">금</div>
+              <div class="calendar-day" style="font-weight: bold; background: var(--color-background);">토</div>
+              
+              <!-- 날짜 -->
+              <div class="calendar-day disabled">29</div>
+              <div class="calendar-day disabled">30</div>
+              <div class="calendar-day disabled">31</div>
+              <div class="calendar-day disabled">1</div>
+              <div class="calendar-day disabled">2</div>
+              <div class="calendar-day available">3</div>
+              <div class="calendar-day weekend available">4</div>
+              
+              <div class="calendar-day weekend available">5</div>
+              <div class="calendar-day available">6</div>
+              <div class="calendar-day available">7</div>
+              <div class="calendar-day available">8</div>
+              <div class="calendar-day available">9</div>
+              <div class="calendar-day available selected">10</div>
+              <div class="calendar-day weekend available">11</div>
+              
+              <div class="calendar-day weekend available">12</div>
+              <div class="calendar-day available">13</div>
+              <div class="calendar-day available">14</div>
+              <div class="calendar-day available">15</div>
+              <div class="calendar-day available">16</div>
+              <div class="calendar-day available">17</div>
+              <div class="calendar-day weekend available">18</div>
+              
+              <div class="calendar-day weekend available">19</div>
+              <div class="calendar-day available">20</div>
+              <div class="calendar-day available">21</div>
+              <div class="calendar-day available">22</div>
+              <div class="calendar-day available">23</div>
+              <div class="calendar-day available">24</div>
+              <div class="calendar-day weekend available">25</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 시간 선택 -->
+        <div class="booking-section">
+          <h3 class="section-label">⏰ 시간 선택</h3>
+          <div class="time-slots">
+            <div class="time-slot disabled">09:00</div>
+            <div class="time-slot disabled">10:00</div>
+            <div class="time-slot disabled">11:00</div>
+            <div class="time-slot">13:00</div>
+            <div class="time-slot selected">14:00</div>
+            <div class="time-slot">15:00</div>
+            <div class="time-slot">16:00</div>
+            <div class="time-slot disabled">17:00</div>
+          </div>
+        </div>
+        
+        <!-- 수업 유형 선택 -->
+        <div class="booking-section">
+          <h3 class="section-label">📚 수업 유형</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+            <div class="time-slot selected">
+              <div style="font-weight: bold; margin-bottom: 4px;">원데이 클래스</div>
+              <div style="font-size: var(--font-size-small); color: var(--color-text-secondary);">45,000원</div>
+            </div>
+            <div class="time-slot">
+              <div style="font-weight: bold; margin-bottom: 4px;">1:1 레슨</div>
+              <div style="font-size: var(--font-size-small); color: var(--color-text-secondary);">80,000원</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 예약 요약 -->
+        <div class="booking-summary">
+          <h3 style="font-size: var(--font-size-large); font-weight: var(--font-weight-semibold); margin-bottom: var(--spacing-md);">
+            📋 예약 내역
+          </h3>
+          <div class="summary-item">
+            <span>강사</span>
+            <span>김미선 강사</span>
+          </div>
+          <div class="summary-item">
+            <span>날짜</span>
+            <span>2026년 1월 10일 (금)</span>
+          </div>
+          <div class="summary-item">
+            <span>시간</span>
+            <span>14:00 - 17:00 (3시간)</span>
+          </div>
+          <div class="summary-item">
+            <span>수업</span>
+            <span>원데이 클래스</span>
+          </div>
+          <div class="summary-item">
+            <span>결제 금액</span>
+            <span style="color: var(--color-primary); font-weight: var(--font-weight-bold);">45,000원</span>
+          </div>
+        </div>
+        
+        <button class="confirm-btn">결제하고 예약 확정하기</button>
+        
+        <p style="font-size: var(--font-size-small); color: var(--color-text-light); text-align: center; margin-top: var(--spacing-md);">
+          예약 확정 후 취소 시 환불 정책이 적용됩니다.<br>
+          7일 전: 100% 환불 | 3일 전: 50% 환불 | 당일: 환불 불가
+        </p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    // ========== 예약 모달 열기/닫기 ==========
+    const modal = document.getElementById('booking-modal');
+    const modalClose = document.querySelector('.modal-close');
+    const bookBtns = document.querySelectorAll('.book-btn');
+    
+    bookBtns.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const card = this.closest('.teacher-card');
+        const teacherName = card.querySelector('.teacher-name').textContent.trim();
+        
+        // 모달에 강사 정보 업데이트
+        document.querySelector('.modal-teacher-name').textContent = teacherName;
+        
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+    
+    modalClose.addEventListener('click', () => {
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    });
+    
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    });
+    
+    // ========== 캘린더 날짜 선택 ==========
+    document.querySelectorAll('.calendar-day.available').forEach(day => {
+      day.addEventListener('click', function() {
+        document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+        this.classList.add('selected');
+        
+        const date = this.textContent;
+        console.log('선택된 날짜:', date);
+      });
+    });
+    
+    // ========== 시간 슬롯 선택 ==========
+    document.querySelectorAll('.time-slot').forEach(slot => {
+      if (!slot.classList.contains('disabled')) {
+        slot.addEventListener('click', function() {
+          // 같은 그룹 내에서만 선택 해제
+          const parent = this.parentElement;
+          parent.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+          this.classList.add('selected');
+          
+          const time = this.textContent.trim();
+          console.log('선택된 시간:', time);
+        });
+      }
+    });
+    
+    // ========== 예약 확정 버튼 ==========
+    document.querySelector('.confirm-btn').addEventListener('click', function() {
+      alert('🎉 예약이 완료되었습니다!\n\n예약 번호: CLASS-2026-0102-001\n\n예약 내역:\n- 강사: 김미선\n- 날짜: 2026.01.10 (금)\n- 시간: 14:00-17:00\n- 금액: 45,000원\n\n문자 메시지와 이메일로 예약 확정서를 발송했습니다.\n수업 전날 리마인더 문자를 보내드립니다!');
+      
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    });
+    
+    // ========== 강사 카드 클릭 (상세 정보) ==========
+    document.querySelectorAll('.teacher-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('.book-btn')) return;
+        
+        const teacherName = this.querySelector('.teacher-name').textContent.trim();
+        const rating = this.querySelector('.rating-score').textContent;
+        const desc = this.querySelector('.teacher-desc').textContent;
+        
+        alert(`👩‍🏫 ${teacherName}\n\n⭐ 평점: ${rating}\n\n소개:\n${desc}\n\n상세 프로필 페이지로 이동합니다.`);
+      });
+    });
+    
+    console.log(`
+===========================================
+👩‍🏫 강사 매칭 플랫폼 v1.0
+===========================================
+✅ 구현된 기능:
+
+📌 강사 프로필
+- 사진, 이름, 인증 배지
+- 위치 및 평점
+- 전문 분야 태그
+- 경력, 수강생 수, 만족도
+- 수업 가격
+
+📌 검색 & 필터
+- 지역 검색
+- 공예 종류 필터
+- 수업 형태 (오프라인/온라인)
+- 가격대 필터
+- 정렬 (추천순/평점/리뷰/가격)
+
+📌 원데이 클래스 예약
+- 실시간 캘린더
+- 가능한 날짜 표시
+- 시간대 선택
+- 수업 유형 선택
+- 예약 요약
+
+📌 결제 시스템
+- 예약 확정
+- 환불 정책 명시
+- 문자/이메일 알림
+- 리마인더 발송
+
+📌 특별 기능
+- 이진선 대표 1:1 특별 레슨
+- 온라인 레슨 배지
+- 공인 강사 인증
+- 리뷰 시스템
+
+===========================================
+    `);
+  </script>
+  
+</body>
+</html>
+

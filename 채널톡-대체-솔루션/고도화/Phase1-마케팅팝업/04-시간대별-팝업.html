@@ -1,0 +1,236 @@
+<style>
+.mk-time-overlay{position:fixed;top:0;left:0;right:0;bottom:0;
+background:rgba(0,0,0,0.5);z-index:99999;display:none;opacity:0}
+.mk-time-overlay.show{display:block;opacity:1}
+.mk-time-modal{position:fixed;top:50%;left:50%;
+transform:translate(-50%,-50%);background:#fff;border-radius:20px;
+padding:0;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+z-index:100000;opacity:0;transform:translate(-50%,-50%) translateY(20px)}
+.mk-time-modal.show{opacity:1;transform:translate(-50%,-50%) translateY(0)}
+.mk-time-close{position:absolute;top:15px;right:15px;z-index:1;
+background:rgba(0,0,0,0.1);border:none;width:36px;height:36px;
+border-radius:50%;color:#fff;font-size:20px;cursor:pointer;line-height:36px}
+.mk-time-close:hover{background:rgba(0,0,0,0.2)}
+.mk-time-header{background:linear-gradient(135deg,#8B9D83,#A8B99C);
+color:#fff;padding:35px 30px;text-align:center;border-radius:20px 20px 0 0;
+position:relative}
+.mk-time-emoji{font-size:56px;margin-bottom:15px}
+.mk-time-badge{display:inline-block;background:rgba(255,255,255,0.25);
+padding:6px 16px;border-radius:15px;font-size:12px;font-weight:700;
+margin-bottom:10px;letter-spacing:0.5px}
+.mk-time-title{font-size:24px;font-weight:700;margin:0 0 8px 0}
+.mk-time-subtitle{font-size:14px;opacity:0.95;margin:0}
+.mk-time-body{padding:30px}
+.mk-time-products{margin:0 0 20px 0}
+.mk-time-product{background:#F8FAF7;border-radius:12px;
+padding:15px;margin-bottom:10px;overflow:hidden}
+.mk-time-product:last-child{margin-bottom:0}
+.mk-time-product-name{font-size:15px;font-weight:600;
+color:#333;margin:0 0 8px 0}
+.mk-time-product-price{overflow:hidden}
+.mk-time-original{font-size:14px;color:#999;
+text-decoration:line-through;float:left}
+.mk-time-discount{font-size:18px;font-weight:700;color:#8B9D83;float:right}
+.mk-time-info{background:#fff;border:2px solid #E8EDE6;
+border-radius:10px;padding:15px;text-align:center;margin:20px 0}
+.mk-time-info-title{font-size:13px;color:#666;margin:0 0 5px 0}
+.mk-time-info-time{font-size:16px;font-weight:700;color:#8B9D83;margin:0}
+.mk-time-btn{background:#8B9D83;color:#fff;border:none;
+padding:16px 30px;border-radius:12px;font-size:16px;font-weight:700;
+cursor:pointer;width:100%;margin-top:10px}
+.mk-time-btn:hover{opacity:0.9}
+.mk-time-footer{padding:0 30px 25px;text-align:center}
+.mk-time-check{font-size:13px;color:#999}
+.mk-time-check input{margin-right:6px}
+@media (max-width:768px){
+.mk-time-modal{max-width:90%}
+.mk-time-body{padding:20px}
+.mk-time-title{font-size:20px}
+}
+</style>
+<div class="mk-time-overlay" id="mkTimeOverlay">
+<div class="mk-time-modal" id="mkTimeModal">
+<button class="mk-time-close" id="mkTimeClose">×</button>
+<div class="mk-time-header">
+<div class="mk-time-emoji" id="mkTimeEmoji">🌙</div>
+<div class="mk-time-badge" id="mkTimeBadge">SPECIAL TIME</div>
+<h2 class="mk-time-title" id="mkTimeTitle">굿나잇 타임 특가</h2>
+<p class="mk-time-subtitle" id="mkTimeSubtitle">밤에만 만나는 특별한 할인</p>
+</div>
+<div class="mk-time-body">
+<div class="mk-time-products" id="mkTimeProducts">
+<div class="mk-time-product">
+<p class="mk-time-product-name">베스트 상품 전체</p>
+<div class="mk-time-product-price">
+<span class="mk-time-original">정상가</span>
+<span class="mk-time-discount">10% 할인</span>
+</div>
+</div>
+<div class="mk-time-product">
+<p class="mk-time-product-name">신상품 전체</p>
+<div class="mk-time-product-price">
+<span class="mk-time-original">정상가</span>
+<span class="mk-time-discount">15% 할인</span>
+</div>
+</div>
+</div>
+<div class="mk-time-info">
+<p class="mk-time-info-title">남은 시간</p>
+<p class="mk-time-info-time" id="mkTimeLeft">00:00:00</p>
+</div>
+<button class="mk-time-btn" id="mkTimeShop">지금 쇼핑하기</button>
+</div>
+<div class="mk-time-footer">
+<label class="mk-time-check">
+<input type="checkbox" id="mkTimeNoShow">
+오늘 하루 보지 않기
+</label>
+</div>
+</div>
+</div>
+<script>
+(function(){
+function getCookie(n){
+var v=document.cookie.match('(^|;) ?'+n+'=([^;]*)(;|$)');
+return v?v[2]:null;
+}
+function setCookie(n,v,d){
+var date=new Date();
+date.setTime(date.getTime()+(d*24*60*60*1000));
+document.cookie=n+'='+v+';expires='+date.toUTCString()+';path=/';
+}
+function getTimeSlot(){
+var hour=new Date().getHours();
+if(hour>=0&&hour<6){
+return {emoji:'🌙',badge:'MIDNIGHT SALE',title:'미드나잇 특가',
+subtitle:'자정에만 만나는 특별한 할인',products:[
+{name:'전 상품',discount:'15%'},{name:'베스트 상품',discount:'20%'}],
+endHour:6};
+}else if(hour>=6&&hour<12){
+return {emoji:'☀️',badge:'MORNING DEAL',title:'모닝 딜',
+subtitle:'아침 일찍 일어나신 당신께',products:[
+{name:'인기 상품',discount:'10%'},{name:'신상품',discount:'12%'}],
+endHour:12};
+}else if(hour>=12&&hour<14){
+return {emoji:'🍽️',badge:'LUNCH TIME',title:'런치 타임 특가',
+subtitle:'점심 시간 특별 할인',products:[
+{name:'베스트 상품',discount:'12%'},{name:'추천 상품',discount:'15%'}],
+endHour:14};
+}else if(hour>=14&&hour<18){
+return {emoji:'☕',badge:'AFTERNOON TEA',title:'애프터눈 특가',
+subtitle:'여유로운 오후를 위한 할인',products:[
+{name:'전 상품',discount:'8%'},{name:'인기 상품',discount:'10%'}],
+endHour:18};
+}else if(hour>=18&&hour<21){
+return {emoji:'🌆',badge:'EVENING SALE',title:'이브닝 세일',
+subtitle:'저녁 시간 특별 혜택',products:[
+{name:'베스트 상품',discount:'10%'},{name:'신상품',discount:'15%'}],
+endHour:21};
+}else{
+return {emoji:'🌙',badge:'NIGHT SALE',title:'굿나잇 타임 특가',
+subtitle:'밤에만 만나는 특별한 할인',products:[
+{name:'베스트 상품',discount:'10%'},{name:'신상품',discount:'15%'}],
+endHour:24};
+}
+}
+function updateContent(){
+var slot=getTimeSlot();
+var emoji=document.getElementById('mkTimeEmoji');
+var badge=document.getElementById('mkTimeBadge');
+var title=document.getElementById('mkTimeTitle');
+var subtitle=document.getElementById('mkTimeSubtitle');
+var productsDiv=document.getElementById('mkTimeProducts');
+if(emoji)emoji.textContent=slot.emoji;
+if(badge)badge.textContent=slot.badge;
+if(title)title.textContent=slot.title;
+if(subtitle)subtitle.textContent=slot.subtitle;
+if(productsDiv){
+var html='';
+for(var i=0;i<slot.products.length;i++){
+var p=slot.products[i];
+html+='<div class="mk-time-product">';
+html+='<p class="mk-time-product-name">'+p.name+'</p>';
+html+='<div class="mk-time-product-price">';
+html+='<span class="mk-time-original">정상가</span>';
+html+='<span class="mk-time-discount">'+p.discount+' 할인</span>';
+html+='</div></div>';
+}
+productsDiv.innerHTML=html;
+}
+updateTimer(slot.endHour);
+}
+function updateTimer(endHour){
+var timeLeft=document.getElementById('mkTimeLeft');
+if(!timeLeft)return;
+function calc(){
+var now=new Date();
+var end=new Date();
+end.setHours(endHour,0,0,0);
+if(end<now){
+end.setDate(end.getDate()+1);
+}
+var diff=end-now;
+var hours=Math.floor(diff/(1000*60*60));
+var mins=Math.floor((diff%(1000*60*60))/(1000*60));
+var secs=Math.floor((diff%(1000*60))/1000);
+timeLeft.textContent=
+(hours<10?'0':'')+hours+':'+
+(mins<10?'0':'')+mins+':'+
+(secs<10?'0':'')+secs;
+}
+calc();
+setInterval(calc,1000);
+}
+function showTime(){
+var overlay=document.getElementById('mkTimeOverlay');
+var modal=document.getElementById('mkTimeModal');
+if(overlay&&modal){
+updateContent();
+overlay.className='mk-time-overlay show';
+setTimeout(function(){
+modal.className='mk-time-modal show';
+},100);
+}
+}
+function hideTime(){
+var overlay=document.getElementById('mkTimeOverlay');
+var modal=document.getElementById('mkTimeModal');
+var noShow=document.getElementById('mkTimeNoShow');
+if(noShow&&noShow.checked){
+setCookie('mk_time_seen','1',1);
+}
+if(modal){
+modal.className='mk-time-modal';
+}
+setTimeout(function(){
+if(overlay){
+overlay.className='mk-time-overlay';
+}
+},300);
+}
+var seenTime=getCookie('mk_time_seen');
+if(!seenTime){
+setTimeout(showTime,7000);
+}
+var closeBtn=document.getElementById('mkTimeClose');
+if(closeBtn){
+closeBtn.onclick=hideTime;
+}
+var overlay=document.getElementById('mkTimeOverlay');
+if(overlay){
+overlay.onclick=function(e){
+if(e.target===overlay){
+hideTime();
+}
+};
+}
+var shopBtn=document.getElementById('mkTimeShop');
+if(shopBtn){
+shopBtn.onclick=function(){
+hideTime();
+window.location.href='/product/list.html';
+};
+}
+})();
+</script>
+

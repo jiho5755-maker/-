@@ -2,8 +2,6 @@ import streamlit as st
 import random
 import pandas as pd
 from datetime import datetime
-from openai import OpenAI
-import os
 
 # 페이지 설정
 st.set_page_config(
@@ -11,118 +9,6 @@ st.set_page_config(
     page_icon="💰",
     layout="wide"
 )
-
-# OpenAI 클라이언트 초기화
-@st.cache_resource
-def get_openai_client():
-    """OpenAI 클라이언트를 초기화합니다."""
-    api_key = os.getenv("OPENAI_API_KEY")
-    if api_key:
-        return OpenAI(api_key=api_key)
-    return None
-
-# AI 창업 아이템 분석 함수
-def analyze_business_idea_with_ai(business_idea, market_money, num_buyers):
-    """AI가 창업 아이템을 분석하고 원가율, 노력도 등을 제안합니다."""
-    client = get_openai_client()
-    
-    if not client:
-        return None
-    
-    try:
-        avg_budget = market_money / num_buyers
-        
-        prompt = f"""당신은 초등학생/중학생 대상 경제 교육 게임의 AI 조언자입니다.
-        
-학생이 제안한 창업 아이템: {business_idea}
-
-시장 상황:
-- 전체 시장 화폐: {market_money:,}원
-- 구매자 수: {num_buyers}명
-- 1인당 평균 예산: {avg_budget:,.0f}원
-
-다음 정보를 분석해서 JSON 형식으로 답변해주세요:
-
-1. business_type: 사업 유형 분류 (제조업, 서비스업, 유통업, 지식업, 대여업 중 선택)
-2. cost_ratio: 원가율 (0.1~0.8 사이, 소수점)
-3. effort_level: 노력/피로도 (1~5, 정수)
-4. grade_recommendation: 추천 상품 등급 (basic/premium/luxury)
-5. reason: 이 분석의 이유 (한글, 2-3문장)
-6. advice: 학생에게 주는 조언 (한글, 2-3문장)
-7. target_customer: 타겟 고객 (짠물/일반/큰손 중 선택)
-
-응답 형식:
-{{
-    "business_type": "제조업",
-    "cost_ratio": 0.6,
-    "effort_level": 4,
-    "grade_recommendation": "premium",
-    "reason": "설명...",
-    "advice": "조언...",
-    "target_customer": "일반"
-}}"""
-
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "당신은 경제 교육 전문가이며, 초중학생들의 창업 아이디어를 분석하는 AI입니다."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            response_format={"type": "json_object"}
-        )
-        
-        import json
-        result = json.loads(response.choices[0].message.content)
-        return result
-        
-    except Exception as e:
-        st.error(f"AI 분석 중 오류 발생: {str(e)}")
-        return None
-
-# AI 전략 조언 함수
-def get_ai_advice_for_round(student_name, student_data, round_num, market_info):
-    """라운드별 AI 조언을 제공합니다."""
-    client = get_openai_client()
-    
-    if not client:
-        return None
-    
-    try:
-        prompt = f"""당신은 경제 교육 게임의 AI 조언자입니다.
-
-학생 이름: {student_name}
-현재 라운드: {round_num}
-
-학생 정보:
-- 사업 유형: {student_data['business_type']}
-- 상품 등급: {student_data['grade']}
-- 추천 원가: {student_data['recommended_cost']:,.0f}원
-
-지금까지 실적:
-- 총 매출: {student_data['total_revenue']:,.0f}원
-- 총 순이익: {student_data['total_profit']:,.0f}원
-
-시장 상황:
-- 총 화폐: {market_info['total_money']:,}원
-- 구매자 수: {market_info['total_buyers']}명
-
-이 학생에게 다음 라운드를 위한 구체적이고 실용적인 조언을 3-4문장으로 해주세요.
-조언에는 가격 전략, 타겟 고객, 마케팅 포인트 등을 포함해주세요."""
-
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "당신은 친근하고 격려적인 경제 교육 전문가입니다."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.8
-        )
-        
-        return response.choices[0].message.content
-        
-    except Exception as e:
-        return None
 
 # 세션 스테이트 초기화
 if 'students' not in st.session_state:
@@ -140,29 +26,6 @@ st.markdown("---")
 
 # 사이드바: 시장 설정
 st.sidebar.header("⚙️ 시장 설정 (Admin)")
-
-# AI 설정
-st.sidebar.markdown("### 🤖 AI 조언자 설정")
-with st.sidebar.expander("OpenAI API 키 설정", expanded=False):
-    api_key_input = st.text_input(
-        "API 키 입력",
-        type="password",
-        help="OpenAI API 키를 입력하면 AI 조언자 기능이 활성화됩니다",
-        key="openai_api_key_input"
-    )
-    
-    if api_key_input:
-        os.environ["OPENAI_API_KEY"] = api_key_input
-        st.success("✅ AI 조언자 활성화됨!")
-    else:
-        current_key = os.getenv("OPENAI_API_KEY")
-        if current_key:
-            st.info("✅ AI 조언자 사용 가능")
-        else:
-            st.warning("⚠️ AI 조언자 비활성화")
-    
-    st.caption("💡 API 키는 [OpenAI 웹사이트](https://platform.openai.com/api-keys)에서 발급받을 수 있습니다.")
-
 st.sidebar.markdown("### 💵 시장 기본 설정")
 
 total_money = st.sidebar.number_input(
@@ -266,70 +129,9 @@ with tab1:
         st.write("")  # 간격 조정
 
     st.markdown("---")
-    
-    # AI 분석 모드
-    st.header("🤖 AI 창업 분석")
-    
-    use_ai_analysis = st.checkbox(
-        "✨ AI에게 창업 아이템 분석 요청하기 (추천!)",
-        help="학생이 원하는 창업 아이템을 설명하면 AI가 자동으로 원가, 노력도 등을 분석해줍니다"
-    )
-    
-    ai_analysis_result = None
-    
-    if use_ai_analysis:
-        st.info("💡 **AI 분석 모드**: 학생이 팔고 싶은 아이템이나 서비스를 자유롭게 설명해보세요!")
-        
-        business_idea = st.text_area(
-            "💭 창업 아이디어 설명",
-            placeholder="예: 손으로 직접 만든 귀여운 동물 캐릭터 키링을 팔고 싶어요. 재료는 펠트와 솜을 사용할 거예요.",
-            height=100,
-            key="business_idea_input"
-        )
-        
-        if st.button("🔍 AI에게 분석 요청", type="primary", key="analyze_ai"):
-            if not business_idea:
-                st.error("⚠️ 창업 아이디어를 먼저 입력해주세요!")
-            elif not get_openai_client():
-                st.error("⚠️ OpenAI API 키가 설정되지 않았습니다. 관리자에게 문의하세요.")
-            else:
-                with st.spinner("🤖 AI가 분석 중입니다..."):
-                    ai_analysis_result = analyze_business_idea_with_ai(
-                        business_idea, 
-                        total_money, 
-                        total_buyers
-                    )
-                
-                if ai_analysis_result:
-                    st.success("✅ AI 분석 완료!")
-                    
-                    # AI 분석 결과 표시
-                    col_ai1, col_ai2, col_ai3 = st.columns(3)
-                    
-                    with col_ai1:
-                        st.metric("🏭 사업 유형", ai_analysis_result['business_type'])
-                    with col_ai2:
-                        st.metric("💰 원가율", f"{ai_analysis_result['cost_ratio']*100:.0f}%")
-                    with col_ai3:
-                        st.metric("🔥 노력도", f"{ai_analysis_result['effort_level']}/5")
-                    
-                    st.markdown("### 📊 AI 분석 리포트")
-                    st.info(f"**분석 근거**: {ai_analysis_result['reason']}")
-                    st.success(f"**💡 조언**: {ai_analysis_result['advice']}")
-                    
-                    # 세션에 저장
-                    if 'ai_analysis' not in st.session_state:
-                        st.session_state.ai_analysis = {}
-                    st.session_state.ai_analysis = ai_analysis_result
-    
-    st.markdown("---")
 
     # 창업 유형 선택
     st.header("🎯 창업 유형 선택")
-    
-    # AI 분석 결과가 있으면 자동으로 반영
-    if hasattr(st.session_state, 'ai_analysis') and st.session_state.ai_analysis:
-        st.info("💡 AI가 분석한 결과를 바탕으로 자동 설정되었습니다. 원하시면 수동으로 변경할 수 있습니다!")
 
     business_types = {
         "🔨 뚝딱뚝딱 (제조/만들기)": {
@@ -378,41 +180,36 @@ with tab1:
 
     st.info(f"💡 {business_types[selected_business]['description']}")
     
-    # 직접 설정 모드 - placeholder를 사용하여 항상 같은 공간 차지
-    custom_settings_placeholder = st.container()
-    
-    with custom_settings_placeholder:
-        if business_types[selected_business]["key"] == "custom":
-            st.markdown("---")
-            st.subheader("⚙️ 세부 설정")
-            
-            custom_col1, custom_col2 = st.columns(2)
-            
-            with custom_col1:
-                custom_cost_ratio = st.slider(
-                    "💰 원가율 (%)",
-                    min_value=5,
-                    max_value=80,
-                    value=50,
-                    step=5,
-                    help="기준 가격 대비 원가 비율 (높을수록 원가가 비쌈)",
-                    key="custom_cost_slider"
-                ) / 100
-            
-            with custom_col2:
-                custom_effort = st.slider(
-                    "🔥 노력/피로도",
-                    min_value=1,
-                    max_value=5,
-                    value=3,
-                    step=1,
-                    help="사업의 힘든 정도 (1=매우 쉬움, 5=매우 힘듦)",
-                    key="custom_effort_slider"
-                )
-            
-            # 커스텀 값 적용
-            business_types[selected_business]["cost_ratio"] = custom_cost_ratio
-            business_types[selected_business]["effort"] = custom_effort
+    # 직접 설정 모드
+    if business_types[selected_business]["key"] == "custom":
+        st.markdown("---")
+        st.subheader("⚙️ 세부 설정")
+        
+        custom_col1, custom_col2 = st.columns(2)
+        
+        with custom_col1:
+            custom_cost_ratio = st.slider(
+                "💰 원가율 (%)",
+                min_value=5,
+                max_value=80,
+                value=50,
+                step=5,
+                help="기준 가격 대비 원가 비율 (높을수록 원가가 비쌈)"
+            ) / 100
+        
+        with custom_col2:
+            custom_effort = st.slider(
+                "🔥 노력/피로도",
+                min_value=1,
+                max_value=5,
+                value=3,
+                step=1,
+                help="사업의 힘든 정도 (1=매우 쉬움, 5=매우 힘듦)"
+            )
+        
+        # 커스텀 값 적용
+        business_types[selected_business]["cost_ratio"] = custom_cost_ratio
+        business_types[selected_business]["effort"] = custom_effort
 
     st.markdown("---")
 
@@ -454,12 +251,12 @@ with tab1:
     col_btn1, col_btn2 = st.columns(2)
     
     with col_btn1:
-        submit_button = st.button("🎉 창업 컨설팅 결과 보기", type="primary", use_container_width=True, key="submit_consulting")
+        submit_button = st.button("🎉 창업 컨설팅 결과 보기", type="primary", use_container_width=True)
     
     with col_btn2:
         # 기존 학생인 경우 수정 버튼 표시
         if student_name and student_name in st.session_state.students:
-            edit_button = st.button("✏️ 기존 정보 수정하기", type="secondary", use_container_width=True, key="edit_consulting")
+            edit_button = st.button("✏️ 기존 정보 수정하기", type="secondary", use_container_width=True)
         else:
             edit_button = False
     
@@ -469,37 +266,6 @@ with tab1:
         elif total_ratio != 100:
             st.error("⚠️ 사이드바에서 구매자 성향 비율을 100%로 맞춰주세요!")
         else:
-            # 원가 계산
-            avg_budget_per_person = total_money / total_buyers
-            target_items_per_person = 4
-            base_price = avg_budget_per_person / target_items_per_person
-            
-            # AI 분석 결과가 있으면 우선 사용
-            if hasattr(st.session_state, 'ai_analysis') and st.session_state.ai_analysis:
-                ai_result = st.session_state.ai_analysis
-                business_cost_ratio = ai_result['cost_ratio']
-                
-                # AI가 추천한 등급 매핑
-                grade_map = {
-                    'basic': "💚 일반형 (가성비)",
-                    'premium': "💙 고급형 (퀄리티)",
-                    'luxury': "💜 하이엔드 (명품)"
-                }
-                selected_grade = grade_map.get(ai_result['grade_recommendation'], selected_grade)
-            else:
-                # 유형별 원가 비율 적용
-                business_cost_ratio = business_types[selected_business]["cost_ratio"]
-            
-            cost_before_grade = base_price * business_cost_ratio
-            
-            # 등급별 승수 적용
-            grade_multiplier = grade_types[selected_grade]["multiplier"]
-            recommended_cost = cost_before_grade * grade_multiplier
-            
-            # 랜덤성 ±10% 부여
-            random_factor = random.uniform(0.9, 1.1)
-            final_cost = recommended_cost * random_factor
-            
             st.balloons()
             
             st.markdown("---")
@@ -581,25 +347,17 @@ with tab1:
             
             advice_box = st.container()
             with advice_box:
-                # AI 조언이 있으면 최우선 표시
-                if hasattr(st.session_state, 'ai_analysis') and st.session_state.ai_analysis:
-                    st.success(f"🤖 **AI 조언**: {st.session_state.ai_analysis['advice']}")
-                    st.markdown("---")
-                
                 # 유형별 조언
-                business_key = business_types[selected_business]["key"]
-                if business_key == "service":
+                if business_types[selected_business]["key"] == "service":
                     st.info("👍 **서비스업 팁:** 원가는 낮지만 체력 소모가 큽니다! 무리하지 말고 적정 가격을 받으세요.")
-                elif business_key == "manufacturing":
+                elif business_types[selected_business]["key"] == "manufacturing":
                     st.info("👍 **제조업 팁:** 재료비가 많이 들어갑니다. 미리 재료를 충분히 준비하세요!")
-                elif business_key == "distribution":
+                elif business_types[selected_business]["key"] == "distribution":
                     st.info("👍 **유통업 팁:** 어디서 얼마에 살지가 중요합니다. 발품을 팔아 좋은 곳을 찾아보세요!")
-                elif business_key == "knowledge":
+                elif business_types[selected_business]["key"] == "knowledge":
                     st.info("👍 **지식업 팁:** 원가가 거의 없지만, 내가 가진 지식이 정말 가치 있는지 확인하세요!")
-                elif business_key == "rental":
+                else:  # rental
                     st.info("👍 **대여업 팁:** 노력은 적지만 물건이 망가질 위험이 있습니다. 보증금을 받는 것도 고려해보세요!")
-                elif business_key == "custom":
-                    st.info("👍 **맞춤형 팁:** 자신만의 아이디어로 시장을 공략하세요! 원가와 노력을 잘 조절했다면 성공할 수 있습니다.")
                 
                 # 등급별 조언
                 if grade_types[selected_grade]["key"] == "luxury":
@@ -653,9 +411,9 @@ with tab2:
             # 학생 정보 요약
             col1, col2, col3 = st.columns(3)
             with col1:
-                st.metric("🏪 사업 유형", student_data["business_type"])
+                st.metric("🏪 사업 유형", student_data["business_type"][:4])
             with col2:
-                st.metric("⭐ 상품 등급", student_data["grade"])
+                st.metric("⭐ 상품 등급", student_data["grade"][:4])
             with col3:
                 st.metric("💰 추천 원가", f"{student_data['recommended_cost']:,.0f}원")
             
@@ -736,25 +494,6 @@ with tab2:
                 
                 st.success(f"✅ {selected_student}님의 {st.session_state.current_round}라운드 데이터가 저장되었습니다!")
                 st.balloons()
-                
-                # AI 조언 제공
-                if get_openai_client():
-                    with st.spinner("🤖 AI가 성과를 분석하고 조언을 준비 중입니다..."):
-                        market_info = {
-                            'total_money': total_money,
-                            'total_buyers': total_buyers
-                        }
-                        ai_advice = get_ai_advice_for_round(
-                            selected_student, 
-                            student_data, 
-                            st.session_state.current_round,
-                            market_info
-                        )
-                        
-                        if ai_advice:
-                            st.markdown("---")
-                            st.subheader("🤖 AI 조언자의 피드백")
-                            st.info(ai_advice)
             
             # 누적 현황
             if student_data["total_revenue"] > 0:
@@ -965,3 +704,4 @@ st.markdown("""
     <p>🏪 장사의 신 - 경제 교육 게임 v2.0 | Made with ❤️ for Students</p>
 </div>
 """, unsafe_allow_html=True)
+

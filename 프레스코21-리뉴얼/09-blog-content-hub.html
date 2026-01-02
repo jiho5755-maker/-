@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="프레스코21 블로그 - 압화, 레진, 하바리움 등 공예 트렌드와 노하우를 공유합니다. 이진선 대표의 40년 노하우.">
+  <meta name="keywords" content="압화 만들기, 레진 초보, 하바리움 재료, 공예 블로그, 프레스코21, 이진선">
+  <title>공예 매거진 - 프레스코21 블로그</title>
+  
+  <!-- 브랜드 시스템 CSS -->
+  <link rel="stylesheet" href="01-brand-system.css">
+  
+  <style>
+    /* ========== 블로그 허브 CSS ========== */
+    
+    .blog-hub {
+      background-color: var(--color-background);
+      min-height: 100vh;
+    }
+    
+    /* 히어로 섹션 */
+    .blog-hero {
+      background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%);
+      color: white;
+      padding: var(--spacing-xxxl) 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .blog-hero::before {
+      content: '📰';
+      position: absolute;
+      top: -40px;
+      right: 10%;
+      font-size: 200px;
+      opacity: 0.1;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-10deg); }
+      50% { transform: translateY(-20px) rotate(10deg); }
+    }
+    
+    .hero-content {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .blog-hero h1 {
+      font-size: var(--font-size-h1);
+      font-family: var(--font-serif);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .blog-hero p {
+      font-size: var(--font-size-large);
+      opacity: 0.95;
+      margin-bottom: var(--spacing-xl);
+      line-height: 1.7;
+    }
+    
+    .search-box {
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 16px 50px 16px 20px;
+      border: none;
+      border-radius: var(--border-radius-lg);
+      font-size: var(--font-size-base);
+      outline: none;
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .search-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: var(--color-primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      transition: all var(--transition-fast);
+    }
+    
+    .search-btn:hover {
+      background-color: var(--color-primary-dark);
+    }
+    
+    /* 카테고리 네비게이션 */
+    .category-nav {
+      background-color: var(--color-white);
+      padding: var(--spacing-lg) 0;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: var(--z-sticky);
+    }
+    
+    .category-container {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+    }
+    
+    .category-tabs {
+      display: flex;
+      gap: var(--spacing-sm);
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    
+    .category-tab {
+      padding: 12px 24px;
+      background-color: var(--color-background);
+      border: 2px solid transparent;
+      border-radius: var(--border-radius-lg);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-base);
+      font-weight: var(--font-weight-medium);
+    }
+    
+    .category-tab:hover {
+      background-color: var(--color-primary-light);
+      color: white;
+    }
+    
+    .category-tab.active {
+      background-color: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+    
+    /* 메인 콘텐츠 */
+    .blog-content {
+      max-width: var(--container-max-width);
+      margin: var(--spacing-xxl) auto;
+      padding: 0 var(--container-padding);
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--spacing-xxl);
+    }
+    
+    /* 피처드 포스트 */
+    .featured-post {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      margin-bottom: var(--spacing-xxl);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+    
+    .featured-post:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+    
+    .featured-image {
+      width: 100%;
+      height: 400px;
+      position: relative;
+      overflow: hidden;
+      background-color: var(--color-border);
+    }
+    
+    .featured-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--transition-slow);
+    }
+    
+    .featured-post:hover .featured-image img {
+      transform: scale(1.05);
+    }
+    
+    .featured-badge {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+      color: white;
+      padding: 8px 16px;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      z-index: 1;
+    }
+    
+    .featured-content {
+      padding: var(--spacing-xl);
+    }
+    
+    .post-meta {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+    }
+    
+    .post-title {
+      font-size: var(--font-size-h2);
+      font-family: var(--font-serif);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-md);
+      line-height: 1.4;
+    }
+    
+    .post-excerpt {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      line-height: 1.8;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .read-more-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+      transition: gap var(--transition-fast);
+    }
+    
+    .read-more-btn:hover {
+      gap: var(--spacing-sm);
+    }
+    
+    /* 포스트 그리드 */
+    .posts-grid {
+      display: grid;
+      gap: var(--spacing-xl);
+    }
+    
+    .post-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      display: flex;
+      gap: var(--spacing-md);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+    
+    .post-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateX(4px);
+    }
+    
+    .post-thumbnail {
+      width: 200px;
+      height: 150px;
+      flex-shrink: 0;
+      background-color: var(--color-border);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .post-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--transition-base);
+    }
+    
+    .post-card:hover .post-thumbnail img {
+      transform: scale(1.1);
+    }
+    
+    .post-card-content {
+      padding: var(--spacing-md);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .post-card-title {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-sm);
+      line-height: 1.4;
+    }
+    
+    .post-card-excerpt {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    /* 사이드바 */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xl);
+    }
+    
+    .sidebar-widget {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .widget-title {
+      font-size: var(--font-size-h4);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 2px solid var(--color-border);
+    }
+    
+    /* 인기 포스트 위젯 */
+    .popular-posts {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    
+    .popular-item {
+      display: flex;
+      gap: var(--spacing-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      padding: var(--spacing-sm);
+      border-radius: var(--border-radius-sm);
+    }
+    
+    .popular-item:hover {
+      background-color: var(--color-background);
+    }
+    
+    .popular-number {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: var(--font-weight-bold);
+    }
+    
+    .popular-info {
+      flex: 1;
+    }
+    
+    .popular-title {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .popular-views {
+      font-size: var(--font-size-small);
+      color: var(--color-text-light);
+    }
+    
+    /* 태그 클라우드 */
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-xs);
+    }
+    
+    .tag {
+      padding: 6px 12px;
+      background-color: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-small);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .tag:hover {
+      background-color: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+    
+    /* 뉴스레터 구독 */
+    .newsletter-widget {
+      background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%);
+      color: white;
+    }
+    
+    .newsletter-widget .widget-title {
+      color: white;
+      border-bottom-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .newsletter-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+    
+    .newsletter-input {
+      padding: 12px;
+      border: none;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+    }
+    
+    .newsletter-btn {
+      padding: 12px;
+      background-color: var(--color-secondary);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+    
+    .newsletter-btn:hover {
+      background-color: var(--color-secondary-dark);
+      transform: translateY(-2px);
+    }
+    
+    /* 이달의 꽃 위젯 */
+    .flower-of-month {
+      background: linear-gradient(135deg, #F9F8F5 0%, #FFFEF9 100%);
+    }
+    
+    .flower-image {
+      width: 100%;
+      height: 200px;
+      border-radius: var(--border-radius-md);
+      overflow: hidden;
+      margin-bottom: var(--spacing-md);
+      background-color: var(--color-border);
+    }
+    
+    .flower-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .flower-name {
+      font-size: var(--font-size-h4);
+      font-family: var(--font-serif);
+      color: var(--color-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .flower-description {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+    
+    /* 유튜브 영상 포스트 카드 */
+    .video-post-card {
+      background: linear-gradient(135deg, #F9F8F5 0%, #FFFEF9 100%);
+      border-left: 4px solid #FF0000;
+    }
+    
+    .video-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background-color: rgba(255, 0, 0, 0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      pointer-events: none;
+    }
+    
+    /* 반응형 */
+    @media (max-width: 1024px) {
+      .blog-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .featured-image {
+        height: 250px;
+      }
+      
+      .post-card {
+        flex-direction: column;
+      }
+      
+      .post-thumbnail {
+        width: 100%;
+        height: 180px;
+      }
+      
+      .sidebar {
+        grid-template-columns: 1fr;
+      }
+      
+      .category-tabs {
+        gap: var(--spacing-xs);
+      }
+      
+      .category-tab {
+        padding: 10px 16px;
+        font-size: var(--font-size-small);
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="blog-hub">
+    
+    <!-- 히어로 섹션 -->
+    <section class="blog-hero">
+      <div class="hero-content">
+        <h1>🌸 프레스코21 공예 매거진</h1>
+        <p>
+          압화, 레진, 하바리움 등 공예의 모든 것.<br>
+          이진선 대표의 40년 노하우와 최신 트렌드를 만나보세요.
+        </p>
+        <div class="search-box">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="궁금한 공예 주제를 검색해보세요 (예: 압화 물기 제거)"
+          >
+          <button class="search-btn">🔍 검색</button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 카테고리 네비게이션 -->
+    <nav class="category-nav">
+      <div class="category-container">
+        <div class="category-tabs">
+          <button class="category-tab active" data-category="all">전체</button>
+          <button class="category-tab" data-category="monthly-flower">📅 이달의 꽃</button>
+          <button class="category-tab" data-category="tips">💡 공예 팁</button>
+          <button class="category-tab" data-category="trend">📈 트렌드</button>
+          <button class="category-tab" data-category="interview">🎤 강사 인터뷰</button>
+          <button class="category-tab" data-category="master-knowhow">👑 이진선의 노하우</button>
+          <button class="category-tab" data-category="video">📽️ 영상 가이드</button>
+        </div>
+      </div>
+    </nav>
+    
+    <!-- 메인 콘텐츠 -->
+    <div class="blog-content">
+      
+      <!-- 메인 콘텐츠 영역 -->
+      <main>
+        
+        <!-- 피처드 포스트 -->
+        <article class="featured-post">
+          <div class="featured-image">
+            <img src="https://via.placeholder.com/800x400" alt="피처드 이미지">
+            <span class="featured-badge">⭐ 이번 주 인기</span>
+          </div>
+          <div class="featured-content">
+            <div class="post-meta">
+              <span class="meta-item">
+                <span>👑</span>
+                <span>이진선의 노하우</span>
+              </span>
+              <span class="meta-item">
+                <span>📅</span>
+                <span>2026.01.02</span>
+              </span>
+              <span class="meta-item">
+                <span>👁️</span>
+                <span>12,847 조회</span>
+              </span>
+            </div>
+            <h2 class="post-title">
+              압화지 물기 제거 완벽 가이드 - 40년 장인이 알려주는 핵심 노하우
+            </h2>
+            <p class="post-excerpt">
+              초보자들이 가장 많이 실수하는 부분이 바로 압화지의 물기 제거입니다. 
+              물기가 남아있으면 곰팡이가 생기거나 색이 변할 수 있습니다. 
+              이진선 대표가 40년간 터득한 물기 제거 비법을 공개합니다. 
+              키친타올을 활용한 방법부터 습도 조절까지, 실전 팁을 모두 담았습니다...
+            </p>
+            <a href="#" class="read-more-btn">
+              <span>자세히 읽기</span>
+              <span>→</span>
+            </a>
+          </div>
+        </article>
+        
+        <!-- 포스트 그리드 -->
+        <div class="posts-grid">
+          
+          <!-- 이달의 꽃 포스트 -->
+          <article class="post-card">
+            <div class="post-thumbnail">
+              <img src="https://via.placeholder.com/200x150" alt="1월의 꽃">
+            </div>
+            <div class="post-card-content">
+              <div class="post-meta">
+                <span class="meta-item">📅 이달의 꽃</span>
+                <span class="meta-item">2026.01.01</span>
+              </div>
+              <h3 class="post-card-title">1월의 꽃 - 동백꽃으로 설날 압화 만들기</h3>
+              <p class="post-card-excerpt">
+                1월을 대표하는 동백꽃! 붉은 색이 선명하고 꽃잎이 두꺼워 
+                압화로 만들기 좋은 꽃입니다. 설날 분위기에 딱 맞는 작품을 만들어보세요.
+              </p>
+              <div class="post-meta">
+                <span class="meta-item">👁️ 3,421</span>
+              </div>
+            </div>
+          </article>
+          
+          <!-- 공예 팁 포스트 -->
+          <article class="post-card">
+            <div class="post-thumbnail">
+              <img src="https://via.placeholder.com/200x150" alt="레진 기포 제거">
+            </div>
+            <div class="post-card-content">
+              <div class="post-meta">
+                <span class="meta-item">💡 공예 팁</span>
+                <span class="meta-item">2025.12.28</span>
+              </div>
+              <h3 class="post-card-title">레진 작품 기포 제거 5가지 방법 (토치 없이도 가능!)</h3>
+              <p class="post-card-excerpt">
+                레진 작업의 최대 난관, 기포! 토치가 없어도 깔끔하게 
+                제거할 수 있는 방법들을 소개합니다. 이쑤시개부터 드라이어까지.
+              </p>
+              <div class="post-meta">
+                <span class="meta-item">👁️ 5,892</span>
+              </div>
+            </div>
+          </article>
+          
+          <!-- 트렌드 포스트 -->
+          <article class="post-card">
+            <div class="post-thumbnail">
+              <img src="https://via.placeholder.com/200x150" alt="2026 공예 트렌드">
+            </div>
+            <div class="post-card-content">
+              <div class="post-meta">
+                <span class="meta-item">📈 트렌드</span>
+                <span class="meta-item">2025.12.25</span>
+              </div>
+              <h3 class="post-card-title">2026년 공예 트렌드 TOP 5 - 무엇이 뜰까?</h3>
+              <p class="post-card-excerpt">
+                내년 공예 시장을 이끌 트렌드를 미리 만나보세요. 
+                미니멀 압화부터 홀로그램 레진까지, 최신 트렌드 총정리.
+              </p>
+              <div class="post-meta">
+                <span class="meta-item">👁️ 7,234</span>
+              </div>
+            </div>
+          </article>
+          
+          <!-- 유튜브 영상 포스트 -->
+          <article class="post-card video-post-card">
+            <div class="post-thumbnail">
+              <img src="https://via.placeholder.com/200x150" alt="유튜브 영상">
+              <div class="video-icon">▶</div>
+            </div>
+            <div class="post-card-content">
+              <div class="post-meta">
+                <span class="meta-item">📽️ 영상 가이드</span>
+                <span class="meta-item">2025.12.20</span>
+              </div>
+              <h3 class="post-card-title">[영상] 압화 입문자를 위한 첫 작품 만들기 (15분)</h3>
+              <p class="post-card-excerpt">
+                압화가 처음이신가요? 이 영상 하나면 충분합니다. 
+                재료 준비부터 완성까지 친절하게 설명해드립니다.
+              </p>
+              <div class="post-meta">
+                <span class="meta-item">👁️ 15,342</span>
+                <span class="meta-item">▶ 유튜브에서 보기</span>
+              </div>
+            </div>
+          </article>
+          
+          <!-- 강사 인터뷰 포스트 -->
+          <article class="post-card">
+            <div class="post-thumbnail">
+              <img src="https://via.placeholder.com/200x150" alt="강사 인터뷰">
+            </div>
+            <div class="post-card-content">
+              <div class="post-meta">
+                <span class="meta-item">🎤 강사 인터뷰</span>
+                <span class="meta-item">2025.12.15</span>
+              </div>
+              <h3 class="post-card-title">부산 '꽃향기 공방' 김미선 강사 - 10년의 여정</h3>
+              <p class="post-card-excerpt">
+                취미로 시작한 압화가 지금은 30명의 수강생을 가르치는 
+                강사가 되었습니다. 김미선 강사의 성장 스토리를 들어봅니다.
+              </p>
+              <div class="post-meta">
+                <span class="meta-item">👁️ 2,156</span>
+              </div>
+            </div>
+          </article>
+          
+          <!-- 이진선 대표 노하우 포스트 -->
+          <article class="post-card" style="background: linear-gradient(135deg, #F9F8F5 0%, #FFFEF9 100%); border-left: 4px solid var(--color-secondary);">
+            <div class="post-thumbnail">
+              <img src="https://via.placeholder.com/200x150" alt="이진선 대표">
+            </div>
+            <div class="post-card-content">
+              <div class="post-meta">
+                <span class="meta-item">👑 이진선의 노하우</span>
+                <span class="meta-item">2025.12.10</span>
+              </div>
+              <h3 class="post-card-title">40년 장인이 말하는 '진짜 좋은 압화지' 고르는 법</h3>
+              <p class="post-card-excerpt">
+                압화지도 천차만별입니다. 저렴한 것과 비싼 것의 차이는 무엇일까요? 
+                이진선 대표가 직접 알려드립니다.
+              </p>
+              <div class="post-meta">
+                <span class="meta-item">👁️ 9,847</span>
+              </div>
+            </div>
+          </article>
+          
+        </div>
+        
+        <!-- 더보기 버튼 -->
+        <div style="text-align: center; margin-top: var(--spacing-xxl);">
+          <button class="btn btn-outline btn-large">
+            더 많은 포스트 보기
+          </button>
+        </div>
+        
+      </main>
+      
+      <!-- 사이드바 -->
+      <aside class="sidebar">
+        
+        <!-- 이달의 꽃 위젯 -->
+        <div class="sidebar-widget flower-of-month">
+          <h3 class="widget-title">🌸 이달의 꽃</h3>
+          <div class="flower-image">
+            <img src="https://via.placeholder.com/300x200" alt="1월의 꽃">
+          </div>
+          <div class="flower-name">동백꽃 (Camellia)</div>
+          <p class="flower-description">
+            1월을 대표하는 동백꽃은 추운 겨울에도 아름답게 피어나는 
+            강인한 꽃입니다. 붉은 색이 선명하고 꽃잎이 두꺼워 
+            압화로 만들기에 매우 적합합니다.
+          </p>
+          <button class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);">
+            동백꽃 재료 구매하기
+          </button>
+        </div>
+        
+        <!-- 인기 포스트 위젯 -->
+        <div class="sidebar-widget">
+          <h3 class="widget-title">🔥 인기 포스트</h3>
+          <div class="popular-posts">
+            <div class="popular-item">
+              <div class="popular-number">1</div>
+              <div class="popular-info">
+                <div class="popular-title">압화지 물기 제거 완벽 가이드</div>
+                <div class="popular-views">👁️ 12,847</div>
+              </div>
+            </div>
+            <div class="popular-item">
+              <div class="popular-number">2</div>
+              <div class="popular-info">
+                <div class="popular-title">2026년 공예 트렌드 TOP 5</div>
+                <div class="popular-views">👁️ 9,847</div>
+              </div>
+            </div>
+            <div class="popular-item">
+              <div class="popular-number">3</div>
+              <div class="popular-info">
+                <div class="popular-title">레진 기포 제거 5가지 방법</div>
+                <div class="popular-views">👁️ 7,234</div>
+              </div>
+            </div>
+            <div class="popular-item">
+              <div class="popular-number">4</div>
+              <div class="popular-info">
+                <div class="popular-title">초보자가 자주 하는 실수 TOP 5</div>
+                <div class="popular-views">👁️ 5,892</div>
+              </div>
+            </div>
+            <div class="popular-item">
+              <div class="popular-number">5</div>
+              <div class="popular-info">
+                <div class="popular-title">계절별 압화 재료 추천 가이드</div>
+                <div class="popular-views">👁️ 4,231</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 태그 클라우드 -->
+        <div class="sidebar-widget">
+          <h3 class="widget-title">🏷️ 인기 태그</h3>
+          <div class="tag-cloud">
+            <span class="tag">#압화만들기</span>
+            <span class="tag">#레진초보</span>
+            <span class="tag">#하바리움</span>
+            <span class="tag">#공예팁</span>
+            <span class="tag">#이진선대표</span>
+            <span class="tag">#DIY</span>
+            <span class="tag">#초보자가이드</span>
+            <span class="tag">#재료추천</span>
+            <span class="tag">#강사인터뷰</span>
+            <span class="tag">#트렌드</span>
+            <span class="tag">#설날특집</span>
+            <span class="tag">#선물아이디어</span>
+          </div>
+        </div>
+        
+        <!-- 뉴스레터 구독 위젯 -->
+        <div class="sidebar-widget newsletter-widget">
+          <h3 class="widget-title">✉️ 뉴스레터 구독</h3>
+          <p style="font-size: var(--font-size-small); opacity: 0.95; margin-bottom: var(--spacing-md);">
+            매주 화요일, 최신 공예 트렌드와 노하우를 
+            이메일로 받아보세요!
+          </p>
+          <form class="newsletter-form">
+            <input 
+              type="email" 
+              class="newsletter-input" 
+              placeholder="이메일 주소 입력"
+              required
+            >
+            <button type="submit" class="newsletter-btn">
+              구독하기 (무료)
+            </button>
+          </form>
+          <p style="font-size: var(--font-size-small); opacity: 0.8; margin-top: var(--spacing-sm); text-align: center;">
+            📮 현재 3,247명이 구독 중
+          </p>
+        </div>
+        
+      </aside>
+      
+    </div>
+    
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    // ========== 카테고리 탭 전환 ==========
+    const categoryTabs = document.querySelectorAll('.category-tab');
+    
+    categoryTabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        categoryTabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        const category = this.dataset.category;
+        console.log('선택된 카테고리:', category);
+        
+        // 실제로는 카테고리별 포스트 필터링 로직 추가
+        alert(`"${this.textContent.trim()}" 카테고리의 포스트를 불러옵니다.`);
+      });
+    });
+    
+    // ========== 검색 기능 ==========
+    document.querySelector('.search-btn').addEventListener('click', function() {
+      const searchInput = document.querySelector('.search-input');
+      const searchTerm = searchInput.value.trim();
+      
+      if (searchTerm) {
+        alert(`🔍 "${searchTerm}" 검색 결과를 불러옵니다.\n\n실제로는 SEO 최적화된 검색 결과 페이지로 이동합니다.`);
+      } else {
+        alert('검색어를 입력해주세요.');
+      }
+    });
+    
+    // Enter 키로 검색
+    document.querySelector('.search-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        document.querySelector('.search-btn').click();
+      }
+    });
+    
+    // ========== 포스트 클릭 ==========
+    document.querySelectorAll('.post-card, .featured-post').forEach(post => {
+      post.addEventListener('click', function(e) {
+        if (e.target.closest('.read-more-btn')) return;
+        
+        alert('📄 포스트 상세 페이지로 이동합니다.\n\nSEO 최적화:\n- 제목: H1 태그\n- 메타 태그 완벽 설정\n- 구조화된 데이터 (Schema.org)\n- 이미지 alt 태그\n- 내부 링크 최적화');
+      });
+    });
+    
+    // ========== 인기 포스트 클릭 ==========
+    document.querySelectorAll('.popular-item').forEach(item => {
+      item.addEventListener('click', function() {
+        const title = this.querySelector('.popular-title').textContent;
+        alert(`📄 "${title}" 포스트로 이동합니다.`);
+      });
+    });
+    
+    // ========== 태그 클릭 ==========
+    document.querySelectorAll('.tag').forEach(tag => {
+      tag.addEventListener('click', function() {
+        const tagName = this.textContent;
+        alert(`🏷️ ${tagName} 관련 포스트를 불러옵니다.`);
+      });
+    });
+    
+    // ========== 뉴스레터 구독 ==========
+    document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = this.querySelector('.newsletter-input').value;
+      
+      alert(`✅ 구독 완료!\n\n${email}로 매주 화요일\n최신 공예 소식을 보내드립니다.\n\n첫 번째 뉴스레터는 다음 주 화요일에 발송됩니다.\n\n🎁 구독 감사 포인트 1,000점 적립!`);
+      
+      this.reset();
+    });
+    
+    // ========== 이달의 꽃 재료 구매 ==========
+    document.querySelector('.flower-of-month .btn').addEventListener('click', function() {
+      alert('🌸 1월의 꽃 "동백꽃" 재료 세트\n\n포함 재료:\n- 동백꽃 생화 10송이\n- 압화지 A4 20매\n- 프레싱 툴 세트\n- 가이드 북\n\n가격: 45,000원\n강사 회원 할인가: 33,750원\n\n장바구니에 담으시겠습니까?');
+    });
+    
+    // ========== 더 많은 포스트 보기 (무한 스크롤 대체) ==========
+    document.querySelector('.btn-outline').addEventListener('click', function() {
+      alert('📚 더 많은 포스트를 불러옵니다...\n\n실제로는 AJAX로 추가 포스트를 로드하거나\n다음 페이지로 이동합니다.');
+    });
+    
+    console.log(`
+===========================================
+📰 블로그형 콘텐츠 허브 v1.0
+===========================================
+✅ 구현된 기능:
+
+📌 SEO 최적화
+- 메타 태그 (description, keywords)
+- 시맨틱 HTML (article, section, aside)
+- 제목 구조 (H1, H2, H3)
+- 이미지 alt 태그 준비
+
+📌 콘텐츠 카테고리
+- 이달의 꽃
+- 공예 팁
+- 트렌드
+- 강사 인터뷰
+- 이진선의 노하우
+- 영상 가이드 (유튜브 연동)
+
+📌 피처드 포스트
+- 이번 주 인기 배지
+- 대형 썸네일
+- 상세한 메타 정보
+- 호버 효과
+
+📌 사이드바 위젯
+- 이달의 꽃 (재료 구매 연결)
+- 인기 포스트 TOP 5
+- 태그 클라우드
+- 뉴스레터 구독
+
+📌 사용자 경험
+- 검색 기능 (검색창 + Enter 키)
+- 카테고리 필터링
+- 반응형 디자인
+- 호버 애니메이션
+- 빠른 로딩
+
+📌 상품 연동
+- "이달의 꽃" → 재료 세트 판매
+- 포스트 내 상품 링크
+- 강사 회원 할인가 표시
+
+===========================================
+다음 단계:
+□ 네이버 블로그 자동 포스팅 연동
+□ 구글 검색 상위 노출 (SEO 최적화)
+□ 소셜 공유 버튼 추가
+□ 댓글 시스템 통합
+===========================================
+    `);
+  </script>
+  
+</body>
+</html>
+

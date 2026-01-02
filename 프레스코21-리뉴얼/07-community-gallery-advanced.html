@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>작품 갤러리 고도화 - 프레스코21 커뮤니티</title>
+  
+  <!-- 브랜드 시스템 CSS -->
+  <link rel="stylesheet" href="01-brand-system.css">
+  
+  <style>
+    /* ========== 작품 갤러리 고도화 CSS ========== */
+    
+    /* 챌린지 배너 섹션 */
+    .challenge-banner {
+      background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%);
+      color: white;
+      padding: var(--spacing-xxl) 0;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: var(--spacing-xxl);
+    }
+    
+    .challenge-banner::before {
+      content: '🏆';
+      position: absolute;
+      top: -30px;
+      right: 5%;
+      font-size: 150px;
+      opacity: 0.1;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    
+    .challenge-content {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: 0 var(--container-padding);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-xxl);
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .challenge-info h2 {
+      font-size: var(--font-size-h1);
+      font-family: var(--font-serif);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .challenge-subtitle {
+      font-size: var(--font-size-large);
+      opacity: 0.95;
+      margin-bottom: var(--spacing-lg);
+      line-height: 1.7;
+    }
+    
+    .challenge-meta {
+      display: flex;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+      flex-wrap: wrap;
+    }
+    
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .meta-label {
+      font-size: var(--font-size-small);
+      opacity: 0.8;
+    }
+    
+    .meta-value {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-bold);
+    }
+    
+    .challenge-prizes {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      backdrop-filter: blur(10px);
+    }
+    
+    .prize-title {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .prize-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+    
+    .prize-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-sm);
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-sm);
+    }
+    
+    .challenge-calendar {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xl);
+      backdrop-filter: blur(10px);
+    }
+    
+    .calendar-title {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-lg);
+      text-align: center;
+    }
+    
+    .calendar-months {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-md);
+    }
+    
+    .month-card {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-md);
+      text-align: center;
+      transition: all var(--transition-base);
+      cursor: pointer;
+    }
+    
+    .month-card:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-4px);
+    }
+    
+    .month-card.active {
+      background: var(--color-secondary);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .month-number {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: 4px;
+    }
+    
+    .month-theme {
+      font-size: var(--font-size-small);
+      opacity: 0.9;
+    }
+    
+    /* 튜토리얼 연동 섹션 */
+    .tutorial-section {
+      max-width: var(--container-max-width);
+      margin: var(--spacing-xxxl) auto;
+      padding: 0 var(--container-padding);
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: var(--spacing-xxl);
+    }
+    
+    .section-title {
+      font-size: var(--font-size-h2);
+      font-family: var(--font-serif);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .section-subtitle {
+      font-size: var(--font-size-large);
+      color: var(--color-text-secondary);
+    }
+    
+    .tutorial-tabs {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-xl);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .tutorial-tab {
+      padding: 12px 24px;
+      background-color: var(--color-white);
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-lg);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      font-weight: var(--font-weight-medium);
+    }
+    
+    .tutorial-tab:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+    
+    .tutorial-tab.active {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+    }
+    
+    .tutorial-video-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .video-embed {
+      position: relative;
+      padding-top: 56.25%;
+      background-color: var(--color-border);
+    }
+    
+    .video-embed iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .tutorial-info {
+      padding: var(--spacing-xl);
+    }
+    
+    .tutorial-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+    }
+    
+    .tutorial-title {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .works-count {
+      background-color: var(--color-primary-light);
+      color: var(--color-white);
+      padding: 6px 16px;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    /* 제작 일지 카드 */
+    .project-diary-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-base);
+      cursor: pointer;
+    }
+    
+    .project-diary-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+    
+    .diary-timeline {
+      display: flex;
+      overflow-x: auto;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-md);
+      background-color: var(--color-background);
+      scrollbar-width: thin;
+    }
+    
+    .timeline-image {
+      flex-shrink: 0;
+      width: 100px;
+      height: 100px;
+      border-radius: var(--border-radius-md);
+      overflow: hidden;
+      position: relative;
+      background-color: var(--color-border);
+    }
+    
+    .timeline-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .timeline-day {
+      position: absolute;
+      bottom: 4px;
+      left: 4px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 2px 8px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .diary-content {
+      padding: var(--spacing-lg);
+    }
+    
+    .diary-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #B5A48B, #968870);
+      color: white;
+      padding: 4px 12px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .diary-title {
+      font-size: var(--font-size-large);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .diary-period {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    /* 멘토링 시스템 */
+    .mentoring-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: linear-gradient(135deg, #7B8E7E, #5A6B5D);
+      color: white;
+      padding: 6px 12px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .mentor-comment {
+      background-color: var(--color-paper);
+      border-left: 4px solid var(--color-secondary);
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius-md);
+      margin-top: var(--spacing-md);
+    }
+    
+    .mentor-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .mentor-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--color-primary);
+    }
+    
+    .mentor-name {
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-base);
+    }
+    
+    .master-badge {
+      background-color: var(--color-secondary);
+      color: white;
+      padding: 2px 8px;
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-small);
+    }
+    
+    .mentor-comment-text {
+      font-size: var(--font-size-base);
+      color: var(--color-text-primary);
+      line-height: 1.6;
+    }
+    
+    /* 마켓플레이스 카드 */
+    .marketplace-card {
+      position: relative;
+    }
+    
+    .for-sale-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: linear-gradient(135deg, #C17B7B, #A05858);
+      color: white;
+      padding: 8px 16px;
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      z-index: 1;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .product-price-tag {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--color-background);
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius-md);
+      margin-top: var(--spacing-md);
+    }
+    
+    .price {
+      font-size: var(--font-size-h4);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+    }
+    
+    .buy-materials-link {
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      text-decoration: underline;
+      cursor: pointer;
+      transition: color var(--transition-fast);
+    }
+    
+    .buy-materials-link:hover {
+      color: var(--color-primary);
+    }
+    
+    /* 소셜 공유 버튼 */
+    .social-share-panel {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-md);
+    }
+    
+    .social-btn {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius-md);
+      background-color: var(--color-white);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-size: var(--font-size-small);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    
+    .social-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .social-btn.instagram {
+      border-color: #E4405F;
+      color: #E4405F;
+    }
+    
+    .social-btn.facebook {
+      border-color: #1877F2;
+      color: #1877F2;
+    }
+    
+    .social-btn.kakao {
+      border-color: #FEE500;
+      color: #3C1E1E;
+    }
+    
+    /* 필터 강화 */
+    .advanced-filters {
+      display: flex;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+    
+    .filter-label {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+    
+    .filter-select {
+      padding: 8px 16px;
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-base);
+      cursor: pointer;
+      transition: border-color var(--transition-fast);
+    }
+    
+    .filter-select:hover,
+    .filter-select:focus {
+      border-color: var(--color-primary);
+      outline: none;
+    }
+    
+    /* 반응형 */
+    @media (max-width: 768px) {
+      .challenge-content {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+      }
+      
+      .calendar-months {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .tutorial-tabs {
+        gap: var(--spacing-xs);
+      }
+      
+      .tutorial-tab {
+        padding: 10px 16px;
+        font-size: var(--font-size-small);
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="gallery-page">
+    
+    <!-- 챌린지 배너 -->
+    <section class="challenge-banner">
+      <div class="challenge-content">
+        <div class="challenge-info">
+          <h2>🏆 1월 챌린지</h2>
+          <p class="challenge-subtitle">
+            "설날 특집 - 전통 압화로 복(福) 담기"<br>
+            당신의 작품으로 2026년 새해를 축복하세요!
+          </p>
+          
+          <div class="challenge-meta">
+            <div class="meta-item">
+              <span class="meta-label">참가 작품</span>
+              <span class="meta-value">127개</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">마감까지</span>
+              <span class="meta-value">12일</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">총 좋아요</span>
+              <span class="meta-value">3,421</span>
+            </div>
+          </div>
+          
+          <div class="challenge-prizes">
+            <div class="prize-title">🎁 시상 내역</div>
+            <div class="prize-list">
+              <div class="prize-item">
+                <span>🥇 대상 (1명)</span>
+                <span>프레스코21 크레딧 10만원</span>
+              </div>
+              <div class="prize-item">
+                <span>🥈 우수상 (3명)</span>
+                <span>프레스코21 크레딧 5만원</span>
+              </div>
+              <div class="prize-item">
+                <span>🎖️ 참가상 (전원)</span>
+                <span>포인트 2,000점</span>
+              </div>
+            </div>
+          </div>
+          
+          <button class="btn btn-large" style="background: white; color: #7B8E7E; margin-top: var(--spacing-lg); width: 100%;">
+            지금 챌린지 참여하기
+          </button>
+        </div>
+        
+        <div class="challenge-calendar">
+          <div class="calendar-title">📅 2026 연간 챌린지 달력</div>
+          <div class="calendar-months">
+            <div class="month-card active">
+              <div class="month-number">1월</div>
+              <div class="month-theme">설날 특집</div>
+            </div>
+            <div class="month-card">
+              <div class="month-number">2월</div>
+              <div class="month-theme">발렌타인</div>
+            </div>
+            <div class="month-card">
+              <div class="month-number">3월</div>
+              <div class="month-theme">봄꽃 만개</div>
+            </div>
+            <div class="month-card">
+              <div class="month-number">4월</div>
+              <div class="month-theme">벚꽃 압화</div>
+            </div>
+            <div class="month-card">
+              <div class="month-number">5월</div>
+              <div class="month-theme">어버이날</div>
+            </div>
+            <div class="month-card">
+              <div class="month-number">6월</div>
+              <div class="month-theme">여름 레진</div>
+            </div>
+            <div class="month-card">
+              <div class="month-number">7월</div>
+              <div class="month-theme">하바리움</div>
+            </div>
+            <div class="month-card">
+              <div class="month-number">8월</div>
+              <div class="month-theme">여름 휴가</div>
+            </div>
+            <div class="month-card">
+              <div class="month-number">9월</div>
+              <div class="month-theme">추석 특집</div>
+            </div>
+            <div class="month-card">
+              <div class="month-number">10월</div>
+              <div class="month-theme">가을 단풍</div>
+            </div>
+            <div class="month-card">
+              <div class="month-number">11월</div>
+              <div class="month-theme">겨울 준비</div>
+            </div>
+            <div class="month-card">
+              <div class="month-number">12월</div>
+              <div class="month-theme">크리스마스</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 튜토리얼 연동 섹션 -->
+    <section class="tutorial-section">
+      <div class="section-header">
+        <h2 class="section-title">📽️ 영상으로 배우고, 작품으로 공유하세요</h2>
+        <p class="section-subtitle">이진선 대표의 유튜브 가이드를 보고 만든 회원들의 작품</p>
+      </div>
+      
+      <div class="tutorial-tabs">
+        <button class="tutorial-tab active" data-tutorial="all">전체 영상</button>
+        <button class="tutorial-tab" data-tutorial="pressed-flower">압화 입문</button>
+        <button class="tutorial-tab" data-tutorial="resin">레진 기초</button>
+        <button class="tutorial-tab" data-tutorial="herbarium">하바리움</button>
+        <button class="tutorial-tab" data-tutorial="advanced">고급 테크닉</button>
+      </div>
+      
+      <!-- 튜토리얼 영상 카드 -->
+      <div class="tutorial-video-card">
+        <div class="video-embed">
+          <iframe 
+            src="https://www.youtube.com/embed/TUTORIAL_VIDEO_ID" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen
+            title="압화 입문 완벽 가이드">
+          </iframe>
+        </div>
+        <div class="tutorial-info">
+          <div class="tutorial-meta">
+            <h3 class="tutorial-title">🌸 압화 입문 완벽 가이드 - 나만의 꽃 액자 만들기</h3>
+            <div class="works-count">📸 87개 작품</div>
+          </div>
+          <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-lg);">
+            이 영상을 보고 회원들이 만든 멋진 작품들을 감상하고, 인사이트를 얻어보세요!
+          </p>
+        </div>
+      </div>
+      
+      <!-- 연동된 작품 그리드 -->
+      <div class="works-grid">
+        <!-- 제작 일지 카드 예시 -->
+        <div class="project-diary-card">
+          <div class="diary-timeline">
+            <div class="timeline-image">
+              <img src="https://via.placeholder.com/100" alt="1일차">
+              <div class="timeline-day">1일차</div>
+            </div>
+            <div class="timeline-image">
+              <img src="https://via.placeholder.com/100" alt="5일차">
+              <div class="timeline-day">5일차</div>
+            </div>
+            <div class="timeline-image">
+              <img src="https://via.placeholder.com/100" alt="10일차">
+              <div class="timeline-day">10일차</div>
+            </div>
+            <div class="timeline-image">
+              <img src="https://via.placeholder.com/100" alt="완성">
+              <div class="timeline-day">완성!</div>
+            </div>
+          </div>
+          <div class="diary-content">
+            <span class="diary-badge">📖 제작 일지</span>
+            <h3 class="diary-title">나의 3주 압화 여정</h3>
+            <p class="diary-period">2026.01.02 - 2026.01.20 (18일)</p>
+            <p style="font-size: var(--font-size-base); color: var(--color-text-secondary); margin-bottom: var(--spacing-md);">
+              완전 초보자였던 제가 이진선 대표님 영상을 보며 하나씩 따라했어요. 
+              처음엔 꽃 누르는 것도 어려웠는데...
+            </p>
+            
+            <!-- 멘토 피드백 -->
+            <div class="mentor-comment">
+              <div class="mentor-header">
+                <div class="mentor-avatar">
+                  <img src="https://via.placeholder.com/32" alt="이진선 대표">
+                </div>
+                <span class="mentor-name">이진선 대표</span>
+                <span class="master-badge">👑 장인 피드백</span>
+              </div>
+              <p class="mentor-comment-text">
+                색 배치가 정말 조화롭네요! 특히 안개꽃으로 공간을 채운 센스가 돋보입니다. 
+                다음엔 그라데이션 기법을 시도해보세요 😊
+              </p>
+            </div>
+            
+            <div class="work-footer" style="margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--color-border);">
+              <div class="work-author">
+                <div class="author-avatar">
+                  <img src="https://via.placeholder.com/32" alt="작가">
+                </div>
+                <span class="author-name">압화초보탈출</span>
+              </div>
+              <div class="work-stats">
+                <span class="stat">❤️ 234</span>
+                <span class="stat">💬 45</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 마켓플레이스 카드 예시 -->
+        <div class="work-card marketplace-card">
+          <div class="work-image-container">
+            <img class="work-image" src="https://via.placeholder.com/400" alt="작품">
+            <div class="for-sale-badge">판매중 💰</div>
+            <span class="mentoring-badge">
+              <span>🎓</span>
+              <span>멘토링 가능</span>
+            </span>
+            <div class="work-overlay">
+              <div class="work-quick-actions">
+                <button class="quick-action-btn">❤️</button>
+                <button class="quick-action-btn">💬</button>
+                <button class="quick-action-btn">🛒</button>
+              </div>
+            </div>
+          </div>
+          <div class="work-content">
+            <h3 class="work-title">황금빛 가을 - 단풍 압화 액자</h3>
+            <p class="work-description">
+              직접 산에서 채집한 단풍잎으로 만든 프리미엄 압화 액자입니다.
+              주문 제작도 가능합니다!
+            </p>
+            <div class="work-tags">
+              <span class="work-tag">#압화</span>
+              <span class="work-tag">#단풍</span>
+              <span class="work-tag">#주문제작</span>
+            </div>
+            
+            <!-- 가격 및 재료 링크 -->
+            <div class="product-price-tag">
+              <div>
+                <div class="price">85,000원</div>
+                <a class="buy-materials-link">🛒 같은 재료로 만들기</a>
+              </div>
+              <button class="btn btn-primary">구매하기</button>
+            </div>
+            
+            <!-- 소셜 공유 패널 -->
+            <div class="social-share-panel">
+              <button class="social-btn instagram">
+                <span>📷</span>
+                <span>인스타</span>
+              </button>
+              <button class="social-btn facebook">
+                <span>📘</span>
+                <span>페북</span>
+              </button>
+              <button class="social-btn kakao">
+                <span>💬</span>
+                <span>카톡</span>
+              </button>
+            </div>
+            
+            <div class="work-footer" style="margin-top: var(--spacing-md);">
+              <div class="work-author">
+                <div class="author-avatar">
+                  <img src="https://via.placeholder.com/32" alt="작가">
+                </div>
+                <span class="author-name">단풍공방</span>
+              </div>
+              <div class="work-stats">
+                <span class="stat">❤️ 312</span>
+                <span class="stat">💬 67</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 일반 작품 카드들 추가 -->
+        <div class="work-card">
+          <div class="work-image-container">
+            <img class="work-image" src="https://via.placeholder.com/400" alt="작품">
+            <span class="mentoring-badge">
+              <span>💡</span>
+              <span>피드백 요청</span>
+            </span>
+            <div class="work-overlay">
+              <div class="work-quick-actions">
+                <button class="quick-action-btn">❤️</button>
+                <button class="quick-action-btn">💬</button>
+                <button class="quick-action-btn">🔖</button>
+              </div>
+            </div>
+          </div>
+          <div class="work-content">
+            <h3 class="work-title">첫 레진 작품 - 꽃잎 목걸이</h3>
+            <p class="work-description">
+              레진 입문 영상 보고 처음 만들어봤어요! 
+              기포가 좀 생겼는데 어떻게 하면 없앨 수 있을까요?
+            </p>
+            <div class="work-tags">
+              <span class="work-tag">#레진</span>
+              <span class="work-tag">#초보</span>
+              <span class="work-tag">#조언필요</span>
+            </div>
+            
+            <!-- 멘토 피드백 -->
+            <div class="mentor-comment">
+              <div class="mentor-header">
+                <div class="mentor-avatar"></div>
+                <span class="mentor-name">레진마스터김</span>
+                <span class="master-badge">⭐ 강사</span>
+              </div>
+              <p class="mentor-comment-text">
+                기포 제거는 토치로 살짝 가열하거나, 이쑤시개로 터뜨려보세요! 
+                다음엔 더 잘 될 거예요 👍
+              </p>
+            </div>
+            
+            <div class="work-footer" style="margin-top: var(--spacing-md);">
+              <div class="work-author">
+                <div class="author-avatar">
+                  <img src="https://via.placeholder.com/32" alt="작가">
+                </div>
+                <span class="author-name">레진초보</span>
+              </div>
+              <div class="work-stats">
+                <span class="stat">❤️ 89</span>
+                <span class="stat">💬 18</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </section>
+    
+    <!-- 고급 필터 섹션 -->
+    <section style="max-width: var(--container-max-width); margin: var(--spacing-xxl) auto; padding: 0 var(--container-padding);">
+      <div class="advanced-filters">
+        <div class="filter-group">
+          <label class="filter-label">공예 종류</label>
+          <select class="filter-select">
+            <option>전체</option>
+            <option>압화</option>
+            <option>레진</option>
+            <option>하바리움</option>
+            <option>부케기프트</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">작품 유형</label>
+          <select class="filter-select">
+            <option>전체</option>
+            <option>완성 작품</option>
+            <option>제작 일지</option>
+            <option>판매 작품</option>
+            <option>피드백 요청</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">정렬</label>
+          <select class="filter-select">
+            <option>최신순</option>
+            <option>인기순 (좋아요)</option>
+            <option>댓글 많은 순</option>
+            <option>멘토 피드백순</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">멘토링</label>
+          <select class="filter-select">
+            <option>전체</option>
+            <option>이진선 대표 피드백</option>
+            <option>강사 멘토링</option>
+            <option>피드백 대기중</option>
+          </select>
+        </div>
+      </div>
+    </section>
+    
+  </div>
+  
+  <!-- JavaScript -->
+  <script>
+    // ========== 챌린지 달력 ==========
+    const monthCards = document.querySelectorAll('.month-card');
+    
+    monthCards.forEach(card => {
+      card.addEventListener('click', function() {
+        monthCards.forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        
+        const month = this.querySelector('.month-number').textContent;
+        const theme = this.querySelector('.month-theme').textContent;
+        alert(`${month} 챌린지: ${theme}\n\n준비 중입니다! 해당 월이 되면 자동으로 오픈됩니다.`);
+      });
+    });
+    
+    // ========== 튜토리얼 탭 ==========
+    const tutorialTabs = document.querySelectorAll('.tutorial-tab');
+    
+    tutorialTabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        tutorialTabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        const tutorial = this.dataset.tutorial;
+        console.log('튜토리얼 필터:', tutorial);
+        // 실제로는 해당 튜토리얼 영상과 연결된 작품만 표시
+      });
+    });
+    
+    // ========== 소셜 공유 ==========
+    document.querySelectorAll('.social-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        if (this.classList.contains('instagram')) {
+          alert('✅ 인스타그램에 공유되었습니다!\n포인트 500점이 적립되었습니다.');
+        } else if (this.classList.contains('facebook')) {
+          alert('✅ 페이스북에 공유되었습니다!\n포인트 500점이 적립되었습니다.');
+        } else if (this.classList.contains('kakao')) {
+          alert('✅ 카카오톡으로 공유되었습니다!\n포인트 500점이 적립되었습니다.');
+        }
+      });
+    });
+    
+    // ========== 재료 구매 링크 ==========
+    document.querySelectorAll('.buy-materials-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.stopPropagation();
+        alert('🛒 이 작품에 사용된 재료를 장바구니에 담았습니다!\n\n포함 재료:\n- 단풍잎 압화 세트\n- 압화 액자 (중형)\n- 접착제 키트');
+      });
+    });
+    
+    // ========== 챌린지 참여 버튼 ==========
+    document.querySelector('.challenge-banner .btn').addEventListener('click', () => {
+      alert('🏆 1월 챌린지 참여 방법\n\n1. 설날 테마 작품 제작\n2. 작품 갤러리에 업로드\n3. 해시태그 #프레스코21설날챌린지 추가\n4. 1월 31일까지 자동 접수\n\n참가하시겠습니까?');
+    });
+    
+    console.log(`
+===========================================
+🎨 작품 갤러리 고도화 v2.0
+===========================================
+✅ 구현된 기능:
+
+📌 챌린지 & 콘테스트
+- 월간 테마 챌린지 배너
+- 연간 달력 (12개월)
+- 참가 작품 수 및 시상 내역
+- 실시간 참여 현황
+
+📌 튜토리얼 연동
+- 유튜브 영상별 작품 모음
+- 영상 → 작품 자동 연결
+- 87개 작품 카운트 표시
+
+📌 제작 일지
+- 1일차 → 완성까지 타임라인
+- 사진 슬라이더 (4단계)
+- 스토리텔링 기능
+
+📌 멘토링 시스템
+- 이진선 대표 직접 피드백
+- 강사 회원 조언
+- 피드백 요청 배지
+
+📌 마켓플레이스
+- 작품 판매 기능
+- 가격 표시
+- "같은 재료로 만들기" 링크
+- 주문 제작 가능
+
+📌 소셜 공유
+- 인스타그램/페이스북/카카오톡
+- 공유 시 포인트 500점 적립
+- 해시태그 자동 생성
+
+📌 고급 필터
+- 공예 종류
+- 작품 유형 (완성/일지/판매/피드백)
+- 멘토링 상태
+- 다양한 정렬 옵션
+
+===========================================
+    `);
+  </script>
+  
+</body>
+</html>
+

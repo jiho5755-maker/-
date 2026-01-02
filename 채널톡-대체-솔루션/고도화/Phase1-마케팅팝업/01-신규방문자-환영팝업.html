@@ -1,0 +1,157 @@
+<style>
+.mk-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;
+background:rgba(0,0,0,0.5);z-index:99999;display:none;opacity:0}
+.mk-modal-overlay.show{display:block;opacity:1}
+.mk-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+background:#fff;border-radius:20px;padding:0;max-width:480px;width:90%;
+box-shadow:0 20px 60px rgba(0,0,0,0.3);z-index:100000;
+opacity:0;transform:translate(-50%,-50%) scale(0.9)}
+.mk-modal.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.mk-modal-header{background:#8B9D83;color:#fff;padding:30px;
+text-align:center;border-radius:20px 20px 0 0;position:relative}
+.mk-modal-close{position:absolute;top:15px;right:15px;
+background:rgba(255,255,255,0.2);border:none;width:36px;height:36px;
+border-radius:50%;color:#fff;font-size:20px;cursor:pointer;
+line-height:36px}
+.mk-modal-close:hover{background:rgba(255,255,255,0.3)}
+.mk-modal-icon{font-size:48px;margin-bottom:10px}
+.mk-modal-title{font-size:24px;font-weight:700;margin:0 0 8px 0}
+.mk-modal-subtitle{font-size:14px;opacity:0.9;margin:0}
+.mk-modal-body{padding:30px;text-align:center}
+.mk-coupon-box{background:#F8FAF7;border:2px dashed #8B9D83;
+border-radius:12px;padding:20px;margin:20px 0}
+.mk-coupon-amount{font-size:36px;font-weight:700;color:#8B9D83;
+margin:0 0 5px 0}
+.mk-coupon-text{font-size:14px;color:#555;margin:0}
+.mk-form-group{margin:20px 0;text-align:left}
+.mk-form-label{display:block;font-size:14px;font-weight:600;
+color:#333;margin-bottom:8px}
+.mk-form-input{width:100%;padding:12px;border:2px solid #E8EDE6;
+border-radius:8px;font-size:14px;box-sizing:border-box}
+.mk-form-input:focus{border-color:#8B9D83;outline:none}
+.mk-btn-primary{background:#8B9D83;color:#fff;border:none;
+padding:14px 30px;border-radius:10px;font-size:16px;font-weight:700;
+cursor:pointer;width:100%;margin-top:10px}
+.mk-btn-primary:hover{opacity:0.9}
+.mk-modal-footer{padding:0 30px 20px;text-align:center}
+.mk-checkbox-group{display:block;margin-top:15px}
+.mk-checkbox{margin-right:6px}
+.mk-checkbox-label{font-size:13px;color:#666;cursor:pointer}
+.mk-terms{font-size:12px;color:#999;margin-top:15px;line-height:1.6}
+@media (max-width:768px){
+.mk-modal{max-width:90%;padding:0}
+.mk-modal-header{padding:25px 15px}
+.mk-modal-body{padding:20px 15px}
+.mk-modal-title{font-size:20px}
+.mk-coupon-amount{font-size:30px}
+}
+</style>
+<div class="mk-modal-overlay" id="mkWelcomeOverlay">
+<div class="mk-modal" id="mkWelcomeModal">
+<div class="mk-modal-header">
+<button class="mk-modal-close" id="mkWelcomeClose">×</button>
+<div class="mk-modal-icon">🎉</div>
+<h2 class="mk-modal-title">PRESSCO21에 오신 것을 환영합니다!</h2>
+<p class="mk-modal-subtitle">첫 구매 고객님께 특별한 혜택을 드립니다</p>
+</div>
+<div class="mk-modal-body">
+<div class="mk-coupon-box">
+<p class="mk-coupon-amount">3,000원</p>
+<p class="mk-coupon-text">즉시 사용 가능한 적립금</p>
+</div>
+<p style="font-size:15px;color:#555;line-height:1.6;margin:15px 0;">
+신규 회원 가입 시 <strong style="color:#8B9D83;">3,000원 적립금</strong>을 즉시 지급해드립니다.<br>
+지금 바로 회원가입하고 혜택을 받아보세요!
+</p>
+<form id="mkWelcomeForm">
+<div class="mk-form-group">
+<label class="mk-form-label">이메일</label>
+<input type="email" class="mk-form-input" id="mkEmail" 
+placeholder="example@email.com" required>
+</div>
+<button type="submit" class="mk-btn-primary">
+회원가입하고 3,000원 받기
+</button>
+</form>
+</div>
+<div class="mk-modal-footer">
+<label class="mk-checkbox-group">
+<input type="checkbox" class="mk-checkbox" id="mkNoShowToday">
+<span class="mk-checkbox-label">오늘 하루 보지 않기</span>
+</label>
+<p class="mk-terms">
+* 적립금은 회원가입 즉시 지급됩니다<br>
+* 30,000원 이상 구매 시 사용 가능
+</p>
+</div>
+</div>
+</div>
+<script>
+(function(){
+function getCookie(n){
+var v=document.cookie.match('(^|;) ?'+n+'=([^;]*)(;|$)');
+return v?v[2]:null;
+}
+function setCookie(n,v,d){
+var date=new Date();
+date.setTime(date.getTime()+(d*24*60*60*1000));
+document.cookie=n+'='+v+';expires='+date.toUTCString()+';path=/';
+}
+function showWelcome(){
+var overlay=document.getElementById('mkWelcomeOverlay');
+var modal=document.getElementById('mkWelcomeModal');
+if(overlay&&modal){
+overlay.className='mk-modal-overlay show';
+setTimeout(function(){
+modal.className='mk-modal show';
+},100);
+}
+}
+function hideWelcome(){
+var overlay=document.getElementById('mkWelcomeOverlay');
+var modal=document.getElementById('mkWelcomeModal');
+var noShow=document.getElementById('mkNoShowToday');
+if(noShow&&noShow.checked){
+setCookie('mk_welcome_seen','1',1);
+}
+if(modal){
+modal.className='mk-modal';
+}
+setTimeout(function(){
+if(overlay){
+overlay.className='mk-modal-overlay';
+}
+},300);
+}
+var isFirstVisit=!getCookie('mk_visited');
+var seenToday=getCookie('mk_welcome_seen');
+if(isFirstVisit&&!seenToday){
+setCookie('mk_visited','1',365);
+setTimeout(showWelcome,3000);
+}
+var closeBtn=document.getElementById('mkWelcomeClose');
+if(closeBtn){
+closeBtn.onclick=hideWelcome;
+}
+var overlay=document.getElementById('mkWelcomeOverlay');
+if(overlay){
+overlay.onclick=function(e){
+if(e.target===overlay){
+hideWelcome();
+}
+};
+}
+var form=document.getElementById('mkWelcomeForm');
+if(form){
+form.onsubmit=function(e){
+e.preventDefault();
+var email=document.getElementById('mkEmail');
+if(email&&email.value){
+setCookie('mk_welcome_seen','1',365);
+window.location.href='/member/join.html?email='+encodeURIComponent(email.value);
+}
+};
+}
+})();
+</script>
+

@@ -1,0 +1,869 @@
+<style>
+#ftWrap{margin:100px 0 0 0}
+#ftWrap .footerTop{background:#f6f6f6}
+#ftWrap .footerTop .footerTopInner{width:1200px;margin:0 auto;height:55px}
+#ftWrap .footerTop .footerTopInner .footerNav{float:left;line-height:55px}
+#ftWrap .footerTop .footerTopInner .footerNav li{display:inline-block}
+#ftWrap .footerTop .footerTopInner .footerNav li:nth-child(even){margin:0 12px}
+#ftWrap .footerTop .footerTopInner .footerNav li a{font-size:14px;color:#4c4c4c}
+#ftWrap .footerTop .footerTopInner .footerNav li a strong{color:#2c2c2c}
+#ftWrap .footerTop .footerTopInner .footerNav li.bar{color:#e5e5e5}
+#ftWrap .footerTop .footerTopInner .sns{float:right}
+#ftWrap .footerTop .footerTopInner .sns li{display:inline-block}
+#ftWrap .footerTop .footerTopInner .sns li a{font-size:22px;width:40px;height:55px;display:block;line-height:55px;text-align:center}
+#ftWrap .footerTop .footerTopInner .sns li a:hover{opacity:0.5}
+#ftWrap .footer{width:1200px;position:relative;min-width:1200px;margin:0 auto;background-color:#fff;padding:40px 0 60px}
+#ftWrap .footer .copy{padding-top:6px;color:#999}
+#ftWrap .footer .title{line-height:1;display:block;padding:40px 0 7px;font-size:13px;color:#292929}
+#ftWrap .footer .subTxt{float:left}
+#ftWrap .footer .subTxt p{line-height:22px;color:#2e2e2e;font-size:13px}
+.csArea{position:relative;float:left}
+.csArea dl{float:left;margin:0 110px 0 0}
+.csArea dt{font-size:13px;font-weight:bold;margin:0 0 6px}
+.csArea dd{font-size:13px;line-height:20px}
+.csArea dd.tel{font-size:16px;font-weight:bold}
+.cb-btn{position:fixed;bottom:30px;right:30px;width:60px;height:60px;
+border-radius:30px;background:#8B9D83;cursor:pointer;z-index:9998;
+text-align:center;border:none;color:#fff;font-size:24px;
+line-height:60px;box-shadow:0 4px 16px rgba(139,157,131,0.3);display:block}
+.cb-btn:hover{opacity:0.85}
+.cb-badge-n{position:absolute;top:-5px;right:-5px;
+background:#FF4757;color:#fff;border-radius:10px;
+font-size:11px;padding:3px 8px;font-weight:700;
+min-width:20px;text-align:center}
+.cb-box{position:fixed;bottom:100px;right:30px;width:420px;
+background:#fff;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,0.15);
+z-index:9999;display:none}
+.cb-box.on{display:block}
+.cb-hd{background:#8B9D83;padding:20px;color:#fff;
+border-radius:20px 20px 0 0;position:relative}
+.cb-hd h3{font-size:18px;margin:0 0 4px 0;font-weight:700}
+.cb-hd p{font-size:12px;margin:0;opacity:0.85}
+.cb-hd .biz{display:inline-block;background:rgba(255,255,255,0.2);
+padding:3px 10px;border-radius:10px;font-size:11px;margin-top:4px}
+.cb-hd .biz.off{background:rgba(255,255,255,0.15)}
+.cb-x{background:rgba(255,255,255,0.2);border:none;
+width:32px;height:32px;border-radius:16px;cursor:pointer;
+position:absolute;top:18px;right:18px;color:#fff;font-size:18px;line-height:32px}
+.cb-x:hover{background:rgba(255,255,255,0.3)}
+.cb-toolbar{padding:12px 20px;background:#F8FAF7;border-bottom:1px solid #E8EDE6}
+.cb-tool-btn{display:inline-block;padding:6px 12px;margin-right:8px;
+background:#fff;border:1px solid #E8EDE6;border-radius:15px;
+font-size:12px;cursor:pointer;color:#666}
+.cb-tool-btn:hover{background:#E8EDE6;border-color:#8B9D83}
+.cb-msgs{padding:20px;background:#F8FAF7;height:420px;overflow-y:auto}
+.cb-msg{margin-bottom:15px;clear:both;overflow:hidden}
+.cb-msg.bot{float:left;max-width:85%}
+.cb-msg.user{float:right;max-width:85%}
+.cb-bubble{padding:12px 16px;border-radius:12px;
+font-size:14px;line-height:1.6;word-break:break-word;position:relative}
+.cb-msg.bot .cb-bubble{background:#fff;color:#333;
+border:1px solid #E8EDE6}
+.cb-msg.user .cb-bubble{background:#8B9D83;color:#fff}
+.cb-time{font-size:11px;color:#999;margin-top:4px;display:block}
+.cb-msg.user .cb-time{text-align:right;color:rgba(255,255,255,0.7)}
+.cb-opts{margin-top:10px}
+.cb-opt{display:block;background:#fff;border:2px solid #E8EDE6;
+padding:12px 16px;margin-bottom:8px;border-radius:10px;
+cursor:pointer;font-size:14px;text-align:left;width:100%}
+.cb-opt:hover{border-color:#8B9D83;background:#F8FAF7}
+.cb-opt.sel{background:#8B9D83;color:#fff;border-color:#8B9D83}
+.cb-link{color:#8B9D83;text-decoration:underline;cursor:pointer;font-weight:600}
+.cb-link:hover{color:#6B7D63}
+.cb-inp{padding:15px 20px;border-top:1px solid #E8EDE6;background:#fff;
+border-radius:0 0 20px 20px}
+.cb-inp-w{display:block;overflow:hidden}
+.cb-inp input{width:calc(100% - 110px);float:left;
+padding:12px 15px;border:2px solid #E8EDE6;border-radius:10px;
+font-size:14px;box-sizing:border-box}
+.cb-inp input:focus{border-color:#8B9D83;outline:none}
+.cb-inp button{float:right;height:44px;
+background:#8B9D83;border:none;border-radius:10px;
+color:#fff;font-size:13px;cursor:pointer;padding:0 16px;
+font-weight:600;margin-left:8px}
+.cb-inp button:hover{opacity:0.9}
+.cb-inp button.sec{background:#E8EDE6;color:#555}
+.cb-inp button.sec:hover{background:#D5DDD3}
+.cb-info{background:#F0F9FF;border:1px solid #BAE6FD;
+padding:12px;border-radius:8px;font-size:13px;
+color:#0369A1;margin-top:8px}
+.cb-success{background:#F0FDF4;border:1px solid #BBF7D0;
+padding:12px;border-radius:8px;font-size:13px;
+color:#166534;margin-top:8px}
+.cb-warn{background:#FFF7ED;border:1px solid #FED7AA;
+padding:12px;border-radius:8px;font-size:13px;
+color:#C2410C;margin-top:8px}
+.cb-typing{padding:12px 16px;background:#fff;
+border-radius:12px;border:1px solid #E8EDE6;display:inline-block}
+.cb-typing span{display:inline-block;width:8px;height:8px;
+border-radius:4px;background:#8B9D83;margin:0 2px;
+animation:typing 1.4s infinite}
+.cb-typing span:nth-child(2){animation-delay:0.2s}
+.cb-typing span:nth-child(3){animation-delay:0.4s}
+@keyframes typing{
+0%,60%,100%{opacity:0.3}
+30%{opacity:1}
+}
+.cb-badge{display:inline-block;background:#8B9D83;
+color:#fff;font-size:11px;padding:4px 10px;
+border-radius:10px;margin-right:6px;font-weight:600}
+.cb-rating{text-align:center;padding:15px;background:#F8FAF7;
+border-radius:8px;margin-top:8px}
+.cb-rating-title{font-size:13px;color:#666;margin-bottom:10px}
+.cb-star{display:inline-block;font-size:28px;cursor:pointer;
+color:#E8EDE6;margin:0 4px}
+.cb-star:hover,.cb-star.active{color:#FFB800}
+.cb-quick{padding:0 20px 15px;background:#fff;border-top:1px solid #E8EDE6}
+.cb-quick-title{font-size:12px;color:#999;margin-bottom:8px}
+.cb-quick-btn{display:inline-block;padding:8px 14px;
+margin:5px 5px 0 0;background:#F8FAF7;border:1px solid #E8EDE6;
+border-radius:20px;font-size:13px;cursor:pointer;color:#555}
+.cb-quick-btn:hover{background:#E8EDE6;border-color:#8B9D83}
+.cb-session{padding:10px 20px;background:#FFFBEB;border-top:1px solid #FDE68A;
+font-size:11px;color:#92400E;text-align:center}
+@media (max-width:768px){
+.cb-btn{width:56px;height:56px;font-size:22px;line-height:56px;
+bottom:20px;right:20px}
+.cb-box{width:calc(100vw - 40px);bottom:90px;right:20px}
+.cb-msg.bot,.cb-msg.user{max-width:90%}
+}
+</style>
+<div id="ftWrap">
+<div class="footerTop">
+<div class="footerTopInner clear">
+<ul class="footerNav">
+<li><a href="<!--/link_join_terms/-->">이용약관</a></li>
+<li class="bar">|</li>
+<li><a href="<!--/link_privacy/-->"><strong>개인정보처리방침</strong></a></li>
+<li class="bar">|</li>
+<li><a href="<!--/link_useinfo/-->">쇼핑몰 이용안내</a></li>
+<li class="bar">|</li>
+<li><a href="/board/board.html?code=<!--/shop_id/-->_board1">공지사항</a></li>
+</ul>
+<ul class="sns">
+<li><a href="https://www.youtube.com/channel/UCOt_7gyvjqHBw304hU4-FUw" target="_blank"><i class="xi-youtube"></i></a></li>
+<li><a href="https://www.instagram.com/pressco21_diy_studio/" target="_blank"><i class="xi-instagram"></i></a></li>
+<li><a href="https://section.blog.naver.com" target="_blank"><i class="xi-naver-square"></i></a></li>
+<li><a href="https://accounts.kakao.com/login/kakaostory" target="_blank"><i class="xi-kakaostory"></i></a></li>
+</ul>
+</div>
+</div>
+<div class="footer clear">
+<div class="csArea clear">
+<dl class="csCenter">
+<dt>CS Center</dt>
+<dd class="tel"><!--/shop_tel/--></dd>
+<!--/loop_shop_cs/-->
+<dd><!--/shop_cs@value/--></dd>
+<!--/end_loop/-->
+</dl>
+<dl class="bankInfo">
+<dt>Bank Info</dt>
+<!--/loop_shop_account/-->
+<dd><!--/shop_account@value/--></dd>
+<!--/end_loop/-->
+</dl>
+</div>
+<address class="subTxt">
+<p class="bold">Company Info</p>
+<p><strong>회사명</strong> <!--/company_name/--> <strong>대표</strong> <!--/company_owner/--> <strong>주소</strong> <!--/company_addr/--></p>
+<p><strong>사업자번호</strong> <!--/company_number/--> <a href="<!--/link_company_number/-->" target="_blank">[사업자정보확인]</a> <strong>통신판매번호</strong> <!--/online_sale_number/--></p>
+<p><strong>대표전화</strong> <!--/shop_tel/--> <!--/if_shop_fax/--><strong>팩스</strong> <!--/shop_fax/--> <!--/end_if/--><strong>개인정보보호책임자</strong> <!--/privacy_charge/--> <strong>이메일</strong> pressco5755@naver.com</p>
+<p class="copy">Copyright All Rights Reserved</p>
+</address>
+</div>
+</div>
+<button class="cb-btn" id="cbBtn">
+?
+<span class="cb-badge-n" id="cbBadge" style="display:none">0</span>
+</button>
+<div class="cb-box" id="cbBox">
+<div class="cb-hd">
+<button class="cb-x" id="cbX">X</button>
+<h3>PRESSCO21 상담봇</h3>
+<p id="cbSubtitle">무엇을 도와드릴까요?</p>
+<span class="biz" id="cbBizStatus">영업시간</span>
+</div>
+<div class="cb-toolbar">
+<button class="cb-tool-btn" id="cbRestart">새 대화</button>
+<button class="cb-tool-btn" id="cbExport">대화 내보내기</button>
+</div>
+<div class="cb-msgs" id="cbMsgs"></div>
+<div class="cb-quick" id="cbQuick" style="display:none">
+<div class="cb-quick-title">빠른 답변</div>
+<div id="cbQuickBtns"></div>
+</div>
+<div class="cb-inp" id="cbInp">
+<div class="cb-inp-w">
+<input type="text" id="cbInput" placeholder="메시지를 입력하세요..." style="display:none">
+<button id="cbSend" style="display:none">전송</button>
+<button id="cbAgent" class="sec">상담원 연결</button>
+</div>
+</div>
+<div class="cb-session" id="cbSession"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+(function(){
+emailjs.init('YOUR_PUBLIC_KEY');
+})();
+</script>
+<script>
+(function(){
+var w=window;
+if(w.ChannelIO){return;}
+var ch=function(){ch.c(arguments);};
+ch.q=[];
+ch.c=function(a){ch.q.push(a);};
+w.ChannelIO=ch;
+function l(){
+if(w.ChannelIOInitialized){return;}
+w.ChannelIOInitialized=true;
+var s=document.createElement('script');
+s.type='text/javascript';
+s.async=true;
+s.src='https://cdn.channel.io/plugin/ch-plugin-web.js';
+s.charset='UTF-8';
+var x=document.getElementsByTagName('script')[0];
+if(x&&x.parentNode){
+x.parentNode.insertBefore(s,x);
+}
+}
+if(document.readyState==='complete'){
+l();
+}else{
+if(w.addEventListener){
+w.addEventListener('DOMContentLoaded',l);
+w.addEventListener('load',l);
+}
+}
+})();
+ChannelIO('boot',{
+pluginKey:'23176d41-2c63-435b-b393-8bc1dcecd925'
+});
+</script>
+<script>
+(function(){
+var sessionId=(function(){
+var sid=localStorage.getItem('cb_session_id');
+if(!sid){
+sid='CB'+Date.now()+Math.random().toString(36).substr(2,9);
+localStorage.setItem('cb_session_id',sid);
+}
+return sid;
+})();
+var state={
+flow:null,
+step:0,
+data:{},
+history:[],
+sessionId:sessionId,
+channelOpen:false
+};
+function sendEmail(data){
+var historyText='';
+for(var i=0;i<state.history.length;i++){
+var h=state.history[i];
+historyText+='['+h.time+'] '+(h.type==='bot'?'봇':'고객')+': '+
+h.msg.replace(/<[^>]*>/g,'').replace(/&nbsp;/g,' ')+'\n';
+}
+var emailData={
+to_email:'pressco5755@naver.com',
+subject:'[PRESSCO21] 새 문의: '+data.type,
+session_id:sessionId,
+inquiry_type:data.type,
+timestamp:new Date().toLocaleString('ko-KR'),
+order_number:data.order||'-',
+phone:data.phone||'-',
+reason:data.reason||'-',
+detail:data.detail||'-',
+rating:data.rating||'-',
+conversation:historyText
+};
+emailjs.send('YOUR_SERVICE_ID','YOUR_TEMPLATE_ID',emailData)
+.then(function(){
+console.log('이메일 전송 성공');
+},function(error){
+console.log('이메일 전송 실패:',error);
+});
+}
+var flows={
+ship:{
+name:'배송 조회',
+steps:[
+{bot:'주문번호를 입력해주세요.<br><span style="font-size:12px;color:#999">(예: 20250101-12345)</span>',
+input:'text',expect:'order'},
+{bot:function(d){
+return '주문번호 <strong>'+d.order+'</strong> 확인했습니다.<br><br>'+
+'<div class="cb-info">배송 현황: 배송 중<br>'+
+'택배사: CJ대한통운<br>'+
+'운송장번호: 123456789012<br>'+
+'예상 도착: 내일 오후</div><br>'+
+'<a class="cb-link" href="https://tracker.delivery/#/cj/123456789012" target="_blank">실시간 배송 추적하기</a>';
+},opts:['배송지 변경','다른 주문 조회','처음으로']},
+{bot:'또 도와드릴 일이 있으신가요?',
+opts:['처음으로','상담원 연결'],rating:true}
+]},
+ret:{
+name:'반품/교환 신청',
+steps:[
+{bot:'반품/교환 도와드리겠습니다.<br>주문번호를 입력해주세요.',
+input:'text',expect:'order'},
+{bot:'반품과 교환 중 어떤 것을 원하시나요?',
+opts:['반품 (환불)','교환 (다른 상품)']},
+{bot:function(d){
+if(d.step2==='반품 (환불)'){
+return '반품 사유를 선택해주세요.';
+}else{
+return '교환 사유를 선택해주세요.';
+}
+},opts:['단순 변심','상품 불량','사이즈/색상 불일치','배송 지연','기타']},
+{bot:function(d){
+var isRet=d.step2==='반품 (환불)';
+if(d.step3==='상품 불량'){
+return '불량 상품 사진을 이메일로 보내주세요.<br><br>'+
+'<strong>이메일:</strong> pressco5755@naver.com<br>'+
+'<strong>제목:</strong> [반품] '+d.order+'<br><br>'+
+'사진 확인 후 '+(isRet?'환불':'교환')+' 진행해드리겠습니다.';
+}else if(d.step3==='단순 변심'){
+return '<div class="cb-warn">'+
+(isRet?'반품':'교환')+' 배송비: 왕복 6,000원<br>'+
+'(고객 부담)</div><br>'+
+'아래 정보를 남겨주시면 24시간 내 연락드리겠습니다.<br><br>'+
+'연락처를 입력해주세요.';
+}else{
+return '자세한 상황을 말씀해주시면<br>빠르게 도와드리겠습니다.<br><br>'+
+'연락처를 입력해주세요.';
+}
+},input:'text',expect:'phone'},
+{bot:function(d){
+sendEmail({
+type:'반품/교환',
+order:d.order,
+reason:d.step3,
+phone:d.phone,
+detail:d.step2
+});
+return '<div class="cb-success">'+
+'신청이 접수되었습니다!<br><br>'+
+'주문번호: '+d.order+'<br>'+
+'연락처: '+d.phone+'<br>'+
+'처리 예정: 영업일 기준 1-2일<br><br>'+
+'<strong>관리자 이메일로 자동 전송되었습니다.</strong></div><br>'+
+'담당자가 '+d.phone+'로 연락드리겠습니다.';
+},opts:['처음으로','상담원 연결'],rating:true}
+]},
+mile:{
+name:'적립금 문의',
+steps:[
+{bot:'적립금 관련 문의이시군요!<br>무엇이 궁금하신가요?',
+opts:['적립금 잔액 확인','적립금 사용 방법','적립금 적립 안됨','기타 문의']},
+{bot:function(d){
+if(d.step1==='적립금 잔액 확인'){
+return '회원 로그인 후<br>마이페이지에서 확인 가능합니다.<br><br>'+
+'<a class="cb-link" href="/mypage/mileage.html">적립금 확인하기</a><br><br>'+
+'<div class="cb-info">적립금 안내<br>'+
+'신규 가입: 3,000원<br>'+
+'구매 시: 3% 적립<br>'+
+'리뷰 작성: 500원<br>'+
+'유효기간: 1년</div>';
+}else if(d.step1==='적립금 사용 방법'){
+return '<div class="cb-info">적립금 사용 안내<br><br>'+
+'사용 조건: 30,000원 이상 구매<br>'+
+'사용 한도: 최대 10%<br>'+
+'사용 단위: 100원 단위</div><br>'+
+'주문 시 결제 단계에서<br>"적립금 사용" 체크하시면 됩니다!';
+}else if(d.step1==='적립금 적립 안됨'){
+return '적립금이 적립되지 않으셨나요?<br>주문번호를 알려주시면 확인해드리겠습니다.';
+}else{
+return '자세한 내용을 입력해주시면<br>상담원이 확인 후 답변드리겠습니다.';
+}
+},input:function(d){
+return d.step1==='적립금 적립 안됨'||d.step1==='기타 문의'?'text':null;
+},expect:'detail',opts:function(d){
+return d.step1==='적립금 잔액 확인'||d.step1==='적립금 사용 방법'?['처음으로','상담원 연결']:null;
+}},
+{bot:function(d){
+if(d.detail){
+sendEmail({
+type:'적립금',
+inquiry:d.step1,
+detail:d.detail
+});
+return '<div class="cb-success">'+
+'문의가 접수되었습니다!<br><br>'+
+'영업일 기준 24시간 내<br>'+
+'이메일로 답변드리겠습니다.<br><br>'+
+'<strong>관리자 이메일로 자동 전송되었습니다.</strong></div>';
+}
+return '';
+},opts:['처음으로','상담원 연결'],rating:true}
+]},
+gen:{
+name:'일반 문의',
+steps:[
+{bot:'어떤 문의이신가요?',
+opts:['회원가입/탈퇴','쿠폰 관련','결제 문의','기타 문의']},
+{bot:function(d){
+if(d.step1==='회원가입/탈퇴'){
+return '<div class="cb-info">회원가입 혜택<br>'+
+'즉시 사용 가능한 3,000원 적립금<br>'+
+'구매 시 3% 적립<br>'+
+'회원 전용 할인 혜택</div><br>'+
+'<a class="cb-link" href="/member/join.html">회원가입 하러가기</a><br><br>'+
+'회원 탈퇴는 마이페이지에서 가능합니다.';
+}else if(d.step1==='쿠폰 관련'){
+return '쿠폰은 마이페이지 > 쿠폰함에서<br>다운로드 가능합니다!<br><br>'+
+'<a class="cb-link" href="/mypage/coupon.html">쿠폰 받으러 가기</a><br><br>'+
+'<div class="cb-info">현재 진행 중인 쿠폰<br>'+
+'신규 회원 10% 할인<br>'+
+'생일 쿠폰 15% 할인<br>'+
+'무료배송 쿠폰</div>';
+}else if(d.step1==='결제 문의'){
+return '결제 관련 문의이시군요.<br>구체적으로 어떤 부분이 궁금하신가요?';
+}else{
+return '문의 내용을 자세히 입력해주세요.<br>상담원이 확인 후 답변드리겠습니다.';
+}
+},input:function(d){
+return d.step1==='결제 문의'||d.step1==='기타 문의'?'text':null;
+},expect:'detail',opts:function(d){
+return d.step1==='회원가입/탈퇴'||d.step1==='쿠폰 관련'?['처음으로','상담원 연결']:null;
+}},
+{bot:function(d){
+if(d.detail){
+sendEmail({
+type:'일반문의',
+category:d.step1,
+detail:d.detail
+});
+return '<div class="cb-success">'+
+'문의가 접수되었습니다!<br><br>'+
+'영업일 기준 24시간 내<br>'+
+'답변드리겠습니다.<br><br>'+
+'<strong>관리자 이메일로 자동 전송되었습니다.</strong></div>';
+}
+return '';
+},opts:['처음으로','상담원 연결'],rating:true}
+]}
+};
+var msgs=document.getElementById('cbMsgs');
+var inp=document.getElementById('cbInput');
+var send=document.getElementById('cbSend');
+var agent=document.getElementById('cbAgent');
+var quick=document.getElementById('cbQuick');
+var quickBtns=document.getElementById('cbQuickBtns');
+var subtitle=document.getElementById('cbSubtitle');
+var bizStatus=document.getElementById('cbBizStatus');
+var sessionEl=document.getElementById('cbSession');
+function updateBizStatus(){
+var now=new Date();
+var day=now.getDay();
+var hour=now.getHours();
+var isBiz=true;
+if(day===0||day===6){
+isBiz=false;
+}else if(hour<9||hour>=18){
+isBiz=false;
+}else if(hour>=12&&hour<13){
+isBiz=false;
+}
+if(isBiz){
+bizStatus.className='biz';
+bizStatus.textContent='영업 중 (09:00-18:00)';
+}else{
+bizStatus.className='biz off';
+bizStatus.textContent='영업시간 외';
+}
+}
+updateBizStatus();
+setInterval(updateBizStatus,60000);
+sessionEl.textContent='세션 ID: '+sessionId.substr(0,15)+'...';
+function formatTime(){
+var now=new Date();
+var h=now.getHours();
+var m=now.getMinutes();
+return (h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+}
+function saveHistory(){
+localStorage.setItem('cb_history',JSON.stringify(state.history));
+localStorage.setItem('cb_state',JSON.stringify({
+flow:state.flow,
+step:state.step,
+data:state.data
+}));
+}
+function loadHistory(){
+try{
+var saved=localStorage.getItem('cb_history');
+if(saved){
+state.history=JSON.parse(saved);
+}
+var savedState=localStorage.getItem('cb_state');
+if(savedState){
+var s=JSON.parse(savedState);
+state.flow=s.flow;
+state.step=s.step;
+state.data=s.data;
+}
+}catch(e){}
+}
+function restoreChat(){
+loadHistory();
+if(state.history.length>0){
+for(var i=0;i<state.history.length;i++){
+var h=state.history[i];
+var msg=document.createElement('div');
+msg.className='cb-msg '+h.type;
+msg.innerHTML='<div class="cb-bubble">'+h.msg+
+'<span class="cb-time">'+h.time+'</span></div>';
+msgs.appendChild(msg);
+}
+scroll();
+if(state.flow&&state.step<flows[state.flow].steps.length){
+subtitle.textContent='이전 대화 이어서 하기';
+showQuick(['이어서 하기','새 대화','상담원 연결']);
+}
+}
+}
+function scroll(){
+msgs.scrollTop=msgs.scrollHeight;
+}
+function addMsg(txt,type){
+var time=formatTime();
+var msg=document.createElement('div');
+msg.className='cb-msg '+type;
+msg.innerHTML='<div class="cb-bubble">'+txt+
+'<span class="cb-time">'+time+'</span></div>';
+msgs.appendChild(msg);
+state.history.push({msg:txt,type:type,time:time});
+saveHistory();
+scroll();
+updateBadge();
+}
+function addOpts(opts,cb){
+var msg=document.createElement('div');
+msg.className='cb-msg bot';
+var bubble=document.createElement('div');
+bubble.className='cb-bubble';
+var time=document.createElement('span');
+time.className='cb-time';
+time.textContent=formatTime();
+var optsDiv=document.createElement('div');
+optsDiv.className='cb-opts';
+for(var i=0;i<opts.length;i++){
+(function(opt){
+var btn=document.createElement('button');
+btn.className='cb-opt';
+btn.textContent=opt;
+btn.onclick=function(){
+var all=optsDiv.querySelectorAll('.cb-opt');
+for(var j=0;j<all.length;j++){
+all[j].disabled=true;
+all[j].style.opacity='0.5';
+all[j].style.cursor='not-allowed';
+}
+btn.className='cb-opt sel';
+btn.disabled=false;
+btn.style.opacity='1';
+addMsg(opt,'user');
+setTimeout(function(){cb(opt);},300);
+};
+optsDiv.appendChild(btn);
+})(opts[i]);
+}
+bubble.appendChild(optsDiv);
+bubble.appendChild(time);
+msg.appendChild(bubble);
+msgs.appendChild(msg);
+state.history.push({msg:'[옵션: '+opts.join(', ')+']',type:'bot',time:formatTime()});
+saveHistory();
+scroll();
+}
+function showRating(){
+var msg=document.createElement('div');
+msg.className='cb-msg bot';
+var bubble=document.createElement('div');
+bubble.className='cb-bubble';
+bubble.innerHTML='<div class="cb-rating">'+
+'<div class="cb-rating-title">상담이 도움이 되셨나요?</div>'+
+'<div id="cbStars">'+
+'<span class="cb-star" data-rate="1">★</span>'+
+'<span class="cb-star" data-rate="2">★</span>'+
+'<span class="cb-star" data-rate="3">★</span>'+
+'<span class="cb-star" data-rate="4">★</span>'+
+'<span class="cb-star" data-rate="5">★</span>'+
+'</div></div>'+
+'<span class="cb-time">'+formatTime()+'</span>';
+msg.appendChild(bubble);
+msgs.appendChild(msg);
+scroll();
+var stars=document.querySelectorAll('.cb-star');
+for(var i=0;i<stars.length;i++){
+stars[i].onclick=function(){
+var rate=this.getAttribute('data-rate');
+for(var j=0;j<stars.length;j++){
+stars[j].className='cb-star';
+if(j<rate){
+stars[j].className='cb-star active';
+}
+stars[j].onclick=null;
+}
+sendEmail({type:'rating',rating:rate});
+setTimeout(function(){
+addMsg('소중한 의견 감사합니다!','bot');
+},500);
+};
+}
+}
+function showTyping(){
+var msg=document.createElement('div');
+msg.className='cb-msg bot';
+msg.id='cbTyping';
+msg.innerHTML='<div class="cb-typing"><span></span><span></span><span></span></div>';
+msgs.appendChild(msg);
+scroll();
+return msg;
+}
+function hideTyping(){
+var t=document.getElementById('cbTyping');
+if(t){
+t.parentNode.removeChild(t);
+}
+}
+function showInp(exp){
+inp.style.display='block';
+send.style.display='block';
+inp.focus();
+inp.value='';
+inp.onkeypress=function(e){
+if(e.key==='Enter'&&inp.value.trim()){
+handleInp(exp);
+}
+};
+send.onclick=function(){
+if(inp.value.trim()){
+handleInp(exp);
+}
+};
+}
+function hideInp(){
+inp.style.display='none';
+send.style.display='none';
+inp.onkeypress=null;
+send.onclick=null;
+}
+function handleInp(exp){
+var val=inp.value.trim();
+if(!val)return;
+addMsg(val,'user');
+state.data[exp]=val;
+inp.value='';
+hideInp();
+nextStep();
+}
+function showQuick(btns){
+if(!btns||btns.length===0){
+quick.style.display='none';
+return;
+}
+quick.style.display='block';
+quickBtns.innerHTML='';
+for(var i=0;i<btns.length;i++){
+(function(btn){
+var el=document.createElement('button');
+el.className='cb-quick-btn';
+el.textContent=btn;
+el.onclick=function(){
+if(btn==='처음으로'||btn==='새 대화'){
+clearChat();
+reset();
+}else if(btn==='상담원 연결'){
+conAgent();
+}else if(btn==='이어서 하기'){
+nextStep();
+}else{
+addMsg(btn,'user');
+setTimeout(function(){handleOpt(btn);},300);
+}
+};
+quickBtns.appendChild(el);
+})(btns[i]);
+}
+}
+function nextStep(){
+hideInp();
+showQuick([]);
+if(!state.flow)return;
+var f=flows[state.flow];
+if(state.step>=f.steps.length){
+reset();
+return;
+}
+var s=f.steps[state.step];
+var t=showTyping();
+setTimeout(function(){
+hideTyping();
+var botMsg=typeof s.bot==='function'?s.bot(state.data):s.bot;
+if(botMsg){
+addMsg(botMsg,'bot');
+}
+if(s.rating){
+showRating();
+}
+if(s.opts){
+var opts=typeof s.opts==='function'?s.opts(state.data):s.opts;
+if(opts){
+addOpts(opts,handleOpt);
+}
+}else if(s.input){
+var inpType=typeof s.input==='function'?s.input(state.data):s.input;
+if(inpType==='text'){
+showInp(s.expect);
+}
+}
+state.step++;
+saveHistory();
+},800);
+}
+function handleOpt(opt){
+if(opt==='처음으로'||opt==='새 대화'){
+clearChat();
+reset();
+}else if(opt==='상담원 연결'){
+conAgent();
+}else{
+state.data['step'+state.step]=opt;
+nextStep();
+}
+}
+function startFlow(flow){
+state.flow=flow;
+state.step=0;
+state.data={};
+subtitle.textContent=flows[flow].name;
+var t=showTyping();
+setTimeout(function(){
+hideTyping();
+addMsg('<span class="cb-badge">'+flows[flow].name+'</span><br>시작합니다!','bot');
+setTimeout(nextStep,500);
+},600);
+}
+function clearChat(){
+msgs.innerHTML='';
+state.history=[];
+state.flow=null;
+state.step=0;
+state.data={};
+localStorage.removeItem('cb_history');
+localStorage.removeItem('cb_state');
+subtitle.textContent='무엇을 도와드릴까요?';
+}
+function reset(){
+state.flow=null;
+state.step=0;
+state.data={};
+hideInp();
+subtitle.textContent='무엇을 도와드릴까요?';
+var t=showTyping();
+setTimeout(function(){
+hideTyping();
+addMsg('무엇을 도와드릴까요?','bot');
+addOpts(['배송 조회','반품/교환 신청','적립금 문의','일반 문의','상담원 연결'],function(opt){
+if(opt==='배송 조회'){
+startFlow('ship');
+}else if(opt==='반품/교환 신청'){
+startFlow('ret');
+}else if(opt==='적립금 문의'){
+startFlow('mile');
+}else if(opt==='일반 문의'){
+startFlow('gen');
+}else if(opt==='상담원 연결'){
+conAgent();
+}
+});
+showQuick(['배송 조회','반품/교환','적립금','일반 문의']);
+saveHistory();
+},500);
+}
+function conAgent(){
+if(window.ChannelIO){
+addMsg('상담원 연결 중입니다...<br><br><div class="cb-info">채널톡 메신저가 열립니다.<br>대화 종료 후 "챗봇으로 돌아가기"를 눌러주세요.</div>','bot');
+state.channelOpen=true;
+setTimeout(function(){
+ChannelIO('showMessenger');
+ChannelIO('updateUser',{
+profile:{
+sessionId:sessionId,
+lastConversation:state.history[state.history.length-1]?state.history[state.history.length-1].msg.replace(/<[^>]*>/g,'').substr(0,100):''
+}
+});
+showQuick(['챗봇으로 돌아가기','새 대화']);
+},1000);
+}else{
+addMsg('실시간 상담을 준비 중입니다.<br>이메일로 문의해주세요: pressco5755@naver.com','bot');
+}
+}
+agent.onclick=conAgent;
+document.getElementById('cbRestart').onclick=function(){
+if(confirm('새 대화를 시작하시겠습니까?\n현재 대화 내용이 저장됩니다.')){
+clearChat();
+reset();
+}
+};
+document.getElementById('cbExport').onclick=function(){
+var txt='PRESSCO21 상담 내역\n';
+txt+='세션 ID: '+sessionId+'\n';
+txt+='일시: '+new Date().toLocaleString()+'\n\n';
+for(var i=0;i<state.history.length;i++){
+var h=state.history[i];
+txt+='['+h.time+'] '+(h.type==='bot'?'봇':'고객')+': '+h.msg.replace(/<[^>]*>/g,'')+'\n';
+}
+var blob=new Blob([txt],{type:'text/plain'});
+var url=URL.createObjectURL(blob);
+var a=document.createElement('a');
+a.href=url;
+a.download='상담내역_'+sessionId.substr(0,10)+'.txt';
+a.click();
+};
+var btn=document.getElementById('cbBtn');
+var box=document.getElementById('cbBox');
+var x=document.getElementById('cbX');
+var badge=document.getElementById('cbBadge');
+var badgeCount=0;
+function updateBadge(){
+if(box.className.indexOf('on')===-1){
+badgeCount++;
+badge.textContent=badgeCount;
+badge.style.display='block';
+}
+}
+btn.onclick=function(){
+if(box.className.indexOf('on')>-1){
+box.className='cb-box';
+}else{
+box.className='cb-box on';
+badgeCount=0;
+badge.style.display='none';
+if(msgs.children.length===0){
+reset();
+}else{
+restoreChat();
+}
+}
+};
+x.onclick=function(){
+box.className='cb-box';
+};
+restoreChat();
+if(state.history.length===0){
+setTimeout(function(){
+if(box.className.indexOf('on')===-1){
+badgeCount=1;
+badge.textContent='1';
+badge.style.display='block';
+}
+},3000);
+}
+})();
+</script>
+

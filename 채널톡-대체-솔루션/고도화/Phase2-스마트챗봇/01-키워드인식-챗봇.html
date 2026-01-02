@@ -1,0 +1,202 @@
+<style>
+.mk-chatbot{position:fixed;bottom:100px;right:30px;width:380px;
+background:#fff;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,0.15);
+z-index:9999;display:none}
+.mk-chatbot.on{display:block}
+.mk-chat-header{background:#8B9D83;padding:20px;color:#fff;
+border-radius:20px 20px 0 0;overflow:hidden;position:relative}
+.mk-chat-header h3{font-size:18px;margin:0 0 4px 0;font-weight:700}
+.mk-chat-header p{font-size:13px;opacity:0.9;margin:0}
+.mk-chat-close{background:rgba(255,255,255,0.2);border:none;
+width:32px;height:32px;border-radius:50%;cursor:pointer;
+position:absolute;top:18px;right:18px;color:#fff;font-size:18px;
+line-height:32px}
+.mk-chat-close:hover{background:rgba(255,255,255,0.3)}
+.mk-chat-messages{padding:20px;height:350px;overflow-y:auto;
+background:#F8FAF7}
+.mk-chat-msg{margin-bottom:15px;clear:both}
+.mk-chat-msg.bot{float:left;max-width:75%}
+.mk-chat-msg.user{float:right;max-width:75%}
+.mk-chat-bubble{padding:12px 16px;border-radius:12px;
+font-size:14px;line-height:1.5}
+.mk-chat-msg.bot .mk-chat-bubble{background:#fff;color:#333;
+border:1px solid #E8EDE6}
+.mk-chat-msg.user .mk-chat-bubble{background:#8B9D83;color:#fff}
+.mk-chat-time{font-size:11px;color:#999;margin-top:4px}
+.mk-chat-typing{padding:12px 16px;background:#fff;
+border-radius:12px;border:1px solid #E8EDE6;display:inline-block}
+.mk-chat-typing span{display:inline-block;width:8px;height:8px;
+border-radius:50%;background:#8B9D83;margin:0 2px;
+animation:typing 1.4s infinite}
+.mk-chat-typing span:nth-child(2){animation-delay:0.2s}
+.mk-chat-typing span:nth-child(3){animation-delay:0.4s}
+@keyframes typing{
+0%,60%,100%{opacity:0.3;transform:translateY(0)}
+30%{opacity:1;transform:translateY(-10px)}
+}
+.mk-chat-suggestions{padding:10px 20px;background:#fff;
+border-top:1px solid #E8EDE6}
+.mk-chat-suggestion{display:inline-block;padding:8px 14px;
+margin:5px 5px 0 0;background:#F8FAF7;border:1px solid #E8EDE6;
+border-radius:20px;font-size:13px;cursor:pointer;color:#555}
+.mk-chat-suggestion:hover{background:#E8EDE6;border-color:#8B9D83}
+.mk-chat-input{padding:15px 20px;border-top:1px solid #E8EDE6;
+background:#fff;border-radius:0 0 20px 20px}
+.mk-chat-input-wrapper{display:block;overflow:hidden}
+.mk-chat-input input{width:calc(100% - 50px);float:left;
+padding:10px 15px;border:2px solid #E8EDE6;border-radius:10px;
+font-size:14px;box-sizing:border-box}
+.mk-chat-input input:focus{border-color:#8B9D83;outline:none}
+.mk-chat-input button{float:right;width:42px;height:42px;
+background:#8B9D83;border:none;border-radius:10px;
+color:#fff;font-size:18px;cursor:pointer;line-height:42px}
+.mk-chat-input button:hover{opacity:0.9}
+.mk-chat-link{color:#8B9D83;text-decoration:underline;cursor:pointer}
+.mk-chat-link:hover{color:#6B7D63}
+@media (max-width:768px){
+.mk-chatbot{width:calc(100vw - 40px);right:20px;bottom:90px}
+}
+</style>
+<div class="mk-chatbot" id="mkChatbot">
+<div class="mk-chat-header">
+<button class="mk-chat-close" id="mkChatClose">×</button>
+<h3>스마트 상담봇</h3>
+<p>무엇을 도와드릴까요?</p>
+</div>
+<div class="mk-chat-messages" id="mkChatMessages"></div>
+<div class="mk-chat-suggestions" id="mkChatSuggestions"></div>
+<div class="mk-chat-input">
+<div class="mk-chat-input-wrapper">
+<input type="text" id="mkChatInput" placeholder="메시지를 입력하세요...">
+<button id="mkChatSend">→</button>
+</div>
+</div>
+</div>
+<script>
+(function(){
+var keywords={
+'배송':{words:['배송','택배','언제','도착','받을','얼마나'],
+answer:'<strong>배송 안내</strong><br><br>주문 후 영업일 기준 2-3일 소요됩니다.<br><br>• 50,000원 이상: 무료배송<br>• 50,000원 미만: 3,000원<br><br><a class="mk-chat-link" href="/mypage/order_list.html">주문 조회하기</a>',
+suggestions:['배송 조회','배송지 변경','배송비']},
+'반품':{words:['반품','환불','취소','돌려'],
+answer:'<strong>반품 안내</strong><br><br>상품 수령 후 7일 이내 반품 가능합니다.<br><br>• 반품 배송비: 6,000원<br>• 불량/오배송: 무료<br><br><a class="mk-chat-link" href="/mypage/return.html">반품 신청하기</a>',
+suggestions:['반품 방법','환불 기간','반품 배송비']},
+'교환':{words:['교환','바꾸','변경','다른'],
+answer:'<strong>교환 안내</strong><br><br>상품 수령 후 7일 이내 교환 가능합니다.<br><br>• 교환 배송비: 왕복 6,000원<br>• 불량/오배송: 무료<br><br><a class="mk-chat-link" href="/mypage/exchange.html">교환 신청하기</a>',
+suggestions:['교환 방법','교환 기간','교환 배송비']},
+'적립금':{words:['적립금','포인트','마일리지','사용'],
+answer:'<strong>적립금 안내</strong><br><br>• 신규 가입: 3,000원<br>• 구매 시: 3% 적립<br>• 사용: 30,000원 이상 주문 시<br><br><a class="mk-chat-link" href="/mypage/mileage.html">적립금 확인하기</a>',
+suggestions:['적립금 사용','적립금 조회','적립금 혜택']},
+'쿠폰':{words:['쿠폰','할인','이벤트'],
+answer:'<strong>쿠폰 안내</strong><br><br>• 앱 전용 쿠폰: 매주 지급<br>• 생일 쿠폰: 생일 당월<br>• 등급별 쿠폰: 매월 1일<br><br><a class="mk-chat-link" href="/mypage/coupon.html">쿠폰 확인하기</a>',
+suggestions:['쿠폰 사용','쿠폰 다운','쿠폰 조회']},
+'회원':{words:['회원','가입','탈퇴','정보','수정'],
+answer:'<strong>회원 정보</strong><br><br>• 가입 혜택: 3,000원 적립금<br>• 등급별 혜택: 최대 10% 할인<br>• 정보 수정: 마이페이지에서 가능<br><br><a class="mk-chat-link" href="/mypage/modify.html">정보 수정하기</a>',
+suggestions:['회원가입','등급 혜택','정보 수정']}
+};
+var chatbot=document.getElementById('mkChatbot');
+var messages=document.getElementById('mkChatMessages');
+var suggestions=document.getElementById('mkChatSuggestions');
+var input=document.getElementById('mkChatInput');
+var sendBtn=document.getElementById('mkChatSend');
+var closeBtn=document.getElementById('mkChatClose');
+function addMessage(text,type){
+var msg=document.createElement('div');
+msg.className='mk-chat-msg '+type;
+var bubble=document.createElement('div');
+bubble.className='mk-chat-bubble';
+bubble.innerHTML=text;
+msg.appendChild(bubble);
+messages.appendChild(msg);
+messages.scrollTop=messages.scrollHeight;
+}
+function showTyping(){
+var typing=document.createElement('div');
+typing.className='mk-chat-msg bot';
+typing.id='mkTyping';
+typing.innerHTML='<div class="mk-chat-typing"><span></span><span></span><span></span></div>';
+messages.appendChild(typing);
+messages.scrollTop=messages.scrollHeight;
+}
+function hideTyping(){
+var typing=document.getElementById('mkTyping');
+if(typing){
+typing.remove();
+}
+}
+function findKeyword(text){
+var lower=text.toLowerCase();
+for(var key in keywords){
+var data=keywords[key];
+for(var i=0;i<data.words.length;i++){
+if(lower.indexOf(data.words[i])>-1){
+return key;
+}
+}
+}
+return null;
+}
+function showSuggestions(sugs){
+suggestions.innerHTML='';
+if(sugs&&sugs.length>0){
+for(var i=0;i<sugs.length;i++){
+var btn=document.createElement('button');
+btn.className='mk-chat-suggestion';
+btn.textContent=sugs[i];
+btn.onclick=(function(text){
+return function(){
+handleMessage(text);
+};
+})(sugs[i]);
+suggestions.appendChild(btn);
+}
+}
+}
+function handleMessage(text){
+if(!text)return;
+addMessage(text,'user');
+input.value='';
+showTyping();
+setTimeout(function(){
+hideTyping();
+var keyword=findKeyword(text);
+if(keyword){
+var data=keywords[keyword];
+addMessage(data.answer,'bot');
+showSuggestions(data.suggestions);
+}else{
+addMessage('죄송합니다. 정확히 이해하지 못했습니다.<br><br>다음 키워드로 다시 검색해보세요:<br>• 배송<br>• 반품/교환<br>• 적립금<br>• 쿠폰<br><br>또는 <a class="mk-chat-link" onclick="openLive()">상담원과 연결</a>하시겠어요?','bot');
+showSuggestions(['배송 문의','반품 문의','상담원 연결']);
+}
+},1000);
+}
+function openLive(){
+if(window.ChannelIO){
+ChannelIO('showMessenger');
+}else{
+alert('실시간 상담을 준비 중입니다.\n이메일: pressco5755@naver.com');
+}
+}
+window.openLive=openLive;
+if(sendBtn){
+sendBtn.onclick=function(){
+handleMessage(input.value);
+};
+}
+if(input){
+input.onkeypress=function(e){
+if(e.key==='Enter'){
+handleMessage(input.value);
+}
+};
+}
+if(closeBtn){
+closeBtn.onclick=function(){
+chatbot.className='mk-chatbot';
+};
+}
+addMessage('안녕하세요! 무엇을 도와드릴까요?','bot');
+showSuggestions(['배송 문의','반품/교환','적립금','쿠폰']);
+})();
+</script>
+

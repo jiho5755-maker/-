@@ -1,0 +1,180 @@
+<style>
+.mk-bot-status{position:fixed;bottom:100px;right:30px;width:380px;
+background:#fff;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,0.15);
+z-index:9999;display:none}
+.mk-bot-status.on{display:block}
+.mk-bot-header{background:#8B9D83;padding:20px;color:#fff;
+border-radius:20px 20px 0 0;position:relative}
+.mk-bot-header.closed{background:#6B7D63}
+.mk-bot-header h3{font-size:18px;margin:0 0 4px 0;font-weight:700}
+.mk-bot-header .status{font-size:12px;opacity:0.9;
+background:rgba(255,255,255,0.2);padding:4px 12px;
+border-radius:12px;display:inline-block;margin-top:5px}
+.mk-bot-close{background:rgba(255,255,255,0.2);border:none;
+width:32px;height:32px;border-radius:50%;cursor:pointer;
+position:absolute;top:18px;right:18px;color:#fff;
+font-size:18px;line-height:32px}
+.mk-bot-close:hover{background:rgba(255,255,255,0.3)}
+.mk-bot-body{padding:25px}
+.mk-bot-icon{text-align:center;font-size:56px;margin-bottom:15px}
+.mk-bot-title{font-size:20px;font-weight:700;color:#333;
+text-align:center;margin:0 0 10px 0}
+.mk-bot-text{font-size:14px;color:#666;line-height:1.6;
+text-align:center;margin:0 0 20px 0}
+.mk-bot-info{background:#F8FAF7;border-radius:12px;
+padding:20px;margin:20px 0}
+.mk-bot-info-item{display:block;padding:10px 0;
+border-bottom:1px solid #E8EDE6;font-size:14px}
+.mk-bot-info-item:last-child{border-bottom:none}
+.mk-bot-info-item strong{color:#8B9D83;display:inline-block;
+width:80px}
+.mk-bot-form{margin-top:20px}
+.mk-bot-label{display:block;font-size:13px;font-weight:600;
+color:#555;margin-bottom:8px}
+.mk-bot-input{width:100%;padding:12px;border:2px solid #E8EDE6;
+border-radius:10px;font-size:14px;box-sizing:border-box;
+margin-bottom:12px}
+.mk-bot-input:focus{border-color:#8B9D83;outline:none}
+.mk-bot-textarea{width:100%;padding:12px;border:2px solid #E8EDE6;
+border-radius:10px;font-size:14px;box-sizing:border-box;
+min-height:100px;resize:vertical}
+.mk-bot-textarea:focus{border-color:#8B9D83;outline:none}
+.mk-bot-btn{background:#8B9D83;color:#fff;border:none;
+padding:14px 30px;border-radius:10px;font-size:15px;
+font-weight:700;cursor:pointer;width:100%;margin-top:15px}
+.mk-bot-btn:hover{opacity:0.9}
+.mk-bot-note{font-size:12px;color:#999;text-align:center;
+margin-top:15px;line-height:1.5}
+@media (max-width:768px){
+.mk-bot-status{width:calc(100vw - 40px);right:20px}
+}
+</style>
+<div class="mk-bot-status" id="mkBotStatus">
+<div class="mk-bot-header" id="mkBotHeader">
+<button class="mk-bot-close" id="mkBotClose">×</button>
+<h3 id="mkBotTitle">고객센터</h3>
+<span class="status" id="mkBotStatusText">운영 중</span>
+</div>
+<div class="mk-bot-body">
+<div class="mk-bot-icon" id="mkBotIcon">🤖</div>
+<h4 class="mk-bot-title" id="mkBotHeading">24시간 자동 응답</h4>
+<p class="mk-bot-text" id="mkBotMessage">
+영업시간 외에도 자동 응답으로 도와드립니다
+</p>
+<div class="mk-bot-info" id="mkBotInfo">
+<span class="mk-bot-info-item">
+<strong>평일</strong>09:00 - 18:00
+</span>
+<span class="mk-bot-info-item">
+<strong>점심시간</strong>12:00 - 13:00
+</span>
+<span class="mk-bot-info-item">
+<strong>주말/공휴일</strong>휴무
+</span>
+</div>
+<div id="mkBotContent"></div>
+</div>
+</div>
+<script>
+(function(){
+function isBusinessHours(){
+var now=new Date();
+var day=now.getDay();
+var hour=now.getHours();
+var minute=now.getMinutes();
+if(day===0||day===6){
+return false;
+}
+if(hour<9||hour>=18){
+return false;
+}
+if(hour===12){
+return false;
+}
+return true;
+}
+function updateStatus(){
+var header=document.getElementById('mkBotHeader');
+var title=document.getElementById('mkBotTitle');
+var statusText=document.getElementById('mkBotStatusText');
+var icon=document.getElementById('mkBotIcon');
+var heading=document.getElementById('mkBotHeading');
+var message=document.getElementById('mkBotMessage');
+var content=document.getElementById('mkBotContent');
+if(isBusinessHours()){
+header.className='mk-bot-header';
+title.textContent='고객센터';
+statusText.textContent='✓ 상담 가능';
+icon.textContent='👋';
+heading.textContent='실시간 상담 가능합니다';
+message.textContent='평일 09:00-18:00 (점심시간 12:00-13:00 제외)';
+content.innerHTML='<button class="mk-bot-btn" onclick="connectLive()">상담원과 연결하기</button>';
+}else{
+header.className='mk-bot-header closed';
+title.textContent='고객센터';
+statusText.textContent='영업시간 외';
+icon.textContent='🌙';
+heading.textContent='영업시간이 아닙니다';
+message.textContent='영업일 기준 24시간 내 답변드립니다';
+content.innerHTML=
+'<div class="mk-bot-form">'+
+'<label class="mk-bot-label">이름</label>'+
+'<input type="text" class="mk-bot-input" id="mkBotName" placeholder="이름을 입력하세요">'+
+'<label class="mk-bot-label">이메일</label>'+
+'<input type="email" class="mk-bot-input" id="mkBotEmail" placeholder="답변 받을 이메일">'+
+'<label class="mk-bot-label">문의 내용</label>'+
+'<textarea class="mk-bot-textarea" id="mkBotMessage" placeholder="문의하실 내용을 자세히 적어주세요"></textarea>'+
+'<button class="mk-bot-btn" onclick="submitInquiry()">문의 남기기</button>'+
+'</div>'+
+'<p class="mk-bot-note">* 평일 09:00-18:00 순차적으로 답변드립니다<br>* 이메일로 답변을 보내드립니다</p>';
+}
+}
+function connectLive(){
+if(window.ChannelIO){
+ChannelIO('showMessenger');
+}else{
+alert('실시간 상담을 시작합니다.');
+}
+}
+function submitInquiry(){
+var name=document.getElementById('mkBotName');
+var email=document.getElementById('mkBotEmail');
+var msg=document.getElementById('mkBotMessage');
+if(!name||!name.value){
+alert('이름을 입력해주세요.');
+return;
+}
+if(!email||!email.value){
+alert('이메일을 입력해주세요.');
+return;
+}
+if(!msg||!msg.value){
+alert('문의 내용을 입력해주세요.');
+return;
+}
+var inquiry={
+name:name.value,
+email:email.value,
+message:msg.value,
+date:new Date().toISOString()
+};
+console.log('문의 접수:',inquiry);
+alert('문의가 접수되었습니다!\n\n영업일 기준 24시간 내 '+email.value+'로 답변드리겠습니다.');
+name.value='';
+email.value='';
+msg.value='';
+document.getElementById('mkBotStatus').className='mk-bot-status';
+}
+window.connectLive=connectLive;
+window.submitInquiry=submitInquiry;
+updateStatus();
+setInterval(updateStatus,60000);
+var closeBtn=document.getElementById('mkBotClose');
+if(closeBtn){
+closeBtn.onclick=function(){
+document.getElementById('mkBotStatus').className='mk-bot-status';
+};
+}
+})();
+</script>
+
