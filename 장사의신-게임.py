@@ -206,6 +206,33 @@ total_buyers = st.sidebar.number_input(
     help="구매자 역할을 하는 조교/선생님 인원수"
 )
 
+st.sidebar.markdown("### 🎮 게임 모드 선택")
+
+game_mode = st.sidebar.radio(
+    "난이도 선택",
+    ["🟢 간단 모드 (초등 저학년)", "🔵 전략 모드 (초등 고학년 이상)"],
+    help="게임의 난이도와 전략적 깊이를 선택하세요"
+)
+
+if "간단" in game_mode:
+    st.sidebar.info("""
+    **🟢 간단 모드**
+    - 모든 고객이 4개씩 구매
+    - 계산이 쉽고 이해하기 쉬움
+    - 초등 3-4학년 추천
+    """)
+    mode_type = "simple"
+else:
+    st.sidebar.success("""
+    **🔵 전략 모드**
+    - 큰손: 2개 (고가 상품)
+    - 일반: 4개 (중가 상품)
+    - 짠물: 6개 (저가 상품)
+    - 타겟팅 전략이 중요!
+    - 초등 5-6학년, 중학생 추천
+    """)
+    mode_type = "strategic"
+
 st.sidebar.markdown("### 🎯 구매자 성향 비율 설정")
 st.sidebar.info("💡 세 가지 비율의 합이 100%가 되도록 설정하세요!")
 
@@ -492,10 +519,33 @@ with tab1:
         elif total_ratio != 100:
             st.error("⚠️ 사이드바에서 구매자 성향 비율을 100%로 맞춰주세요!")
         else:
-            # 원가 계산
-            avg_budget_per_person = total_money / total_buyers
-            target_items_per_person = 4
-            base_price = avg_budget_per_person / target_items_per_person
+            # 원가 계산 - 게임 모드에 따라 다르게 계산
+            avg_budget = total_money / total_buyers
+            
+            # 선택한 등급에 따라 타겟 고객 결정
+            grade_key = grade_types[selected_grade]["key"]
+            
+            if mode_type == "simple":
+                # 간단 모드: 모든 고객이 4개씩 구매
+                target_items_per_person = 4
+                base_price = avg_budget / target_items_per_person
+            else:
+                # 전략 모드: 등급에 따라 타겟 고객과 구매 수량이 다름
+                if grade_key == "luxury":
+                    # 하이엔드 → 큰손 타겟 (2배 예산, 2개 구매)
+                    target_budget = avg_budget * 2.0
+                    target_items = 2
+                    base_price = target_budget / target_items
+                elif grade_key == "basic":
+                    # 일반형 → 짠물 타겟 (0.5배 예산, 6개 구매)
+                    target_budget = avg_budget * 0.5
+                    target_items = 6
+                    base_price = target_budget / target_items
+                else:
+                    # 고급형 → 일반 타겟 (1배 예산, 4개 구매)
+                    target_budget = avg_budget * 1.0
+                    target_items = 4
+                    base_price = target_budget / target_items
             
             # AI 분석 결과가 있으면 우선 사용
             if hasattr(st.session_state, 'ai_analysis') and st.session_state.ai_analysis:
@@ -592,10 +642,21 @@ with tab1:
                 
             with analysis_col2:
                 st.markdown("#### 💼 시장 정보")
+                st.write(f"**게임 모드:** {'🟢 간단 모드' if mode_type == 'simple' else '🔵 전략 모드'}")
                 st.write(f"**시장 총액:** {total_money:,}원")
                 st.write(f"**전체 구매자:** {total_buyers}명")
-                st.write(f"**1인당 평균 예산:** {avg_budget_per_person:,.0f}원")
-                st.write(f"**1인당 구매 목표:** {target_items_per_person}개")
+                st.write(f"**1인당 평균 예산:** {avg_budget:,.0f}원")
+                
+                if mode_type == "simple":
+                    st.write(f"**고객 구매 목표:** 모두 4개")
+                else:
+                    st.write(f"**타겟 고객 구매 목표:**")
+                    if grade_key == "luxury":
+                        st.write(f"  • 큰손: 2개 (고가 전략)")
+                    elif grade_key == "basic":
+                        st.write(f"  • 짠물: 6개 (가성비 전략)")
+                    else:
+                        st.write(f"  • 일반: 4개 (균형 전략)")
             
             st.markdown("---")
             
@@ -631,6 +692,20 @@ with tab1:
                     st.success("✨ **고급형 전략:** 가장 무난한 선택입니다. 일반 고객들이 많으니 꾸준히 팔 수 있어요!")
                 else:  # basic
                     st.success("💪 **일반형 전략:** 많은 양을 팔아야 합니다! 속도와 효율이 중요해요.")
+                
+                # 모드별 추가 조언
+                if mode_type == "strategic":
+                    st.markdown("---")
+                    st.info("""
+**🔵 전략 모드 특별 팁:**
+
+이 모드에서는 타겟 고객의 **구매 패턴**이 다릅니다:
+- 🤑 **큰손**: 비싼 것 2개만 (고마진이지만 판매량 적음)
+- 😊 **일반**: 적당한 것 4개 (균형잡힌 전략)
+- 🤏 **짠물**: 싼 것 6개 (저마진이지만 판매량 많음)
+
+당신이 선택한 등급에 맞는 고객이 주로 살 거예요!
+                    """)
             
             st.markdown("---")
             
