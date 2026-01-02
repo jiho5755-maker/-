@@ -16,9 +16,22 @@ st.set_page_config(
 @st.cache_resource
 def get_openai_client():
     """OpenAI 클라이언트를 초기화합니다."""
-    api_key = os.getenv("OPENAI_API_KEY")
+    # Streamlit Secrets에서 API 키 가져오기
+    try:
+        api_key = st.secrets.get("OPENAI_API_KEY")
+    except:
+        api_key = None
+    
+    # 환경 변수에서도 확인
+    if not api_key:
+        api_key = os.getenv("OPENAI_API_KEY")
+    
     if api_key:
-        return OpenAI(api_key=api_key)
+        try:
+            return OpenAI(api_key=api_key)
+        except Exception as e:
+            st.error(f"OpenAI 클라이언트 초기화 실패: {str(e)}")
+            return None
     return None
 
 # AI 창업 아이템 분석 함수
@@ -151,15 +164,25 @@ with st.sidebar.expander("OpenAI API 키 설정", expanded=False):
         key="openai_api_key_input"
     )
     
+    # Streamlit Secrets 확인
+    has_secret_key = False
+    try:
+        secret_key = st.secrets.get("OPENAI_API_KEY")
+        if secret_key:
+            has_secret_key = True
+    except:
+        pass
+    
     if api_key_input:
         os.environ["OPENAI_API_KEY"] = api_key_input
-        st.success("✅ AI 조언자 활성화됨!")
+        st.success("✅ AI 조언자 활성화됨! (세션용)")
+        st.caption("💡 페이지를 새로고침하면 다시 입력해야 합니다.")
+    elif has_secret_key:
+        st.success("✅ AI 조언자 사용 가능 (Secrets 설정됨)")
+        st.caption("🔒 Streamlit Secrets에서 API 키를 안전하게 관리 중입니다.")
     else:
-        current_key = os.getenv("OPENAI_API_KEY")
-        if current_key:
-            st.info("✅ AI 조언자 사용 가능")
-        else:
-            st.warning("⚠️ AI 조언자 비활성화")
+        st.warning("⚠️ AI 조언자 비활성화")
+        st.caption("API 키를 입력하거나 Streamlit Secrets에 설정해주세요.")
     
     st.caption("💡 API 키는 [OpenAI 웹사이트](https://platform.openai.com/api-keys)에서 발급받을 수 있습니다.")
 
