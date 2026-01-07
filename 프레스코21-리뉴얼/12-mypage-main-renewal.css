@@ -1,0 +1,1172 @@
+/*
+╔═══════════════════════════════════════════════════════════════╗
+║  프레스코21 - 마이페이지 메인 리뉴얼 스타일 V1.0               ║
+║  프레스코21 브랜드 컬러 시스템 적용                            ║
+║  반응형: PC(Table/Row) → Mobile(Card)                         ║
+║  한진택배 API 연동 UX 최적화                                  ║
+╚═══════════════════════════════════════════════════════════════╝
+*/
+
+/* =====================================================
+   1. CSS 변수 정의 (프레스코21 브랜드 컬러)
+   ===================================================== */
+:root {
+    /* 프레스코21 컬러 시스템 */
+    --myp-primary: #7B8E7E;              /* 세이지 그린 */
+    --myp-primary-light: #9FB0A2;        /* 연한 세이지 */
+    --myp-primary-dark: #5A6B5D;         /* 진한 세이지 */
+    --myp-secondary: #B5A48B;            /* 뮤트 골드 */
+    --myp-secondary-light: #CFC5B0;
+    --myp-secondary-dark: #968870;
+    
+    --myp-bg: #F9F8F5;                   /* 따뜻한 아이보리 */
+    --myp-white: #FFFFFF;
+    --myp-paper: #FFFEF9;                /* 종이 느낌 */
+    
+    --myp-text-primary: #2C2C2C;         /* 본문 텍스트 */
+    --myp-text-secondary: #666666;       /* 보조 텍스트 */
+    --myp-text-light: #999999;           /* 연한 텍스트 */
+    
+    --myp-border: #E5E3DC;               /* 부드러운 테두리 */
+    --myp-border-light: #F0EFE9;
+    
+    --myp-error: #C17B7B;                /* 에러 (부드러운 레드) */
+    --myp-warning: #D4A574;              /* 경고 (따뜻한 오렌지) */
+    --myp-success: #7B8E7E;              /* 성공 (메인과 동일) */
+    
+    /* 간격 시스템 */
+    --myp-space-xs: 8px;
+    --myp-space-sm: 12px;
+    --myp-space-md: 16px;
+    --myp-space-lg: 24px;
+    --myp-space-xl: 32px;
+    --myp-space-xxl: 48px;
+    
+    /* 레이아웃 */
+    --myp-radius-sm: 4px;
+    --myp-radius-md: 8px;
+    --myp-radius-lg: 12px;
+    --myp-radius-xl: 16px;
+    
+    /* 그림자 (우아하고 부드러운) */
+    --myp-shadow-sm: 0 2px 8px rgba(123, 142, 126, 0.08);
+    --myp-shadow-md: 0 4px 16px rgba(123, 142, 126, 0.12);
+    --myp-shadow-lg: 0 8px 24px rgba(123, 142, 126, 0.15);
+    --myp-shadow-hover: 0 6px 20px rgba(123, 142, 126, 0.18);
+    
+    /* 전환 효과 */
+    --myp-transition: 0.3s ease;
+    --myp-transition-fast: 0.15s ease;
+}
+
+/* =====================================================
+   2. 회원 정보 카드
+   ===================================================== */
+.myp-member-card {
+    background: linear-gradient(135deg, var(--myp-white) 0%, var(--myp-paper) 100%);
+    border-radius: var(--myp-radius-xl);
+    padding: var(--myp-space-xl);
+    margin-bottom: var(--myp-space-xl);
+    border: 1px solid var(--myp-border);
+    box-shadow: var(--myp-shadow-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--myp-space-xl);
+    transition: box-shadow var(--myp-transition);
+}
+
+.myp-member-card:hover {
+    box-shadow: var(--myp-shadow-md);
+}
+
+/* 회원 정보 */
+.myp-member-info {
+    display: flex;
+    align-items: center;
+    gap: var(--myp-space-lg);
+    flex: 1;
+}
+
+.myp-member-avatar {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--myp-primary-light) 0%, var(--myp-primary) 100%);
+    border-radius: 50%;
+    box-shadow: var(--myp-shadow-sm);
+}
+
+.myp-member-text {
+    flex: 1;
+}
+
+.myp-member-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--myp-text-primary);
+    margin-bottom: var(--myp-space-xs);
+    line-height: 1.4;
+}
+
+.myp-member-name strong {
+    color: var(--myp-primary);
+}
+
+.myp-member-grade {
+    font-size: 0.938rem;
+    color: var(--myp-text-secondary);
+    margin-bottom: var(--myp-space-sm);
+}
+
+.myp-member-benefit {
+    display: flex;
+    align-items: center;
+    gap: var(--myp-space-xs);
+    padding: var(--myp-space-sm) var(--myp-space-md);
+    background: linear-gradient(135deg, #FFF9F0 0%, #FFF5E6 100%);
+    border-radius: var(--myp-radius-md);
+    border: 1px solid var(--myp-secondary-light);
+    font-size: 0.875rem;
+    color: var(--myp-secondary-dark);
+    line-height: 1.5;
+}
+
+.myp-member-benefit strong {
+    color: var(--myp-secondary-dark);
+    font-weight: 600;
+}
+
+/* 통계 그리드 */
+.myp-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--myp-space-lg);
+    flex-shrink: 0;
+    min-width: 400px;
+}
+
+.myp-stat-item {
+    text-align: center;
+    padding: var(--myp-space-md);
+    background: var(--myp-white);
+    border-radius: var(--myp-radius-md);
+    border: 1px solid var(--myp-border-light);
+    transition: all var(--myp-transition);
+}
+
+.myp-stat-item:hover {
+    border-color: var(--myp-primary-light);
+    transform: translateY(-2px);
+    box-shadow: var(--myp-shadow-sm);
+}
+
+.myp-stat-label {
+    display: block;
+    font-size: 0.813rem;
+    color: var(--myp-text-secondary);
+    margin-bottom: var(--myp-space-xs);
+}
+
+.myp-stat-value {
+    display: block;
+    color: var(--myp-text-primary);
+    text-decoration: none;
+    transition: color var(--myp-transition);
+}
+
+.myp-stat-value:hover {
+    color: var(--myp-primary);
+}
+
+.myp-stat-value strong {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--myp-primary);
+}
+
+/* =====================================================
+   3. 섹션 공통 스타일
+   ===================================================== */
+.myp-section {
+    margin-bottom: var(--myp-space-xl);
+}
+
+.myp-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--myp-space-lg);
+    padding-bottom: var(--myp-space-md);
+    border-bottom: 2px solid var(--myp-primary);
+}
+
+.myp-section-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--myp-text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--myp-space-xs);
+}
+
+.myp-period-label {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--myp-text-light);
+}
+
+.myp-link-all {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--myp-space-xs);
+    font-size: 0.938rem;
+    color: var(--myp-text-secondary);
+    text-decoration: none;
+    transition: all var(--myp-transition);
+    padding: var(--myp-space-xs) var(--myp-space-sm);
+    border-radius: var(--myp-radius-sm);
+}
+
+.myp-link-all:hover {
+    color: var(--myp-primary);
+    background: var(--myp-bg);
+}
+
+.myp-link-all svg {
+    transition: transform var(--myp-transition);
+}
+
+.myp-link-all:hover svg {
+    transform: translateX(4px);
+}
+
+/* =====================================================
+   4. 주문 진행 상태 (프로그레스 바)
+   ===================================================== */
+.myp-order-progress {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--myp-space-xl);
+    background: var(--myp-white);
+    border-radius: var(--myp-radius-lg);
+    border: 1px solid var(--myp-border);
+    box-shadow: var(--myp-shadow-sm);
+    margin-bottom: var(--myp-space-xl);
+}
+
+.myp-progress-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--myp-space-sm);
+    flex: 1;
+    position: relative;
+}
+
+.myp-progress-icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--myp-bg);
+    border: 2px solid var(--myp-border);
+    transition: all var(--myp-transition);
+}
+
+.myp-progress-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: var(--myp-text-light);
+}
+
+/* 단계별 컬러 */
+.myp-step-ready .myp-progress-icon {
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    border-color: #81C784;
+}
+
+.myp-step-ready svg {
+    stroke: #4CAF50 !important;
+}
+
+.myp-step-ok .myp-progress-icon {
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    border-color: #64B5F6;
+}
+
+.myp-step-ok svg {
+    stroke: #2196F3 !important;
+}
+
+.myp-step-prepare .myp-progress-icon {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+    border-color: #FFB74D;
+}
+
+.myp-step-prepare svg {
+    stroke: #FF9800 !important;
+}
+
+.myp-step-delivery .myp-progress-icon {
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+    border-color: #BA68C8;
+}
+
+.myp-step-delivery svg {
+    stroke: #9C27B0 !important;
+}
+
+.myp-step-complete .myp-progress-icon {
+    background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);
+    border-color: #4DB6AC;
+}
+
+.myp-step-complete svg {
+    stroke: #009688 !important;
+}
+
+/* 배송중 강조 */
+.myp-progress-item.myp-highlight .myp-progress-icon {
+    background: linear-gradient(135deg, var(--myp-primary) 0%, var(--myp-primary-dark) 100%);
+    border-color: var(--myp-primary-dark);
+    box-shadow: 0 0 0 4px rgba(123, 142, 126, 0.2), var(--myp-shadow-md);
+    animation: pulse 2s infinite;
+}
+
+.myp-progress-item.myp-highlight svg {
+    stroke: var(--myp-white) !important;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 4px rgba(123, 142, 126, 0.2), var(--myp-shadow-md);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(123, 142, 126, 0.1), var(--myp-shadow-lg);
+    }
+}
+
+.myp-progress-label {
+    font-size: 0.875rem;
+    color: var(--myp-text-secondary);
+    font-weight: 500;
+    text-align: center;
+}
+
+.myp-progress-count {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--myp-text-primary);
+}
+
+.myp-progress-count.myp-accent {
+    color: var(--myp-primary);
+    animation: countUp 0.5s ease-out;
+}
+
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.myp-progress-arrow {
+    display: flex;
+    align-items: center;
+    margin: 0 var(--myp-space-sm);
+}
+
+/* =====================================================
+   5. 주문 카드 (한진택배 연동 강조)
+   ===================================================== */
+.myp-order-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--myp-space-lg);
+}
+
+.myp-order-card {
+    background: var(--myp-white);
+    border-radius: var(--myp-radius-lg);
+    border: 1px solid var(--myp-border);
+    padding: var(--myp-space-lg);
+    transition: all var(--myp-transition);
+    box-shadow: var(--myp-shadow-sm);
+}
+
+.myp-order-card:hover {
+    border-color: var(--myp-primary-light);
+    box-shadow: var(--myp-shadow-md);
+    transform: translateY(-2px);
+}
+
+/* 주문 헤더 */
+.myp-order-header {
+    display: flex;
+    align-items: center;
+    gap: var(--myp-space-sm);
+    margin-bottom: var(--myp-space-md);
+    padding-bottom: var(--myp-space-sm);
+    border-bottom: 1px solid var(--myp-border-light);
+}
+
+.myp-order-date {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--myp-space-xs);
+    font-size: 0.875rem;
+    color: var(--myp-text-secondary);
+}
+
+.myp-order-date svg {
+    stroke: var(--myp-text-light);
+}
+
+/* 배지 */
+.myp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--myp-radius-sm);
+    white-space: nowrap;
+}
+
+.myp-badge-gift {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+    color: #E65100;
+    border: 1px solid #FFB74D;
+}
+
+.myp-badge-gift svg {
+    stroke: #E65100;
+}
+
+.myp-badge-subs {
+    background: linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%);
+    color: #0277BD;
+    border: 1px solid #4FC3F7;
+}
+
+/* 주문 본문 */
+.myp-order-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--myp-space-lg);
+    gap: var(--myp-space-md);
+}
+
+.myp-order-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--myp-space-xs);
+}
+
+.myp-order-brand {
+    font-size: 1.063rem;
+    font-weight: 600;
+    color: var(--myp-text-primary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.myp-order-price {
+    text-align: right;
+}
+
+.myp-price-amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--myp-primary);
+}
+
+/* 주문 액션 버튼 (한진택배 연동 강조) */
+.myp-order-actions {
+    display: flex;
+    gap: var(--myp-space-sm);
+    align-items: center;
+}
+
+/* 버튼 공통 스타일 */
+.myp-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--myp-space-xs);
+    padding: 12px 20px;
+    font-size: 0.938rem;
+    font-weight: 600;
+    border-radius: var(--myp-radius-md);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--myp-transition);
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: 44px;
+}
+
+.myp-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 아웃라인 버튼 */
+.myp-btn-outline {
+    background: var(--myp-white);
+    color: var(--myp-text-primary);
+    border-color: var(--myp-border);
+}
+
+.myp-btn-outline:hover:not(:disabled) {
+    border-color: var(--myp-primary);
+    color: var(--myp-primary);
+    background: var(--myp-bg);
+}
+
+/* 실시간 배송조회 버튼 (강조) */
+.myp-btn-tracking {
+    background: linear-gradient(135deg, var(--myp-primary) 0%, var(--myp-primary-dark) 100%);
+    color: var(--myp-white);
+    border-color: var(--myp-primary);
+    box-shadow: var(--myp-shadow-sm);
+    font-weight: 700;
+    position: relative;
+    overflow: hidden;
+}
+
+.myp-btn-tracking::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.myp-btn-tracking:hover:not(:disabled)::before {
+    left: 100%;
+}
+
+.myp-btn-tracking:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--myp-primary-dark) 0%, var(--myp-primary) 100%);
+    box-shadow: var(--myp-shadow-hover);
+    transform: translateY(-2px);
+}
+
+.myp-btn-tracking svg {
+    stroke: var(--myp-white);
+}
+
+/* 반품신청 버튼 */
+.myp-btn-return {
+    background: var(--myp-white);
+    color: var(--myp-error);
+    border-color: var(--myp-error);
+}
+
+.myp-btn-return:hover:not(:disabled) {
+    background: var(--myp-error);
+    color: var(--myp-white);
+    box-shadow: var(--myp-shadow-sm);
+}
+
+/* =====================================================
+   6. 빈 상태 (Empty State)
+   ===================================================== */
+.myp-empty-state {
+    text-align: center;
+    padding: var(--myp-space-xxl) var(--myp-space-xl);
+    background: var(--myp-bg);
+    border-radius: var(--myp-radius-lg);
+    border: 2px dashed var(--myp-border);
+}
+
+.myp-empty-icon {
+    margin-bottom: var(--myp-space-lg);
+}
+
+.myp-empty-text {
+    font-size: 1.063rem;
+    font-weight: 600;
+    color: var(--myp-text-secondary);
+    margin-bottom: var(--myp-space-xs);
+}
+
+.myp-empty-subtext {
+    font-size: 0.938rem;
+    color: var(--myp-text-light);
+    margin: 0;
+}
+
+.myp-empty-small {
+    padding: var(--myp-space-lg);
+}
+
+/* =====================================================
+   7. 게시글 내역
+   ===================================================== */
+.myp-board-list {
+    background: var(--myp-white);
+    border-radius: var(--myp-radius-lg);
+    border: 1px solid var(--myp-border);
+    overflow: hidden;
+}
+
+.myp-board-item {
+    display: flex;
+    align-items: center;
+    gap: var(--myp-space-lg);
+    padding: var(--myp-space-md) var(--myp-space-lg);
+    border-bottom: 1px solid var(--myp-border-light);
+    transition: background var(--myp-transition);
+}
+
+.myp-board-item:last-child {
+    border-bottom: none;
+}
+
+.myp-board-item:hover {
+    background: var(--myp-bg);
+}
+
+.myp-board-date {
+    font-size: 0.875rem;
+    color: var(--myp-text-light);
+    flex-shrink: 0;
+    width: 100px;
+}
+
+.myp-board-title {
+    flex: 1;
+    font-size: 0.938rem;
+    color: var(--myp-text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color var(--myp-transition);
+}
+
+.myp-board-title:hover {
+    color: var(--myp-primary);
+}
+
+.myp-board-category {
+    font-size: 0.875rem;
+    color: var(--myp-text-secondary);
+    text-decoration: none;
+    padding: 4px 12px;
+    background: var(--myp-bg);
+    border-radius: var(--myp-radius-sm);
+    flex-shrink: 0;
+    transition: all var(--myp-transition);
+}
+
+.myp-board-category:hover {
+    background: var(--myp-primary-light);
+    color: var(--myp-white);
+}
+
+/* =====================================================
+   8. 관심상품 그리드
+   ===================================================== */
+.myp-wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--myp-space-lg);
+}
+
+.myp-product-card {
+    background: var(--myp-white);
+    border-radius: var(--myp-radius-lg);
+    border: 1px solid var(--myp-border);
+    overflow: hidden;
+    transition: all var(--myp-transition);
+}
+
+.myp-product-card:hover {
+    border-color: var(--myp-primary-light);
+    box-shadow: var(--myp-shadow-md);
+    transform: translateY(-4px);
+}
+
+.myp-product-link {
+    display: block;
+    text-decoration: none;
+}
+
+.myp-product-image {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    overflow: hidden;
+    background: var(--myp-bg);
+}
+
+.myp-product-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--myp-transition);
+}
+
+.myp-product-card:hover .myp-product-image img {
+    transform: scale(1.05);
+}
+
+.myp-product-info {
+    padding: var(--myp-space-md);
+}
+
+.myp-product-title {
+    font-size: 0.938rem;
+    font-weight: 600;
+    color: var(--myp-text-primary);
+    margin: 0 0 var(--myp-space-xs) 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.myp-product-subtitle {
+    font-size: 0.813rem;
+    color: var(--myp-text-light);
+    margin: 0 0 var(--myp-space-sm) 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.myp-product-price {
+    margin-top: var(--myp-space-sm);
+}
+
+.myp-price-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.myp-price-current {
+    font-size: 1.063rem;
+    font-weight: 700;
+    color: var(--myp-primary);
+}
+
+.myp-price-original {
+    font-size: 0.875rem;
+    color: var(--myp-text-light);
+    text-decoration: line-through;
+}
+
+.myp-discount-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--myp-error);
+    background: rgba(193, 123, 123, 0.1);
+    border-radius: var(--myp-radius-sm);
+}
+
+.myp-price-special {
+    font-size: 1.063rem;
+    font-weight: 700;
+    color: var(--myp-secondary);
+}
+
+.myp-soldout {
+    font-size: 1.063rem;
+    font-weight: 700;
+    color: var(--myp-text-light);
+}
+
+/* =====================================================
+   9. 반응형 디자인 - 태블릿
+   ===================================================== */
+@media (max-width: 1199px) {
+    /* 통계 그리드 조정 */
+    .myp-stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        min-width: auto;
+    }
+    
+    /* 관심상품 그리드 */
+    .myp-wishlist-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 991px) {
+    /* 회원 카드 세로 배치 */
+    .myp-member-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .myp-stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        width: 100%;
+        min-width: 0;
+    }
+    
+    /* 주문 진행 상태 조정 */
+    .myp-order-progress {
+        flex-wrap: wrap;
+        gap: var(--myp-space-lg);
+    }
+    
+    .myp-progress-arrow {
+        display: none;
+    }
+    
+    .myp-progress-item {
+        flex: 1 1 calc(20% - var(--myp-space-lg));
+        min-width: 100px;
+    }
+    
+    /* 관심상품 그리드 */
+    .myp-wishlist-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    /* 모바일에서 숨김 */
+    .myp-hide-mobile {
+        display: none !important;
+    }
+}
+
+/* =====================================================
+   10. 반응형 디자인 - 모바일 (Card 레이아웃)
+   ===================================================== */
+@media (max-width: 767px) {
+    :root {
+        --myp-space-xl: 24px;
+        --myp-space-lg: 16px;
+        --myp-space-md: 12px;
+    }
+    
+    /* 회원 카드 */
+    .myp-member-card {
+        padding: var(--myp-space-lg);
+    }
+    
+    .myp-member-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .myp-member-avatar {
+        width: 64px;
+        height: 64px;
+    }
+    
+    .myp-member-avatar svg {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .myp-member-name {
+        font-size: 1.25rem;
+    }
+    
+    .myp-member-grade {
+        font-size: 0.875rem;
+    }
+    
+    .myp-member-benefit {
+        font-size: 0.813rem;
+        padding: var(--myp-space-xs) var(--myp-space-sm);
+    }
+    
+    /* 통계 그리드 */
+    .myp-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--myp-space-sm);
+    }
+    
+    .myp-stat-item {
+        padding: var(--myp-space-sm);
+    }
+    
+    .myp-stat-label {
+        font-size: 0.75rem;
+    }
+    
+    .myp-stat-value strong {
+        font-size: 1.125rem;
+    }
+    
+    /* 섹션 헤더 */
+    .myp-section-title {
+        font-size: 1.125rem;
+    }
+    
+    .myp-period-label {
+        font-size: 0.75rem;
+    }
+    
+    .myp-link-all {
+        font-size: 0.813rem;
+    }
+    
+    /* 주문 진행 상태 - 모바일 Card 레이아웃 */
+    .myp-order-progress {
+        padding: var(--myp-space-lg);
+        gap: var(--myp-space-md);
+    }
+    
+    .myp-progress-item {
+        flex: 1 1 calc(33.333% - var(--myp-space-md));
+        min-width: 0;
+    }
+    
+    .myp-progress-icon {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .myp-progress-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .myp-progress-label {
+        font-size: 0.75rem;
+    }
+    
+    .myp-progress-count {
+        font-size: 1.125rem;
+    }
+    
+    /* 주문 카드 - 모바일 최적화 */
+    .myp-order-card {
+        padding: var(--myp-space-md);
+    }
+    
+    .myp-order-body {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .myp-order-brand {
+        font-size: 0.938rem;
+    }
+    
+    .myp-price-amount {
+        font-size: 1.125rem;
+    }
+    
+    /* 주문 액션 버튼 - 세로 배치 */
+    .myp-order-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .myp-btn {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 0.875rem;
+    }
+    
+    /* 빈 상태 */
+    .myp-empty-state {
+        padding: var(--myp-space-xl) var(--myp-space-lg);
+    }
+    
+    .myp-empty-icon svg {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .myp-empty-text {
+        font-size: 0.938rem;
+    }
+    
+    .myp-empty-subtext {
+        font-size: 0.813rem;
+    }
+    
+    /* 게시글 내역 */
+    .myp-board-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--myp-space-xs);
+        padding: var(--myp-space-sm) var(--myp-space-md);
+    }
+    
+    .myp-board-date {
+        width: auto;
+        font-size: 0.75rem;
+    }
+    
+    .myp-board-title {
+        font-size: 0.875rem;
+        white-space: normal;
+    }
+    
+    .myp-board-category {
+        font-size: 0.75rem;
+        padding: 2px 8px;
+    }
+    
+    /* 관심상품 그리드 */
+    .myp-wishlist-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--myp-space-sm);
+    }
+    
+    .myp-product-info {
+        padding: var(--myp-space-sm);
+    }
+    
+    .myp-product-title {
+        font-size: 0.875rem;
+    }
+    
+    .myp-product-subtitle {
+        font-size: 0.75rem;
+    }
+    
+    .myp-price-current {
+        font-size: 0.938rem;
+    }
+    
+    .myp-price-original {
+        font-size: 0.75rem;
+    }
+}
+
+/* =====================================================
+   11. 접근성 & 인쇄 최적화
+   ===================================================== */
+
+/* 포커스 스타일 (키보드 사용자) */
+.myp-btn:focus-visible,
+.myp-stat-value:focus-visible,
+.myp-link-all:focus-visible,
+.myp-product-link:focus-visible,
+.myp-board-title:focus-visible {
+    outline: 3px solid var(--myp-primary);
+    outline-offset: 2px;
+}
+
+/* 화면 읽기 전용 */
+.myp-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* 인쇄 최적화 */
+@media print {
+    .myp-order-actions,
+    .myp-link-all,
+    .myp-hide-mobile {
+        display: none !important;
+    }
+    
+    .myp-member-card,
+    .myp-order-card,
+    .myp-board-list,
+    .myp-product-card {
+        box-shadow: none;
+        border: 1px solid #000;
+        page-break-inside: avoid;
+    }
+}
+
+/* =====================================================
+   12. 애니메이션 & 인터랙션
+   ===================================================== */
+
+/* 페이드인 애니메이션 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.myp-order-card,
+.myp-product-card {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* 로딩 스피너 */
+.myp-loading {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--myp-border);
+    border-top-color: var(--myp-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 버튼 클릭 효과 */
+.myp-btn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+/* =====================================================
+   13. 다크모드 지원 (선택사항)
+   ===================================================== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --myp-bg: #1a1a1a;
+        --myp-white: #2a2a2a;
+        --myp-paper: #2f2f2f;
+        --myp-text-primary: #e0e0e0;
+        --myp-text-secondary: #b0b0b0;
+        --myp-text-light: #808080;
+        --myp-border: #404040;
+        --myp-border-light: #353535;
+    }
+    
+    .myp-product-image {
+        background: #1f1f1f;
+    }
+}
+

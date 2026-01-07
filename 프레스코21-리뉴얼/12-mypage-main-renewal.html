@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<!--
+╔═══════════════════════════════════════════════════════════════╗
+║  프레스코21 - 마이페이지 메인 리뉴얼 V1.0                      ║
+║  현대적이고 깔끔한 디자인 | 한진택배 API 연동 최적화           ║
+║  반응형 디자인: PC(Table) → Mobile(Card)                       ║
+╚═══════════════════════════════════════════════════════════════╝
+-->
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지 - 프레스코21</title>
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin 
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+</head>
+<body>
+
+<!--/include_header(1)/-->
+
+<!-- ===================== 마이페이지 메인 컨테이너 ===================== -->
+<main class="container mypage-wrapper myMain">
+    <div class="row">
+        <!-- Sidebar -->
+        <!--/include_header(2)/-->
+        <!-- // Sidebar -->
+
+        <!-- ===================== 메인 콘텐츠 영역 ===================== -->
+        <div class="content col-lg-10 col-md-12 col-sm-12">
+            <div class="content-body">
+                
+                <!-- ===== 회원 정보 카드 ===== -->
+                <div class="myp-member-card">
+                    <div class="myp-member-info">
+                        <div class="myp-member-avatar">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="24" cy="24" r="24" fill="#7B8E7E" opacity="0.1"/>
+                                <path d="M24 24C27.3137 24 30 21.3137 30 18C30 14.6863 27.3137 12 24 12C20.6863 12 18 14.6863 18 18C18 21.3137 20.6863 24 24 24Z" fill="#7B8E7E"/>
+                                <path d="M36 36C36 30.4772 30.6274 26 24 26C17.3726 26 12 30.4772 12 36H36Z" fill="#7B8E7E"/>
+                            </svg>
+                        </div>
+                        <div class="myp-member-text">
+                            <!--/if_group/-->
+                            <h2 class="myp-member-name">
+                                <strong><!--/user_name/--></strong>님
+                            </h2>
+                            <p class="myp-member-grade"><!--/group_name/--> 회원</p>
+                            <!--/if_buy_benefit_message/-->
+                            <p class="myp-member-benefit">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M8 2L10.4 6.8L15.6 7.6L11.8 11.2L12.8 16.4L8 14L3.2 16.4L4.2 11.2L0.4 7.6L5.6 6.8L8 2Z" fill="#B5A48B"/>
+                                </svg>
+                                <strong><!--/number/min_buy_price/-->원 이상 <!--/buy_method/-->구매시</strong> <!--/buy_benefit_message/-->
+                            </p>
+                            <!--/end_if/-->
+                            <!--/else/-->
+                            <h2 class="myp-member-name">
+                                <strong><!--/user_name/--></strong>님의 쇼핑정보
+                            </h2>
+                            <!--/end_if/-->
+                        </div>
+                    </div>
+                    
+                    <!-- 사용자 통계 정보 -->
+                    <div class="myp-stats-grid">
+                        <!--/if_user_reserve/-->
+                        <div class="myp-stat-item">
+                            <span class="myp-stat-label">적립금</span>
+                            <a href="<!--/link_reserve/-->" class="myp-stat-value">
+                                <strong><!--/number/user_reserve/--></strong>
+                            </a>
+                        </div>
+                        <!--/end_if/-->
+                        <!--/if_money/-->
+                        <div class="myp-stat-item">
+                            <span class="myp-stat-label">예치금</span>
+                            <a href="<!--/link_money/-->" class="myp-stat-value">
+                                <strong><!--/number/money/--></strong>
+                            </a>
+                        </div>
+                        <!--/end_if/-->
+                        <!--/if_usable_point/-->
+                        <div class="myp-stat-item">
+                            <span class="myp-stat-label">포인트</span>
+                            <a href="<!--/link_point/-->" class="myp-stat-value">
+                                <strong><!--/number/usable_point/--></strong>
+                            </a>
+                        </div>
+                        <!--/end_if/-->
+                        <!--/if_coupon_count/-->
+                        <div class="myp-stat-item">
+                            <span class="myp-stat-label">쿠폰</span>
+                            <a href="<!--/link_coupon/-->" class="myp-stat-value">
+                                <strong><!--/coupon_count/--></strong>
+                            </a>
+                        </div>
+                        <!--/end_if/-->
+                    </div>
+                </div>
+
+                <!-- ===== 주문 현황 섹션 ===== -->
+                <section class="myp-section">
+                    <div class="myp-section-header">
+                        <h3 class="myp-section-title">
+                            주문 현황 
+                            <span class="myp-period-label">(최근 3개월)</span>
+                        </h3>
+                        <a href="<!--/link_order/-->" class="myp-link-all">
+                            전체보기
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                    </div>
+                    
+                    <!-- 주문 진행 단계 -->
+                    <div class="myp-order-progress">
+                        <div class="myp-progress-item">
+                            <div class="myp-progress-icon myp-step-ready">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="myp-progress-label">주문접수</span>
+                            <strong class="myp-progress-count"><!--/three_month_order_ready/--></strong>
+                        </div>
+                        
+                        <div class="myp-progress-arrow">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M7 4L13 10L7 16" stroke="#E5E3DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        
+                        <div class="myp-progress-item">
+                            <div class="myp-progress-icon myp-step-ok">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M20 12V22H4V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M22 7H2V12H22V7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 22V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 7H7.5C6.83696 7 6.20107 6.73661 5.73223 6.26777C5.26339 5.79893 5 5.16304 5 4.5C5 3.83696 5.26339 3.20107 5.73223 2.73223C6.20107 2.26339 6.83696 2 7.5 2C11 2 12 7 12 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 7H16.5C17.163 7 17.7989 6.73661 18.2678 6.26777C18.7366 5.79893 19 5.16304 19 4.5C19 3.83696 18.7366 3.20107 18.2678 2.73223C17.7989 2.26339 17.163 2 16.5 2C13 2 12 7 12 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="myp-progress-label">결제완료</span>
+                            <strong class="myp-progress-count"><!--/three_month_order_ok/--></strong>
+                        </div>
+                        
+                        <div class="myp-progress-arrow">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M7 4L13 10L7 16" stroke="#E5E3DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        
+                        <div class="myp-progress-item">
+                            <div class="myp-progress-icon myp-step-prepare">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M21 16V8C20.9996 7.64927 20.9071 7.30481 20.7315 7.00116C20.556 6.69751 20.3037 6.44536 20 6.27L13 2.27C12.696 2.09446 12.3511 2.00205 12 2.00205C11.6489 2.00205 11.304 2.09446 11 2.27L4 6.27C3.69626 6.44536 3.44398 6.69751 3.26846 7.00116C3.09294 7.30481 3.00036 7.64927 3 8V16C3.00036 16.3507 3.09294 16.6952 3.26846 16.9988C3.44398 17.3025 3.69626 17.5546 4 17.73L11 21.73C11.304 21.9055 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9055 13 21.73L20 17.73C20.3037 17.5546 20.556 17.3025 20.7315 16.9988C20.9071 16.6952 20.9996 16.3507 21 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M3.27002 6.96L12 12.01L20.73 6.96" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 22.08V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="myp-progress-label">상품준비중</span>
+                            <strong class="myp-progress-count"><!--/three_month_delivery_ready/--></strong>
+                        </div>
+                        
+                        <div class="myp-progress-arrow">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M7 4L13 10L7 16" stroke="#E5E3DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        
+                        <div class="myp-progress-item myp-highlight">
+                            <div class="myp-progress-icon myp-step-delivery">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M16 3H1V16H16V3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M16 8H20L23 11V16H16V8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <circle cx="5.5" cy="19.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+                                    <circle cx="18.5" cy="19.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <span class="myp-progress-label">배송중</span>
+                            <strong class="myp-progress-count myp-accent"><!--/three_month_delivery_ing/--></strong>
+                        </div>
+                        
+                        <div class="myp-progress-arrow">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M7 4L13 10L7 16" stroke="#E5E3DC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        
+                        <div class="myp-progress-item">
+                            <div class="myp-progress-icon myp-step-complete">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.7088 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="myp-progress-label">배송완료</span>
+                            <strong class="myp-progress-count"><!--/three_month_delivery_ok/--></strong>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 주문 내역 리스트 (한진택배 연동 강조) ===== -->
+                <section class="myp-section">
+                    <div class="myp-order-list">
+                        <!--/if_order_list/-->
+                        <!--/loop_order_list(5)/-->
+                        <div class="myp-order-card">
+                            <div class="myp-order-header">
+                                <span class="myp-order-date">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <rect x="2" y="3" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M11 1V5M5 1V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <path d="M2 7H14" stroke="currentColor" stroke-width="1.5"/>
+                                    </svg>
+                                    <!--/order_list@order_date/-->
+                                </span>
+                                <!--/if_order_list@is_present/-->
+                                <span class="myp-badge myp-badge-gift">
+                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                        <path d="M12 6V12H2V6M14 3H0V6H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M7 12V3M7 3H4.5C4.10218 3 3.72064 2.84196 3.43934 2.56066C3.15804 2.27936 3 1.89782 3 1.5C3 1.10218 3.15804 0.720644 3.43934 0.43934C3.72064 0.158035 4.10218 0 4.5 0C7 0 7 3 7 3ZM7 3H9.5C9.89782 3 10.2794 2.84196 10.5607 2.56066C10.842 2.27936 11 1.89782 11 1.5C11 1.10218 10.842 0.720644 10.5607 0.43934C10.2794 0.158035 9.89782 0 9.5 0C7 0 7 3 7 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    선물
+                                </span>
+                                <!--/end_if/-->
+                            </div>
+                            
+                            <div class="myp-order-body">
+                                <div class="myp-order-info">
+                                    <h4 class="myp-order-brand"><!--/order_list@brand_name/--></h4>
+                                    <!--/if_order_list@is_subs_order/-->
+                                    <span class="myp-badge myp-badge-subs">정기배송</span>
+                                    <!--/end_if/-->
+                                </div>
+                                <div class="myp-order-price">
+                                    <span class="myp-price-amount"><!--/number/order_list@order_price/-->원</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 한진택배 연동 버튼 (강조) -->
+                            <div class="myp-order-actions">
+                                <a href="<!--/order_list@link_smorder/-->" class="myp-btn myp-btn-outline">
+                                    상세보기
+                                </a>
+                                <button type="button" class="myp-btn myp-btn-tracking" onclick="trackDelivery('<!--/order_list@order_no/-->')">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M12 2H1V12H12V2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 6H15L17 8V12H12V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="4" cy="14" r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                                        <circle cx="13.5" cy="14" r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                                    </svg>
+                                    실시간 배송조회
+                                </button>
+                                <button type="button" class="myp-btn myp-btn-return" onclick="requestReturn('<!--/order_list@order_no/-->')">
+                                    반품신청
+                                </button>
+                            </div>
+                        </div>
+                        <!--/end_loop/-->
+                        <!--/else/-->
+                        <div class="myp-empty-state">
+                            <div class="myp-empty-icon">
+                                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                                    <circle cx="32" cy="32" r="32" fill="#F9F8F5"/>
+                                    <path d="M42 22H22C20.8954 22 20 22.8954 20 24V44C20 45.1046 20.8954 46 22 46H42C43.1046 46 44 45.1046 44 44V24C44 22.8954 43.1046 22 42 22Z" stroke="#999999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M36 18V26M28 18V26" stroke="#999999" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <p class="myp-empty-text">주문 내역이 없습니다.</p>
+                            <p class="myp-empty-subtext">프레스코21의 다양한 공예 제품을 만나보세요</p>
+                        </div>
+                        <!--/end_if/-->
+                    </div>
+                </section>
+
+                <!-- ===== 게시글 내역 ===== -->
+                <section class="myp-section myp-hide-mobile">
+                    <div class="myp-section-header">
+                        <h3 class="myp-section-title">게시글 내역</h3>
+                        <a href="<!--/link_mypage_article/-->" class="myp-link-all">
+                            전체보기
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                    </div>
+                    
+                    <div class="myp-board-list">
+                        <!--/if_my_list/-->
+                        <!--/loop_my_list(5)/-->
+                        <div class="myp-board-item">
+                            <span class="myp-board-date"><!--/date(%Y.%M.%D)/my_list@date/--></span>
+                            <a href="<!--/my_list@link/-->" class="myp-board-title">
+                                <!--/if_my_list@subject/--><!--/my_list@subject/--><!--/else/-->제목없음<!--/end_if/-->
+                            </a>
+                            <a href="<!--/my_list@link_board/-->" class="myp-board-category"><!--/my_list@board_name/--></a>
+                        </div>
+                        <!--/end_loop/-->
+                        <!--/else/-->
+                        <div class="myp-empty-state myp-empty-small">
+                            <p class="myp-empty-text">작성된 게시글이 없습니다.</p>
+                        </div>
+                        <!--/end_if/-->
+                    </div>
+                </section>
+
+                <!-- ===== 관심상품 ===== -->
+                <section class="myp-section myp-hide-mobile">
+                    <div class="myp-section-header">
+                        <h3 class="myp-section-title">관심상품</h3>
+                        <a href="<!--/link_wish/-->" class="myp-link-all">
+                            전체보기
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                    </div>
+                    
+                    <div class="myp-wishlist-grid">
+                        <!--/loop_wishlist_product(6)/-->
+                        <div class="myp-product-card">
+                            <a href="<!--/wishlist_product@link/-->" class="myp-product-link">
+                                <div class="myp-product-image">
+                                    <img src="<!--/wishlist_product@image_m/-->" alt="<!--/wishlist_product@name/-->" loading="lazy">
+                                </div>
+                                <div class="myp-product-info">
+                                    <h5 class="myp-product-title"><!--/wishlist_product@name/--></h5>
+                                    <p class="myp-product-subtitle"><!--/wishlist_product@subname/--></p>
+                                    <div class="myp-product-price">
+                                        <!--/if_wishlist_product@price_replace/-->
+                                        <span class="myp-price-special"><!--/wishlist_product@price_replace/--></span>
+                                        <!--/else_if_wishlist_product@is_soldout/-->
+                                        <span class="myp-soldout">Sold Out</span>
+                                        <!--/else/-->
+                                        <!--/if_wishlist_product@price_discount/-->
+                                        <div class="myp-price-group">
+                                            <span class="myp-price-current"><!--/number/wishlist_product@price_discount/-->원</span>
+                                            <span class="myp-price-original"><!--/number/wishlist_product@price_sell/-->원</span>
+                                            <!--/if_wishlist_product@discount_info(+1)/-->
+                                            <span class="myp-discount-badge"><!--/wishlist_product@discount_info/--></span>
+                                            <!--/end_if/-->
+                                        </div>
+                                        <!--/else/-->
+                                        <span class="myp-price-current"><!--/number/wishlist_product@price_sell/-->원</span>
+                                        <!--/if_wishlist_product@price_consumer(+1)/-->
+                                        <span class="myp-price-original"><!--/number/wishlist_product@price_consumer/-->원</span>
+                                        <!--/end_if/-->
+                                        <!--/if_wishlist_product@consumer_discount_rate(+1)/-->
+                                        <span class="myp-discount-badge"><!--/number/wishlist_product@consumer_discount_rate/-->%</span>
+                                        <!--/end_if/-->
+                                        <!--/end_if/-->
+                                        <!--/end_if/-->
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <!--/end_loop/-->
+                    </div>
+                </section>
+
+            </div>
+        </div>
+        <!-- // Content -->
+    </div>
+</main>
+<!-- // 마이페이지 메인 컨테이너 -->
+
+<!--/include_footer(1)/-->
+
+<!-- ===================== 한진택배 API 연동 스크립트 ===================== -->
+<script>
+// 네비게이션 타이틀 변경
+if (typeof changeNaviTitleText === 'function') {
+    changeNaviTitleText('마이페이지');
+}
+
+/**
+ * 실시간 배송조회 (한진택배 API)
+ * @param {string} orderNo - 주문번호
+ */
+function trackDelivery(orderNo) {
+    // 모달 또는 새 창으로 한진택배 추적 페이지 열기
+    // 실제 구현 시 한진택배 API 연동 필요
+    console.log('배송조회:', orderNo);
+    
+    // 예시: 모달 표시
+    alert(`주문번호 ${orderNo}의 배송 정보를 조회합니다.\n\n실시간 배송 위치를 확인하실 수 있습니다.`);
+    
+    // 실제 구현 예시
+    // window.open(`/order/tracking?order_no=${orderNo}`, '_blank', 'width=800,height=600');
+}
+
+/**
+ * 반품신청
+ * @param {string} orderNo - 주문번호
+ */
+function requestReturn(orderNo) {
+    if (confirm('해당 주문의 반품을 신청하시겠습니까?')) {
+        // 반품 페이지로 이동
+        location.href = `/mypage/return?order_no=${orderNo}`;
+    }
+}
+
+/**
+ * 주문 상태에 따른 동적 스타일 적용
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // 배송중인 주문 카드 강조
+    const deliveryCards = document.querySelectorAll('.myp-order-card');
+    deliveryCards.forEach(card => {
+        // 배송 상태 확인 및 클래스 추가 로직
+        // 실제 구현 시 서버에서 배송 상태 데이터 받아서 처리
+    });
+    
+    // 통계 숫자 애니메이션
+    animateNumbers();
+});
+
+/**
+ * 숫자 카운트 애니메이션
+ */
+function animateNumbers() {
+    const numbers = document.querySelectorAll('.myp-progress-count, .myp-stat-value strong');
+    numbers.forEach(num => {
+        const target = parseInt(num.textContent.replace(/,/g, '')) || 0;
+        if (target === 0) return;
+        
+        let current = 0;
+        const increment = target / 30;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                num.textContent = target.toLocaleString();
+                clearInterval(timer);
+            } else {
+                num.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 30);
+    });
+}
+</script>
+
+</body>
+</html>
+

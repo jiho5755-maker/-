@@ -1,0 +1,3844 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 HR 얼티밋 마스터 대시보드 V11 Enhanced</title>
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 사이드바 */
+        .sidebar {
+            width: 260px;
+            background: var(--secondary);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .nav-menu {
+            margin-top: 20px;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .nav-item.active {
+            background: var(--primary);
+            border-left: 4px solid white;
+        }
+        
+        .nav-icon {
+            font-size: 18px;
+        }
+        
+        /* 메인 컨텐츠 */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 30px;
+            width: calc(100% - 260px);
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .page-header {
+            margin-bottom: 30px;
+        }
+        
+        .page-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .page-header p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        /* 카드 */
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        
+        /* 통계 카드 */
+        .stat-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .stat-card.success { border-left-color: var(--success); }
+        .stat-card.warning { border-left-color: var(--warning); }
+        .stat-card.danger { border-left-color: var(--danger); }
+        
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-desc {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        /* 알림 카드 */
+        .alert-card {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .alert-card.info { background: #dbeafe; border-left: 4px solid var(--primary); }
+        .alert-card.warning { background: #fef3c7; border-left: 4px solid var(--warning); }
+        .alert-card.danger { background: #fee2e2; border-left: 4px solid var(--danger); }
+        
+        /* 버튼 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: white;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        /* 폼 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        /* 테이블 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .table th {
+            background: var(--bg);
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+        
+        .table tbody tr:hover {
+            background: var(--bg);
+        }
+        
+        /* 뱃지 */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-primary { background: #dbeafe; color: var(--primary); }
+        .badge-success { background: #d1fae5; color: var(--success); }
+        .badge-warning { background: #fef3c7; color: #d97706; }
+        .badge-danger { background: #fee2e2; color: var(--danger); }
+        
+        /* Kanban 보드 */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .kanban-column {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .kanban-header {
+            font-weight: 700;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .kanban-card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            cursor: move;
+        }
+        
+        .kanban-card-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .kanban-card-meta {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        /* 결과 표시 영역 */
+        .result-box {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-box.success {
+            background: #d1fae5;
+            border-color: var(--success);
+        }
+        
+        .result-box.danger {
+            background: #fee2e2;
+            border-color: var(--danger);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-weight: 600;
+        }
+        
+        .result-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        /* 인쇄 스타일 */
+        @media print {
+            /* 모든 요소 숨김 */
+            body * {
+                visibility: hidden;
+            }
+            
+            /* 최신 인쇄 영역만 표시 */
+            .print-area.active-print, .print-area.active-print * {
+                visibility: visible !important;
+            }
+            
+            /* 기본 레이아웃 초기화 */
+            .sidebar, .page-header, .btn, .no-print, .card-header, .form-group, .form-row, .form-input, .form-select, .form-textarea, .form-label, .badge, nav, .nav-item, .stat-card, .grid-2, .grid-3, .grid-4, .result-box, .alert-card {
+                display: none !important;
+                visibility: hidden !important;
+            }
+            
+            .app-container {
+                display: block;
+            }
+            
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            
+            .content-section {
+                display: block !important;
+            }
+            
+            .card {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                page-break-inside: avoid;
+            }
+            
+            /* 인쇄 영역 스타일 */
+            .print-area {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                padding: 20mm !important;
+                margin: 0 !important;
+                background: white !important;
+                page-break-after: always;
+            }
+            
+            .print-header {
+                text-align: center;
+                margin-bottom: 30px;
+                border-bottom: 3px solid black;
+                padding-bottom: 15px;
+            }
+            
+            .print-header h1 {
+                font-size: 28pt;
+                margin-bottom: 10px;
+                font-weight: 700;
+            }
+            
+            .print-header p {
+                font-size: 12pt;
+                margin: 5px 0;
+            }
+            
+            .print-content {
+                font-size: 12pt;
+                line-height: 2;
+            }
+            
+            .print-content p {
+                margin: 10px 0;
+            }
+            
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            
+            .print-table th, .print-table td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: center;
+                font-size: 11pt;
+            }
+            
+            .print-table th {
+                background: #f0f0f0 !important;
+                font-weight: 700;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .print-signature {
+                margin-top: 50px;
+                text-align: right;
+                font-size: 12pt;
+            }
+            
+            .print-signature p {
+                margin: 15px 0;
+                line-height: 1.8;
+            }
+            
+            @page {
+                size: A4;
+                margin: 0;
+            }
+        }
+        
+        /* 체크박스 스타일 */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        /* 탭 */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .tab:hover {
+            color: var(--primary);
+        }
+        
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        
+        /* 프로그레스 바 */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>⚡ HR 얼티밋 대시보드</h1>
+                <p>V11 Enhanced | 제조/유통 전용</p>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item active" onclick="showSection('dashboard')">
+                    <span class="nav-icon">📊</span>
+                    <span>대시보드 홈</span>
+                </div>
+                <div class="nav-item" onclick="showSection('payroll')">
+                    <span class="nav-icon">💰</span>
+                    <span>급여 & 세무</span>
+                </div>
+                <div class="nav-item" onclick="showSection('attendance')">
+                    <span class="nav-icon">📅</span>
+                    <span>유연근무 근태</span>
+                </div>
+                <div class="nav-item" onclick="showSection('collaboration')">
+                    <span class="nav-icon">🤝</span>
+                    <span>협업 & 업무</span>
+                </div>
+                <div class="nav-item" onclick="showSection('admin')">
+                    <span class="nav-icon">📋</span>
+                    <span>업무 연속성</span>
+                </div>
+                <div class="nav-item" onclick="showSection('legal')">
+                    <span class="nav-icon">⚖️</span>
+                    <span>법적 방어</span>
+                </div>
+                <div class="nav-item" onclick="showSection('welfare')">
+                    <span class="nav-icon">🏥</span>
+                    <span>복지 & 컴플라이언스</span>
+                </div>
+                <div class="nav-item" onclick="showSection('employees')">
+                    <span class="nav-icon">👥</span>
+                    <span>직원 관리</span>
+                </div>
+                <div class="nav-item" onclick="showSection('system')">
+                    <span class="nav-icon">⚙️</span>
+                    <span>시스템 설정</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 메인 컨텐츠 -->
+        <main class="main-content">
+            <!-- 1. 대시보드 홈 -->
+            <section id="dashboard" class="content-section active">
+                <div class="page-header">
+                    <h2>📊 대시보드 홈</h2>
+                    <p>오늘의 인사 현황을 한눈에 확인하세요</p>
+                </div>
+
+                <!-- 오늘의 알림 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🔔 Today's Alert</h3>
+                        <span id="todayDate"></span>
+                    </div>
+                    <div id="todayAlerts"></div>
+                </div>
+
+                <!-- 팀 현황판 -->
+                <div class="grid-4">
+                    <div class="stat-card success">
+                        <div class="stat-label">근무 중</div>
+                        <div class="stat-value" id="workingCount">0</div>
+                        <div class="stat-desc">명</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-label">재택 근무</div>
+                        <div class="stat-value" id="remoteCount">0</div>
+                        <div class="stat-desc">명</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">휴가/외근</div>
+                        <div class="stat-value" id="leaveCount">0</div>
+                        <div class="stat-desc">명</div>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-label">전체 인원</div>
+                        <div class="stat-value" id="totalCount">0</div>
+                        <div class="stat-desc">명</div>
+                    </div>
+                </div>
+
+                <!-- 바로가기 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">⚡ 바로가기</h3>
+                    </div>
+                    <div class="grid-3">
+                        <button class="btn btn-primary" onclick="showSection('admin'); generateCertificate()">
+                            📄 증명서 발급
+                        </button>
+                        <button class="btn btn-primary" onclick="showSection('attendance')">
+                            📅 근태지 출력
+                        </button>
+                        <button class="btn btn-primary" onclick="showSection('payroll')">
+                            💰 급여 계산
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 급여 & 세무 -->
+            <section id="payroll" class="content-section">
+                <div class="page-header">
+                    <h2>💰 급여 & 세무 최적화</h2>
+                    <p>2026년 최저임금 기준 포괄임금제 설계</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">⚙️ 2026 포괄임금 설계기</h3>
+                        <span class="badge badge-warning">최저시급 10,320원</span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">월 지급 총액 (원)</label>
+                            <input type="number" id="totalSalary" class="form-input" placeholder="예: 3500000" value="3500000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">희망 고정 OT 시간 (시간/월)</label>
+                            <input type="number" id="fixedOT" class="form-input" placeholder="예: 20" value="20">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">비과세 - 식대 (원)</label>
+                            <input type="number" id="mealAllowance" class="form-input" placeholder="최대 200,000" value="200000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">비과세 - 자가운전보조금 (원)</label>
+                            <input type="number" id="carAllowance" class="form-input" placeholder="최대 200,000" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">비과세 - 육아수당 (원)</label>
+                            <input type="number" id="childcareAllowance" class="form-input" placeholder="최대 200,000" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">주당 소정근로시간</label>
+                            <input type="number" id="weeklyHours" class="form-input" value="40">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="calculatePayroll()">💡 자동 설계 실행</button>
+
+                    <div id="payrollResult" style="margin-top: 20px;"></div>
+                </div>
+
+                <!-- 급여명세서 생성 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">💸 급여명세서 생성</h3>
+                    </div>
+
+                    <div class="no-print">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">대상 직원</label>
+                                <select id="payslipEmp" class="form-select" onchange="loadEmployeeSalary()"></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">지급 연월</label>
+                                <input type="month" id="payslipMonth" class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">명세서 발급일</label>
+                            <input type="date" id="payslipDate" class="form-input">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">기본급</label>
+                                <input type="number" id="payBasic" class="form-input" placeholder="기본급">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">연장수당</label>
+                                <input type="number" id="payOvertime" class="form-input" placeholder="연장수당" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">식대 (비과세)</label>
+                                <input type="number" id="payMeal" class="form-input" value="200000">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">기타수당</label>
+                                <input type="number" id="payEtc" class="form-input" value="0">
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="generatePayslip()">📄 급여명세서 생성</button>
+                        <button class="btn btn-success" onclick="downloadAsWord()">💾 워드 파일 다운로드</button>
+                        <button class="btn btn-outline" onclick="window.print()">🖨️ 인쇄하기</button>
+                    </div>
+
+                    <div id="payslipView" style="margin-top: 20px;"></div>
+                </div>
+            </section>
+
+            <!-- 3. 유연근무 근태 -->
+            <section id="attendance" class="content-section">
+                <div class="page-header">
+                    <h2>📅 유연근무 근태 & 지원금</h2>
+                    <p>실제 근태 관리 + 정부 지원금용 근태 확인서 자동 생성</p>
+                </div>
+
+                <!-- 실제 근태 관리 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">⏰ 실제 근태 관리</h3>
+                    </div>
+
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchAttTab('checkInOut')">출퇴근 기록</div>
+                        <div class="tab" onclick="switchAttTab('leaveManage')">연차 관리</div>
+                        <div class="tab" onclick="switchAttTab('attHistory')">근태 이력</div>
+                    </div>
+
+                    <!-- 출퇴근 기록 탭 -->
+                    <div id="checkInOut" class="tab-content active">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">직원 선택</label>
+                                <select id="attCheckEmp" class="form-select"></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">날짜</label>
+                                <input type="date" id="attCheckDate" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">출근 시간</label>
+                                <input type="time" id="checkInTime" class="form-input" value="09:00">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">퇴근 시간</label>
+                                <input type="time" id="checkOutTime" class="form-input" value="18:00">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">비고</label>
+                            <input type="text" id="attNote" class="form-input" placeholder="예: 재택근무, 외근 등">
+                        </div>
+                        <button class="btn btn-primary" onclick="recordAttendance()">✅ 출퇴근 기록 저장</button>
+                    </div>
+
+                    <!-- 연차 관리 탭 -->
+                    <div id="leaveManage" class="tab-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">직원 선택</label>
+                                <select id="leaveEmp" class="form-select"></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">연차 구분</label>
+                                <select id="leaveType" class="form-select">
+                                    <option value="연차">연차 (1일)</option>
+                                    <option value="반차">반차 (0.5일)</option>
+                                    <option value="병가">병가</option>
+                                    <option value="공가">공가</option>
+                                    <option value="경조사">경조사</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">시작일</label>
+                                <input type="date" id="leaveStart" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">종료일</label>
+                                <input type="date" id="leaveEnd" class="form-input">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">사유</label>
+                            <input type="text" id="leaveReason" class="form-input" placeholder="휴가 사유를 입력하세요">
+                        </div>
+                        <button class="btn btn-primary" onclick="recordLeave()">🏖️ 연차 사용 기록</button>
+
+                        <div id="leaveStatus" style="margin-top: 30px;"></div>
+                    </div>
+
+                    <!-- 근태 이력 탭 -->
+                    <div id="attHistory" class="tab-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">직원</label>
+                                <select id="historyEmp" class="form-select" onchange="loadAttHistory()"></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">조회 월</label>
+                                <input type="month" id="historyMonth" class="form-input" onchange="loadAttHistory()">
+                            </div>
+                        </div>
+                        <button class="btn btn-outline" onclick="loadAttHistory()">🔍 조회</button>
+                        
+                        <div id="attHistoryTable" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+
+                <!-- 정부 지원금용 근태 확인서 -->
+                <div class="card">
+                    <div class="card-header no-print">
+                        <h3 class="card-title">📝 근태 확인서 생성기</h3>
+                    </div>
+
+                    <div class="no-print">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">대상 직원</label>
+                                <select id="attEmpSelect" class="form-select"></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">대상 연월</label>
+                                <input type="month" id="attMonth" class="form-input" value="2026-01">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">근무 형태</label>
+                                <select id="workType" class="form-select">
+                                    <option value="재택근무">재택근무</option>
+                                    <option value="시차출퇴근">시차출퇴근</option>
+                                    <option value="일반근무">일반근무</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">서식 작성일</label>
+                                <input type="date" id="attDocDate" class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">소정근로시간</label>
+                                <input type="text" id="workHours" class="form-input" placeholder="예: 09:00~18:00" value="09:00~18:00">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">근로시간 단축 (시간)</label>
+                                <select id="workShortHours" class="form-select">
+                                    <option value="0">단축 없음</option>
+                                    <option value="1">1시간 단축</option>
+                                    <option value="2">2시간 단축</option>
+                                    <option value="3">3시간 단축</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">단축 사유</label>
+                            <input type="text" id="shortReason" class="form-input" placeholder="예: 임신기 근로시간 단축, 육아기 근로시간 단축 등">
+                        </div>
+
+                        <button class="btn btn-primary" onclick="generateAttendance()">📄 근태확인서 생성</button>
+                        <button class="btn btn-success" onclick="downloadAsWord()">💾 워드 파일 다운로드</button>
+                        <button class="btn btn-outline" onclick="window.print()">🖨️ 인쇄하기</button>
+                    </div>
+
+                    <div id="attendanceSheet" style="margin-top: 20px;"></div>
+                </div>
+            </section>
+
+            <!-- 4. 협업 & 업무 -->
+            <section id="collaboration" class="content-section">
+                <div class="page-header">
+                    <h2>🤝 협업 & 업무 가시화</h2>
+                    <p>재택/시차 근무자의 업무 투명성 확보</p>
+                </div>
+
+                <!-- Kanban 보드 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📌 주간 업무 목표 (Kanban)</h3>
+                        <button class="btn btn-sm btn-primary" onclick="addKanbanTask()">+ 새 작업</button>
+                    </div>
+                    <div class="kanban-board">
+                        <div class="kanban-column">
+                            <div class="kanban-header">📋 To Do</div>
+                            <div id="kanbanTodo"></div>
+                        </div>
+                        <div class="kanban-column">
+                            <div class="kanban-header">🔄 Doing</div>
+                            <div id="kanbanDoing"></div>
+                        </div>
+                        <div class="kanban-column">
+                            <div class="kanban-header">✅ Done</div>
+                            <div id="kanbanDone"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 미팅 로그 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📝 미팅 & 협업 로그</h3>
+                        <button class="btn btn-sm btn-primary" onclick="addMeetingLog()">+ 회의록 작성</button>
+                    </div>
+                    <div id="meetingLogs"></div>
+                </div>
+
+                <!-- 그라운드 룰 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📜 우리 회사 그라운드 룰</h3>
+                    </div>
+                    <div style="line-height: 2;">
+                        <p>✅ 재택근무 시 코어타임(10:00~15:00) 실시간 소통 필수</p>
+                        <p>✅ 시차출퇴근자는 전날 익일 출근시간 공지</p>
+                        <p>✅ 업무 시작/종료 시 메신저로 팀원에게 상태 공유</p>
+                        <p>✅ 중요 결정사항은 문서화하여 공유 드라이브에 저장</p>
+                        <p>✅ 주 1회 전체 화상 회의로 진행상황 점검</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. 업무 연속성 & 행정 -->
+            <section id="admin" class="content-section">
+                <div class="page-header">
+                    <h2>📋 업무 연속성 & 행정</h2>
+                    <p>인수인계, IT 자산, 증명서 발급 관리</p>
+                </div>
+
+                <!-- 인수인계 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🔄 인수인계 마스터</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">퇴사 예정자</label>
+                        <select id="handoverEmp" class="form-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">후임자</label>
+                        <select id="successorEmp" class="form-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">인수인계 내용</label>
+                        <textarea id="handoverContent" class="form-textarea" placeholder="- 업무 파일 경로&#10;- 중요 연락처&#10;- 진행 중인 프로젝트&#10;- 주의사항"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveHandover()">💾 저장</button>
+                </div>
+
+                <!-- IT 자산 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">💻 IT 자산 대장</h3>
+                        <button class="btn btn-sm btn-primary" onclick="addITAsset()">+ 자산 추가</button>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>구분</th>
+                                <th>모델명/제품명</th>
+                                <th>시리얼번호</th>
+                                <th>할당자</th>
+                                <th>상태</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itAssetTable"></tbody>
+                    </table>
+                </div>
+
+                <!-- 증명서 발급 -->
+                <div class="card">
+                    <div class="card-header no-print">
+                        <h3 class="card-title">📄 증명서 발급</h3>
+                    </div>
+                    <div class="no-print">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">대상 직원</label>
+                                <select id="certEmpSelect" class="form-select"></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">증명서 종류</label>
+                                <select id="certType" class="form-select">
+                                    <option value="재직">재직증명서</option>
+                                    <option value="경력">경력증명서</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">발급일</label>
+                            <input type="date" id="certDate" class="form-input">
+                        </div>
+                        <button class="btn btn-primary" onclick="generateCertificate()">📄 증명서 생성</button>
+                        <button class="btn btn-success" onclick="downloadAsWord()">💾 워드 파일 다운로드</button>
+                        <button class="btn btn-outline" onclick="window.print()">🖨️ 인쇄하기</button>
+                    </div>
+                    <div id="certificateView" style="margin-top: 20px;"></div>
+                </div>
+            </section>
+
+            <!-- 6. 법적 방어 -->
+            <section id="legal" class="content-section">
+                <div class="page-header">
+                    <h2>⚖️ 법적 방어 & 리스크</h2>
+                    <p>노동위원회 대응을 위한 증빙 관리</p>
+                </div>
+
+                <!-- 이슈 로그 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📋 이슈 관리 로그</h3>
+                        <button class="btn btn-sm btn-primary" onclick="addIssueLog()">+ 이슈 기록</button>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">대상 직원</label>
+                            <select id="issueEmpSelect" class="form-select"></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">이슈 유형</label>
+                            <select id="issueType" class="form-select">
+                                <option value="지각">지각/결근</option>
+                                <option value="성과">성과 부진</option>
+                                <option value="포상">포상</option>
+                                <option value="고충">고충 상담</option>
+                                <option value="징계">징계</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">상세 내용</label>
+                        <textarea id="issueContent" class="form-textarea" placeholder="구체적인 상황과 증빙 자료를 기록하세요"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveIssueLog()">💾 저장</button>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>날짜</th>
+                                <th>직원</th>
+                                <th>유형</th>
+                                <th>내용</th>
+                            </tr>
+                        </thead>
+                        <tbody id="issueLogTable"></tbody>
+                    </table>
+                </div>
+
+                <!-- 서식 생성기 -->
+                <div class="card">
+                    <div class="card-header no-print">
+                        <h3 class="card-title">📝 서식 생성기</h3>
+                    </div>
+                    <div class="no-print">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">서식 종류</label>
+                                <select id="formType" class="form-select">
+                                    <option value="경고장">경고장</option>
+                                    <option value="시말서">시말서 양식</option>
+                                    <option value="권고사직">권고사직서</option>
+                                    <option value="해고예고">해고예고통보서</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">대상 직원</label>
+                                <select id="formEmpSelect" class="form-select"></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">서식 작성일</label>
+                            <input type="date" id="legalFormDate" class="form-input">
+                        </div>
+                        <button class="btn btn-danger" onclick="generateLegalForm()">⚠️ 서식 생성</button>
+                        <button class="btn btn-success" onclick="downloadAsWord()">💾 워드 파일 다운로드</button>
+                        <button class="btn btn-outline" onclick="window.print()">🖨️ 인쇄하기</button>
+                    </div>
+                    <div id="legalFormView" style="margin-top: 20px;"></div>
+                </div>
+
+                <!-- 위험성 평가 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🛡️ 위험성 평가 체크리스트</h3>
+                    </div>
+                    <div class="checkbox-group" style="flex-direction: column;">
+                        <label class="checkbox-item"><input type="checkbox"> 사무실 전기 안전 점검 완료</label>
+                        <label class="checkbox-item"><input type="checkbox"> 소화기 및 비상구 위치 확인</label>
+                        <label class="checkbox-item"><input type="checkbox"> VDT 증후군 예방 교육 실시</label>
+                        <label class="checkbox-item"><input type="checkbox"> 근골격계 질환 예방 스트레칭 안내</label>
+                        <label class="checkbox-item"><input type="checkbox"> 화재 대피 훈련 실시 (연 1회)</label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. 복지 & 컴플라이언스 -->
+            <section id="welfare" class="content-section">
+                <div class="page-header">
+                    <h2>🏥 복지 & 컴플라이언스</h2>
+                    <p>법정 교육 및 건강검진 관리</p>
+                </div>
+
+                <!-- 법정 교육 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📚 법정 의무 교육 관리</h3>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>교육명</th>
+                                <th>주기</th>
+                                <th>대상</th>
+                                <th>이수 현황</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>성희롱 예방 교육</td>
+                                <td>연 1회 (1시간)</td>
+                                <td>전 직원</td>
+                                <td><span class="badge badge-success">완료</span></td>
+                            </tr>
+                            <tr>
+                                <td>개인정보보호 교육</td>
+                                <td>연 1회 (1시간)</td>
+                                <td>전 직원</td>
+                                <td><span class="badge badge-warning">미완료</span></td>
+                            </tr>
+                            <tr>
+                                <td>산업안전보건 교육</td>
+                                <td>분기 6시간</td>
+                                <td>전 직원</td>
+                                <td><span class="badge badge-success">완료</span></td>
+                            </tr>
+                            <tr>
+                                <td>장애인 인식개선 교육</td>
+                                <td>연 1회 (1시간)</td>
+                                <td>전 직원</td>
+                                <td><span class="badge badge-warning">미완료</span></td>
+                            </tr>
+                            <tr>
+                                <td>퇴직연금 교육</td>
+                                <td>연 1회</td>
+                                <td>가입자</td>
+                                <td><span class="badge badge-success">완료</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 건강검진 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🏥 건강검진 대상자 관리</h3>
+                        <button class="btn btn-sm btn-primary" onclick="checkHealthExam()">🔍 대상자 확인</button>
+                    </div>
+                    <div id="healthExamList"></div>
+                </div>
+
+                <!-- 경조사 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🎉 경조사 휴가/지원금 계산기</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">경조사 종류</label>
+                        <select id="eventType" class="form-select">
+                            <option value="본인결혼">본인 결혼</option>
+                            <option value="자녀결혼">자녀 결혼</option>
+                            <option value="부모상">부모 사망</option>
+                            <option value="배우자부모상">배우자 부모 사망</option>
+                            <option value="출산">배우자 출산</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="calculateEvent()">계산하기</button>
+                    <div id="eventResult" style="margin-top: 15px;"></div>
+                </div>
+            </section>
+
+            <!-- 8. 시스템 설정 -->
+            <section id="system" class="content-section">
+                <div class="page-header">
+                    <h2>⚙️ 시스템 설정</h2>
+                    <p>데이터 백업 및 시스템 관리</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">💾 데이터 백업/복원</h3>
+                    </div>
+                    <div class="alert-card info" style="margin-bottom: 20px;">
+                        <div>
+                            <strong>⚠️ 중요 안내</strong><br>
+                            <small>정기적으로 데이터를 백업하여 안전하게 보관하세요. 브라우저 캐시 삭제 시 데이터가 손실될 수 있습니다.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-2" style="margin-bottom: 20px;">
+                        <div style="padding: 20px; border: 2px dashed var(--border); border-radius: 8px; text-align: center;">
+                            <h4 style="margin-bottom: 15px;">📥 데이터 내보내기</h4>
+                            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">
+                                현재 저장된 모든 데이터를 JSON 파일로 다운로드합니다.
+                            </p>
+                            <button class="btn btn-primary" onclick="exportData()">
+                                💾 백업 파일 다운로드
+                            </button>
+                        </div>
+                        
+                        <div style="padding: 20px; border: 2px dashed var(--border); border-radius: 8px; text-align: center;">
+                            <h4 style="margin-bottom: 15px;">📤 데이터 가져오기</h4>
+                            <p style="font-size: 13px; color: var(--text-light); margin-bottom: 15px;">
+                                백업 파일을 선택하여 데이터를 복원합니다.
+                            </p>
+                            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+                            <button class="btn btn-success" onclick="document.getElementById('importFile').click()">
+                                📂 백업 파일 선택
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="result-box" style="margin-top: 20px;">
+                        <h4 style="margin-bottom: 10px;">📊 현재 데이터 현황</h4>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-light);">등록 직원</div>
+                                <div style="font-size: 24px; font-weight: 700; color: var(--primary);" id="dataCountEmp">0</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-light);">Kanban 작업</div>
+                                <div style="font-size: 24px; font-weight: 700; color: var(--primary);" id="dataCountKanban">0</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-light);">이슈 로그</div>
+                                <div style="font-size: 24px; font-weight: 700; color: var(--primary);" id="dataCountIssue">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🗑️ 데이터 초기화</h3>
+                    </div>
+                    <div class="alert-card danger">
+                        <div>
+                            <strong>⚠️ 위험</strong><br>
+                            <small>모든 데이터가 삭제되며 복구할 수 없습니다. 반드시 백업 후 실행하세요.</small>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger" onclick="resetAllData()" style="margin-top: 15px;">
+                        🗑️ 전체 데이터 초기화
+                    </button>
+                </div>
+            </section>
+
+            <!-- 9. 직원 관리 -->
+            <section id="employees" class="content-section">
+                <div class="page-header">
+                    <h2>👥 직원 관리</h2>
+                    <p>직원 정보 등록 및 관리</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📝 직원 등록</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">이름 *</label>
+                            <input type="text" id="empName" class="form-input" placeholder="예: 김철수">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">주민등록번호 (앞자리) *</label>
+                            <input type="text" id="empSsn" class="form-input" placeholder="예: 850520" maxlength="6">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">부서</label>
+                            <input type="text" id="empDept" class="form-input" placeholder="예: 개발팀">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">직책</label>
+                            <input type="text" id="empPosition" class="form-input" placeholder="예: 실장">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">입사일 *</label>
+                            <input type="date" id="empJoinDate" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">생년월일</label>
+                            <input type="date" id="empBirthDate" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">급여 (월)</label>
+                            <input type="number" id="empSalary" class="form-input" placeholder="예: 3500000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">계좌번호</label>
+                            <input type="text" id="empAccount" class="form-input" placeholder="예: 123-456-789012">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">근무 형태</label>
+                            <select id="empWorkType" class="form-select">
+                                <option value="정규직">정규직</option>
+                                <option value="계약직">계약직</option>
+                                <option value="인턴">인턴</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">연차 일수</label>
+                            <input type="number" id="empAnnualLeave" class="form-input" placeholder="15" value="15">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="addEmployee()">➕ 직원 추가</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📋 전체 직원 목록 (<span id="totalEmployeeCount">0</span>명)</h3>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>이름</th>
+                                <th>직책</th>
+                                <th>부서</th>
+                                <th>입사일</th>
+                                <th>연차 잔여</th>
+                                <th>상태</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeTable"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 모달 -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>새 작업 추가</h3>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">작업 제목</label>
+                <input type="text" id="taskTitle" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">담당자</label>
+                <select id="taskAssignee" class="form-select"></select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">상태</label>
+                <select id="taskStatus" class="form-select">
+                    <option value="todo">To Do</option>
+                    <option value="doing">Doing</option>
+                    <option value="done">Done</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="saveKanbanTask()">저장</button>
+        </div>
+    </div>
+
+    <script>
+        // 전역 데이터
+        let employees = [];
+        let kanbanTasks = [];
+        let meetingLogs = [];
+        let issueLogs = [];
+        let itAssets = [];
+        let handovers = [];
+        let supplies = []; // 소모품 요청
+        let safetyChecks = []; // 안전점검 기록
+        let grants = []; // 지원금 매칭 결과
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            initializeSampleData();
+            updateDashboard();
+            updateAllSelects();
+            updateEmployeeTable();
+            generateRecurringTasks(); // V11: 자동 반복 업무 생성
+            document.getElementById('todayDate').textContent = new Date().toLocaleDateString('ko-KR');
+        });
+
+        // 로컬스토리지 데이터 로드
+        function loadData() {
+            employees = JSON.parse(localStorage.getItem('hrEmployees') || '[]');
+            kanbanTasks = JSON.parse(localStorage.getItem('hrKanban') || '[]');
+            meetingLogs = JSON.parse(localStorage.getItem('hrMeetings') || '[]');
+            issueLogs = JSON.parse(localStorage.getItem('hrIssues') || '[]');
+            itAssets = JSON.parse(localStorage.getItem('hrAssets') || '[]');
+            handovers = JSON.parse(localStorage.getItem('hrHandovers') || '[]');
+            supplies = JSON.parse(localStorage.getItem('hrSupplies') || '[]');
+            safetyChecks = JSON.parse(localStorage.getItem('hrSafetyChecks') || '[]');
+            grants = JSON.parse(localStorage.getItem('hrGrants') || '[]');
+        }
+
+        // 데이터 저장
+        function saveData() {
+            localStorage.setItem('hrEmployees', JSON.stringify(employees));
+            localStorage.setItem('hrKanban', JSON.stringify(kanbanTasks));
+            localStorage.setItem('hrMeetings', JSON.stringify(meetingLogs));
+            localStorage.setItem('hrIssues', JSON.stringify(issueLogs));
+            localStorage.setItem('hrAssets', JSON.stringify(itAssets));
+            localStorage.setItem('hrHandovers', JSON.stringify(handovers));
+            localStorage.setItem('hrSupplies', JSON.stringify(supplies));
+            localStorage.setItem('hrSafetyChecks', JSON.stringify(safetyChecks));
+            localStorage.setItem('hrGrants', JSON.stringify(grants));
+        }
+
+        // 샘플 데이터 초기화
+        function initializeSampleData() {
+            if (employees.length === 0) {
+                employees = [
+                    {
+                        id: 1,
+                        name: '김철수',
+                        ssn: '850520',
+                        position: '실장',
+                        dept: '개발팀',
+                        joinDate: '2023-03-15',
+                        birthDate: '1985-05-20',
+                        salary: 4500000,
+                        baseSalary: 4500000,
+                        account: '110-123-456789',
+                        bankAccount: '110-123-456789',
+                        bankName: '우리은행',
+                        workType: '정규직',
+                        empType: '정규직',
+                        hasChild: true,
+                        annualLeave: 15,
+                        usedLeave: 3,
+                        status: '근무중',
+                        currentWork: '재택',
+                        attendanceRecords: [],
+                        leaveRecords: []
+                    },
+                    {
+                        id: 2,
+                        name: '이영희',
+                        ssn: '900815',
+                        position: '디자이너',
+                        dept: '디자인팀',
+                        joinDate: '2024-01-10',
+                        birthDate: '1990-08-15',
+                        salary: 3500000,
+                        baseSalary: 3500000,
+                        account: '110-234-567890',
+                        bankAccount: '110-234-567890',
+                        bankName: '신한은행',
+                        empType: '정규직',
+                        hasChild: false,
+                        workType: '정규직',
+                        annualLeave: 15,
+                        usedLeave: 1,
+                        status: '근무중',
+                        currentWork: '출근',
+                        attendanceRecords: [],
+                        leaveRecords: []
+                    },
+                    {
+                        id: 3,
+                        name: '박민수',
+                        ssn: '881203',
+                        position: '과장',
+                        dept: '영업팀',
+                        joinDate: '2022-06-01',
+                        birthDate: '1988-12-03',
+                        salary: 4000000,
+                        account: '110-345-678901',
+                        workType: '정규직',
+                        annualLeave: 15,
+                        usedLeave: 5,
+                        status: '근무중',
+                        currentWork: '외근',
+                        attendanceRecords: [],
+                        leaveRecords: []
+                    }
+                ];
+                saveData();
+            }
+
+            if (kanbanTasks.length === 0) {
+                kanbanTasks = [
+                    { id: 1, title: '2026년 급여 테이블 검토', assignee: '김철수', status: 'todo' },
+                    { id: 2, title: '근태 시스템 개선안 작성', assignee: '이영희', status: 'doing' },
+                    { id: 3, title: '법정교육 일정 수립', assignee: '박민수', status: 'done' }
+                ];
+                saveData();
+            }
+        }
+
+        // 섹션 전환
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+
+            if (sectionId === 'dashboard') updateDashboard();
+            if (sectionId === 'collaboration') updateKanban();
+            if (sectionId === 'legal') updateIssueTable();
+            if (sectionId === 'admin') updateITAssetTable();
+        }
+
+        // 대시보드 업데이트
+        function updateDashboard() {
+            const working = employees.filter(e => e.currentWork === '출근').length;
+            const remote = employees.filter(e => e.currentWork === '재택').length;
+            const leave = employees.filter(e => e.currentWork === '외근' || e.currentWork === '휴가').length;
+
+            document.getElementById('workingCount').textContent = working;
+            document.getElementById('remoteCount').textContent = remote;
+            document.getElementById('leaveCount').textContent = leave;
+            document.getElementById('totalCount').textContent = employees.length;
+
+            // Today's Alert
+            const alerts = [];
+            const today = new Date();
+
+            employees.forEach(emp => {
+                // 생일 체크
+                const birth = new Date(emp.birthDate);
+                if (birth.getMonth() === today.getMonth() && birth.getDate() === today.getDate()) {
+                    alerts.push({
+                        type: 'info',
+                        message: `🎂 ${emp.name}님의 생일입니다!`
+                    });
+                }
+
+                // 근속연수 체크
+                const join = new Date(emp.joinDate);
+                const years = today.getFullYear() - join.getFullYear();
+                if (join.getMonth() === today.getMonth() && join.getDate() === today.getDate() && years > 0) {
+                    alerts.push({
+                        type: 'info',
+                        message: `🎉 ${emp.name}님 입사 ${years}주년을 축하합니다!`
+                    });
+                }
+
+                // 건강검진 (출생연도 홀/짝)
+                const birthYear = birth.getFullYear();
+                const currentYear = today.getFullYear();
+                if ((birthYear % 2 === currentYear % 2) && today.getMonth() === 0) {
+                    alerts.push({
+                        type: 'warning',
+                        message: `🏥 ${emp.name}님은 올해 건강검진 대상자입니다.`
+                    });
+                }
+            });
+
+            if (alerts.length === 0) {
+                alerts.push({
+                    type: 'info',
+                    message: '✅ 오늘은 특별한 알림이 없습니다.'
+                });
+            }
+
+            const alertsHtml = alerts.map(alert => `
+                <div class="alert-card ${alert.type}">
+                    <span>${alert.message}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('todayAlerts').innerHTML = alertsHtml;
+        }
+
+        // 직원 추가
+        function addEmployee() {
+            const name = document.getElementById('empName').value;
+            const ssn = document.getElementById('empSsn').value;
+            const dept = document.getElementById('empDept').value;
+            const position = document.getElementById('empPosition').value;
+            const joinDate = document.getElementById('empJoinDate').value;
+            const birthDate = document.getElementById('empBirthDate').value;
+            const salary = parseInt(document.getElementById('empSalary').value) || 0;
+            const account = document.getElementById('empAccount').value;
+            const workType = document.getElementById('empWorkType').value;
+            const annualLeave = parseInt(document.getElementById('empAnnualLeave').value) || 15;
+
+            if (!name || !joinDate) {
+                alert('필수 항목(이름, 입사일)을 입력해주세요.');
+                return;
+            }
+
+            const newEmployee = {
+                id: Date.now(),
+                name,
+                ssn,
+                dept,
+                position,
+                joinDate,
+                birthDate,
+                salary,
+                account,
+                workType,
+                annualLeave,
+                usedLeave: 0,
+                status: '근무중',
+                currentWork: '출근',
+                attendanceRecords: [], // 출퇴근 기록
+                leaveRecords: [] // 연차 사용 기록
+            };
+
+            employees.push(newEmployee);
+            saveData();
+            updateEmployeeTable();
+            updateAllSelects();
+            updateDataCount();
+            
+            // 입력 필드 초기화
+            document.getElementById('empName').value = '';
+            document.getElementById('empSsn').value = '';
+            document.getElementById('empDept').value = '';
+            document.getElementById('empPosition').value = '';
+            document.getElementById('empJoinDate').value = '';
+            document.getElementById('empBirthDate').value = '';
+            document.getElementById('empSalary').value = '';
+            document.getElementById('empAccount').value = '';
+            document.getElementById('empAnnualLeave').value = '15';
+
+            alert('직원이 추가되었습니다.');
+        }
+
+        // 직원 테이블 업데이트
+        function updateEmployeeTable() {
+            const tbody = document.getElementById('employeeTable');
+            tbody.innerHTML = employees.map(emp => {
+                const join = new Date(emp.joinDate);
+                const today = new Date();
+                const years = Math.floor((today - join) / (365.25 * 24 * 60 * 60 * 1000));
+                const remainLeave = (emp.annualLeave || 15) - (emp.usedLeave || 0);
+                
+                return `
+                    <tr>
+                        <td><strong>${emp.name}</strong>${emp.ssn ? '<br><small style="color: var(--text-light);">' + emp.ssn + '</small>' : ''}</td>
+                        <td>${emp.position || '-'}</td>
+                        <td>${emp.dept || '-'}</td>
+                        <td>${emp.joinDate}<br><small style="color: var(--text-light);">${years}년</small></td>
+                        <td><strong style="color: ${remainLeave < 3 ? 'var(--danger)' : 'var(--success)'}">${remainLeave}일</strong></td>
+                        <td><span class="badge badge-success">${emp.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="editEmployee(${emp.id})">수정</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteEmployee(${emp.id})">삭제</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // 직원 수 표시
+            const countElem = document.getElementById('totalEmployeeCount');
+            if (countElem) {
+                countElem.textContent = employees.length;
+            }
+        }
+
+        // 직원 정보 수정
+        function editEmployee(id) {
+            const emp = employees.find(e => e.id === id);
+            if (!emp) return;
+
+            // 입력 폼에 기존 데이터 채우기
+            document.getElementById('empName').value = emp.name || '';
+            document.getElementById('empSsn').value = emp.ssn || '';
+            document.getElementById('empDept').value = emp.dept || '';
+            document.getElementById('empPosition').value = emp.position || '';
+            document.getElementById('empJoinDate').value = emp.joinDate || '';
+            document.getElementById('empBirthDate').value = emp.birthDate || '';
+            document.getElementById('empSalary').value = emp.salary || '';
+            document.getElementById('empAccount').value = emp.account || '';
+            document.getElementById('empWorkType').value = emp.workType || '정규직';
+            document.getElementById('empAnnualLeave').value = emp.annualLeave || 15;
+
+            // 직원 추가 버튼을 수정 모드로 변경
+            const addBtn = document.querySelector('button[onclick="addEmployee()"]');
+            addBtn.textContent = '✏️ 직원 정보 수정';
+            addBtn.className = 'btn btn-success';
+            addBtn.onclick = function() { updateEmployee(id); };
+
+            // 취소 버튼 추가
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = '❌ 취소';
+            cancelBtn.className = 'btn btn-outline';
+            cancelBtn.style.marginLeft = '10px';
+            cancelBtn.onclick = cancelEdit;
+            addBtn.parentElement.appendChild(cancelBtn);
+
+            // 직원 등록 폼으로 스크롤
+            document.querySelector('#employees .card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 직원 정보 업데이트
+        function updateEmployee(id) {
+            const emp = employees.find(e => e.id === id);
+            if (!emp) return;
+
+            emp.name = document.getElementById('empName').value;
+            emp.ssn = document.getElementById('empSsn').value;
+            emp.dept = document.getElementById('empDept').value;
+            emp.position = document.getElementById('empPosition').value;
+            emp.joinDate = document.getElementById('empJoinDate').value;
+            emp.birthDate = document.getElementById('empBirthDate').value;
+            emp.salary = parseInt(document.getElementById('empSalary').value) || 0;
+            emp.account = document.getElementById('empAccount').value;
+            emp.workType = document.getElementById('empWorkType').value;
+            emp.annualLeave = parseInt(document.getElementById('empAnnualLeave').value) || 15;
+
+            if (!emp.name || !emp.joinDate) {
+                alert('필수 항목(이름, 입사일)을 입력해주세요.');
+                return;
+            }
+
+            saveData();
+            updateEmployeeTable();
+            updateAllSelects();
+            updateDataCount();
+            cancelEdit();
+
+            alert('✅ 직원 정보가 수정되었습니다.');
+        }
+
+        // 수정 모드 취소
+        function cancelEdit() {
+            // 폼 초기화
+            document.getElementById('empName').value = '';
+            document.getElementById('empSsn').value = '';
+            document.getElementById('empDept').value = '';
+            document.getElementById('empPosition').value = '';
+            document.getElementById('empJoinDate').value = '';
+            document.getElementById('empBirthDate').value = '';
+            document.getElementById('empSalary').value = '';
+            document.getElementById('empAccount').value = '';
+            document.getElementById('empAnnualLeave').value = '15';
+
+            // 버튼 원래대로
+            const addBtn = document.querySelector('#employees .card button');
+            addBtn.textContent = '➕ 직원 추가';
+            addBtn.className = 'btn btn-primary';
+            addBtn.onclick = addEmployee;
+
+            // 취소 버튼 제거
+            const cancelBtn = addBtn.nextElementSibling;
+            if (cancelBtn && cancelBtn.textContent.includes('취소')) {
+                cancelBtn.remove();
+            }
+        }
+
+        // 직원 삭제
+        function deleteEmployee(id) {
+            const emp = employees.find(e => e.id === id);
+            if (!emp) return;
+
+            if (confirm(`정말 "${emp.name}" 직원을 삭제하시겠습니까?\n\n관련된 모든 데이터(출퇴근, 연차 기록)도 함께 삭제됩니다.`)) {
+                employees = employees.filter(e => e.id !== id);
+                saveData();
+                updateEmployeeTable();
+                updateAllSelects();
+                updateDataCount();
+                alert('✅ 직원이 삭제되었습니다.');
+            }
+        }
+
+        // 모든 셀렉트 업데이트
+        function updateAllSelects() {
+            const selects = [
+                'attEmpSelect', 'certEmpSelect', 'issueEmpSelect', 
+                'formEmpSelect', 'handoverEmp', 'successorEmp', 'taskAssignee',
+                'attCheckEmp', 'leaveEmp', 'historyEmp', 'payslipEmp'
+            ];
+
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.innerHTML = employees.map(emp => 
+                        `<option value="${emp.id}">${emp.name} ${emp.position ? '(' + emp.position + ')' : ''}</option>`
+                    ).join('');
+                }
+            });
+        }
+
+        // 포괄임금 계산
+        // ========== V11 신규 기능: Grant Sniper (정부지원금 자동 매칭) ==========
+        function analyzeGrants(emp) {
+            const matchedGrants = [];
+            const today = new Date();
+            const birthDate = new Date(emp.birthDate);
+            const age = today.getFullYear() - birthDate.getFullYear();
+            const workMonths = Math.floor((today - new Date(emp.joinDate)) / (1000 * 60 * 60 * 24 * 30));
+            
+            // 1. 청년일자리도약장려금 (만 15~34세, 월급 200만원 이상)
+            if (age >= 15 && age <= 34 && emp.baseSalary >= 2000000) {
+                matchedGrants.push({
+                    name: "청년일자리도약장려금",
+                    amount: "월 60만원 (최대 12개월)",
+                    deadline: "입사 후 3개월 이내",
+                    docs: ["근로계약서", "임금대장", "출퇴근기록부"]
+                });
+            }
+            
+            // 2. 고령자 고용지원금 (만 60세 이상)
+            if (age >= 60) {
+                matchedGrants.push({
+                    name: "고령자 고용지원금",
+                    amount: "분기 30만원",
+                    deadline: "분기별 신청",
+                    docs: ["근로계약서", "주민등록등본"]
+                });
+            }
+            
+            // 3. 두루누리 사회보험료 지원 (월 보수 270만원 미만)
+            if (emp.baseSalary < 2700000 && emp.empType !== '프리랜서') {
+                matchedGrants.push({
+                    name: "두루누리 사회보험료 지원",
+                    amount: "4대보험료 80% 지원",
+                    deadline: "연중 신청 가능",
+                    docs: ["사업자등록증", "근로계약서"]
+                });
+            }
+            
+            // 4. 육아휴직 대체인력 지원금
+            if (emp.hasChild && workMonths >= 6) {
+                matchedGrants.push({
+                    name: "육아휴직 대체인력 지원금",
+                    amount: "월 120만원 (대체인력 채용 시)",
+                    deadline: "휴직 시작 전",
+                    docs: ["육아휴직 신청서", "가족관계증명서"]
+                });
+            }
+            
+            // 5. 일자리안정자금 (최저임금 기준)
+            const minWageMonthly = 10320 * 209; // 2026 최저임금 월환산
+            if (emp.baseSalary >= minWageMonthly && emp.baseSalary < 2700000) {
+                matchedGrants.push({
+                    name: "일자리안정자금",
+                    amount: "월 4만원",
+                    deadline: "분기별 신청",
+                    docs: ["임금대장"]
+                });
+            }
+            
+            return matchedGrants;
+        }
+        
+        // Grant Sniper 결과 표시
+        function showGrantsForEmployee(empId) {
+            const emp = employees.find(e => e.id == empId);
+            if (!emp) {
+                alert('직원을 찾을 수 없습니다.');
+                return;
+            }
+            
+            const matchedGrants = analyzeGrants(emp);
+            
+            if (matchedGrants.length === 0) {
+                alert(`${emp.name}님은 현재 신청 가능한 지원금이 없습니다.`);
+                return;
+            }
+            
+            let msg = `💰 ${emp.name}님 지원금 매칭 결과\n\n`;
+            matchedGrants.forEach((g, i) => {
+                msg += `━━━━━━━━━━━━━━━━━━\n`;
+                msg += `${i+1}. ${g.name}\n`;
+                msg += `   💵 지원금액: ${g.amount}\n`;
+                msg += `   📅 신청기한: ${g.deadline}\n`;
+                msg += `   📄 필요서류: ${g.docs.join(', ')}\n\n`;
+            });
+            msg += `\n📦 원클릭 서류패키지를 생성하시겠습니까?`;
+            
+            if (confirm(msg)) {
+                alert(`${emp.name}님의 지원금 신청 서류 패키지를 생성합니다.\n(근로계약서 + 임금대장 + 출퇴근기록부)\n\n실제 구현 시 PDF로 통합 생성됩니다.`);
+            }
+        }
+        
+        // Three Strikes Rule 체크
+        function checkThreeStrikes(empId) {
+            const empIssues = issueLogs.filter(log => log.employee === employees.find(e => e.id == empId)?.name);
+            const issueTypes = {};
+            
+            empIssues.forEach(issue => {
+                issueTypes[issue.type] = (issueTypes[issue.type] || 0) + 1;
+            });
+            
+            const warnings = [];
+            for (const [type, count] of Object.entries(issueTypes)) {
+                if (count >= 3) {
+                    warnings.push({ type, count });
+                }
+            }
+            
+            return warnings;
+        }
+
+        function calculatePayroll() {
+            const totalSalary = parseInt(document.getElementById('totalSalary').value) || 0;
+            const fixedOT = parseInt(document.getElementById('fixedOT').value) || 0;
+            const mealAllowance = parseInt(document.getElementById('mealAllowance').value) || 0;
+            const carAllowance = parseInt(document.getElementById('carAllowance').value) || 0;
+            const childcareAllowance = parseInt(document.getElementById('childcareAllowance').value) || 0;
+            const weeklyHours = parseInt(document.getElementById('weeklyHours').value) || 40;
+
+            const minWage = 10320; // 2026 최저시급
+            const monthlyHours = (weeklyHours * 52) / 12; // 월 소정근로시간
+            const taxFree = mealAllowance + carAllowance + childcareAllowance;
+            const taxable = totalSalary - taxFree;
+
+            // 고정연장수당 계산
+            const overtimePay = fixedOT * minWage * 1.5;
+            
+            // 기본급 = 과세급여 - 고정연장수당
+            const baseSalary = taxable - overtimePay;
+
+            // 시급 역산
+            const hourlyWage = baseSalary / monthlyHours;
+
+            // 최저임금 위반 체크
+            const isViolation = hourlyWage < minWage;
+
+            // 4대보험 추정 (간단 계산)
+            const nationalPension = Math.floor(baseSalary * 0.045);
+            const healthInsurance = Math.floor(baseSalary * 0.03545);
+            const employmentInsurance = Math.floor(baseSalary * 0.009);
+            const totalInsurance = nationalPension + healthInsurance + employmentInsurance;
+
+            const resultHtml = `
+                <div class="result-box ${isViolation ? 'danger' : 'success'}">
+                    <h4 style="margin-bottom: 15px; ${isViolation ? 'color: var(--danger)' : ''}">
+                        ${isViolation ? '⚠️ 최저임금 위반!' : '✅ 적법한 설계'}
+                    </h4>
+                    <div class="result-item">
+                        <span class="result-label">기본급</span>
+                        <span class="result-value">${baseSalary.toLocaleString()}원</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">고정 연장수당 (${fixedOT}시간)</span>
+                        <span class="result-value">${overtimePay.toLocaleString()}원</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">비과세 수당</span>
+                        <span class="result-value">${taxFree.toLocaleString()}원</span>
+                    </div>
+                    <div class="result-item" style="border-top: 2px solid var(--border); padding-top: 15px; margin-top: 10px;">
+                        <span class="result-label"><strong>월 지급 총액</strong></span>
+                        <span class="result-value">${totalSalary.toLocaleString()}원</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">역산 시급</span>
+                        <span class="result-value" style="${isViolation ? 'color: var(--danger)' : ''}">${Math.floor(hourlyWage).toLocaleString()}원</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">4대보험 회사부담 (추정)</span>
+                        <span class="result-value">${totalInsurance.toLocaleString()}원/월</span>
+                    </div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-primary" onclick="copyPayrollClause()">📋 근로계약서 임금조항 복사</button>
+                </div>
+            `;
+
+            document.getElementById('payrollResult').innerHTML = resultHtml;
+        }
+
+        // 근로계약서 임금조항 복사
+        function copyPayrollClause() {
+            const totalSalary = parseInt(document.getElementById('totalSalary').value) || 0;
+            const fixedOT = parseInt(document.getElementById('fixedOT').value) || 0;
+            const mealAllowance = parseInt(document.getElementById('mealAllowance').value) || 0;
+            
+            const taxFree = mealAllowance;
+            const taxable = totalSalary - taxFree;
+            const baseSalary = taxable - (fixedOT * 10320 * 1.5);
+            const overtimePay = fixedOT * 10320 * 1.5;
+
+            const clause = `제○조 (임금)
+① 근로자의 임금은 다음과 같다.
+   - 기본급: 월 ${baseSalary.toLocaleString()}원
+   - 고정 연장근로수당: 월 ${overtimePay.toLocaleString()}원 (월 ${fixedOT}시간분)
+   - 식대(비과세): 월 ${mealAllowance.toLocaleString()}원
+   - 월 지급 총액: ${totalSalary.toLocaleString()}원
+
+② 위 고정 연장근로수당은 월 ${fixedOT}시간의 연장근로에 대한 수당을 미리 정하여 지급하는 것으로, ${fixedOT}시간을 초과하는 연장근로에 대하여는 별도로 가산수당을 지급한다.`;
+
+            navigator.clipboard.writeText(clause).then(() => {
+                alert('임금조항이 클립보드에 복사되었습니다!');
+            });
+        }
+
+        // 근태확인서 생성
+        function generateAttendance() {
+            const empId = document.getElementById('attEmpSelect').value;
+            const month = document.getElementById('attMonth').value;
+            const workType = document.getElementById('workType').value;
+            const workHours = document.getElementById('workHours').value;
+            const shortHours = parseInt(document.getElementById('workShortHours').value) || 0;
+            const shortReason = document.getElementById('shortReason').value;
+            const docDate = document.getElementById('attDocDate').value;
+
+            const emp = employees.find(e => e.id == empId);
+            if (!emp) {
+                alert('직원을 선택해주세요.');
+                return;
+            }
+
+            // 서식 작성일 (선택하지 않으면 오늘)
+            const selectedDate = docDate ? new Date(docDate) : new Date();
+            const formattedDate = `${selectedDate.getFullYear()}. ${selectedDate.getMonth() + 1}. ${selectedDate.getDate()}.`;
+
+            const [year, monthNum] = month.split('-');
+            const daysInMonth = new Date(year, monthNum, 0).getDate();
+
+            // 소정근로시간에서 실 근로시간 계산
+            let actualWorkHours = workHours;
+            if (shortHours > 0 && workHours.includes('~')) {
+                const [startTime, endTime] = workHours.split('~');
+                const [endHour, endMin] = endTime.split(':');
+                const newEndHour = parseInt(endHour) - shortHours;
+                actualWorkHours = `${startTime}~${String(newEndHour).padStart(2, '0')}:${endMin}`;
+            }
+
+            let tableRows = '';
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, monthNum - 1, day);
+                const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                
+                tableRows += `
+                    <tr>
+                        <td>${month}-${String(day).padStart(2, '0')}</td>
+                        <td>${dayOfWeek}</td>
+                        <td>${isWeekend ? '-' : workHours}</td>
+                        <td>${isWeekend ? '-' : (shortHours > 0 ? actualWorkHours : '-')}</td>
+                        <td style="width: 80px;">${isWeekend ? '-' : '☐'}</td>
+                    </tr>
+                `;
+            }
+
+            const hasShortening = shortHours > 0;
+            const shortInfo = hasShortening ? ` / ${shortReason || '근로시간 단축'} (${shortHours}시간)` : '';
+
+            const html = `
+                <div class="print-area active-print" data-document-type="attendance">
+                    <div class="print-header">
+                        <h1>근 태 확 인 서</h1>
+                        <p style="font-size: 13pt; margin-top: 10px;">(${workType}${shortInfo})</p>
+                    </div>
+                    <div class="print-content">
+                        <p style="margin: 20px 0; font-size: 13pt;">
+                            <strong>성 명:</strong> ${emp.name} &nbsp;&nbsp;&nbsp;&nbsp; 
+                            <strong>부 서:</strong> ${emp.dept || '-'} &nbsp;&nbsp;&nbsp;&nbsp; 
+                            <strong>직 책:</strong> ${emp.position || '-'}
+                        </p>
+                        <p style="margin: 20px 0; font-size: 13pt;">
+                            <strong>대상기간:</strong> ${year}년 ${monthNum}월
+                        </p>
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20%;">날짜</th>
+                                    <th style="width: 10%;">요일</th>
+                                    <th style="width: ${hasShortening ? '25%' : '45%'};">소정근로시간</th>
+                                    ${hasShortening ? '<th style="width: 25%;">실 근로시간</th>' : ''}
+                                    <th style="width: 20%;">확인(✓)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                        <p style="margin-top: 40px; font-size: 11pt; line-height: 1.8;">
+                            ※ 본 근로자는 <strong>${workType}</strong>에 따른 <strong>간주근로시간제 합의</strong>에 따라 근무하였으며,<br>
+                            &nbsp;&nbsp;&nbsp;위와 같이 정상 근무하였음을 확인합니다.
+                        </p>
+                        ${hasShortening ? `<p style="font-size: 11pt; margin-top: 10px;">※ ${shortReason || '근로시간 단축'} 적용: 소정근로시간 ${workHours}에서 실 근로시간 ${actualWorkHours}로 ${shortHours}시간 단축</p>` : ''}
+                        <div class="print-signature">
+                            <p style="font-size: 12pt;">${formattedDate}</p>
+                            <p style="margin-top: 30px; font-size: 12pt;">근로자: ${emp.name} (인)</p>
+                            <p style="margin-top: 20px; font-size: 12pt;">확인자: ________________ (인)</p>
+                            <br>
+                            <p style="font-size: 14pt; font-weight: 700; margin-top: 30px;">프레스코21</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 기존 모든 print-area에서 active-print 제거
+            clearActivePrint();
+            
+            // 기존 내용 완전히 초기화 후 새로 생성
+            const sheetDiv = document.getElementById('attendanceSheet');
+            sheetDiv.innerHTML = html;
+            
+            // 다운로드 버튼 업데이트
+            window.currentDocument = {
+                type: 'attendance',
+                title: `근태확인서_${emp.name}_${year}년${monthNum}월`,
+                html: html
+            };
+        }
+
+        // Kanban 업데이트
+        function updateKanban() {
+            const todo = kanbanTasks.filter(t => t.status === 'todo');
+            const doing = kanbanTasks.filter(t => t.status === 'doing');
+            const done = kanbanTasks.filter(t => t.status === 'done');
+
+            document.getElementById('kanbanTodo').innerHTML = todo.map(task => `
+                <div class="kanban-card" draggable="true">
+                    <div class="kanban-card-title">${task.title}</div>
+                    <div class="kanban-card-meta">👤 ${task.assignee}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('kanbanDoing').innerHTML = doing.map(task => `
+                <div class="kanban-card" draggable="true">
+                    <div class="kanban-card-title">${task.title}</div>
+                    <div class="kanban-card-meta">👤 ${task.assignee}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('kanbanDone').innerHTML = done.map(task => `
+                <div class="kanban-card" draggable="true">
+                    <div class="kanban-card-title">${task.title}</div>
+                    <div class="kanban-card-meta">👤 ${task.assignee}</div>
+                </div>
+            `).join('');
+
+            // 미팅 로그 업데이트
+            document.getElementById('meetingLogs').innerHTML = meetingLogs.map(log => `
+                <div class="alert-card info">
+                    <div>
+                        <strong>${log.title}</strong><br>
+                        <small>${log.date} | ${log.attendees}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Kanban 작업 추가 모달
+        function addKanbanTask() {
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+
+        // Kanban 작업 저장
+        function saveKanbanTask() {
+            const title = document.getElementById('taskTitle').value;
+            const assignee = document.getElementById('taskAssignee').selectedOptions[0]?.text || '';
+            const status = document.getElementById('taskStatus').value;
+
+            if (!title) {
+                alert('작업 제목을 입력하세요.');
+                return;
+            }
+
+            kanbanTasks.push({
+                id: Date.now(),
+                title,
+                assignee,
+                status
+            });
+
+            saveData();
+            updateKanban();
+            closeModal();
+
+            document.getElementById('taskTitle').value = '';
+        }
+
+        // 미팅 로그 추가
+        function addMeetingLog() {
+            const title = prompt('회의 제목:');
+            if (!title) return;
+
+            const attendees = prompt('참석자:');
+            
+            meetingLogs.push({
+                id: Date.now(),
+                title,
+                attendees,
+                date: new Date().toLocaleDateString('ko-KR')
+            });
+
+            saveData();
+            updateKanban();
+        }
+
+        // 인수인계 저장
+        function saveHandover() {
+            const empId = document.getElementById('handoverEmp').value;
+            const successorId = document.getElementById('successorEmp').value;
+            const content = document.getElementById('handoverContent').value;
+
+            const emp = employees.find(e => e.id == empId);
+            const successor = employees.find(e => e.id == successorId);
+
+            if (!content) {
+                alert('인수인계 내용을 입력하세요.');
+                return;
+            }
+
+            handovers.push({
+                id: Date.now(),
+                employee: emp.name,
+                successor: successor.name,
+                content,
+                date: new Date().toLocaleDateString('ko-KR')
+            });
+
+            saveData();
+            alert('인수인계 내용이 저장되었습니다.');
+            document.getElementById('handoverContent').value = '';
+        }
+
+        // IT 자산 추가
+        function addITAsset() {
+            const type = prompt('자산 구분 (노트북/소프트웨어/계정):');
+            const name = prompt('모델명/제품명:');
+            const serial = prompt('시리얼번호/라이선스:');
+            
+            if (!type || !name) return;
+
+            itAssets.push({
+                id: Date.now(),
+                type,
+                name,
+                serial: serial || '-',
+                assignee: '미할당',
+                status: '사용가능'
+            });
+
+            saveData();
+            updateITAssetTable();
+        }
+
+        // IT 자산 테이블 업데이트
+        function updateITAssetTable() {
+            const tbody = document.getElementById('itAssetTable');
+            tbody.innerHTML = itAssets.map(asset => `
+                <tr>
+                    <td>${asset.type}</td>
+                    <td>${asset.name}</td>
+                    <td>${asset.serial}</td>
+                    <td>${asset.assignee}</td>
+                    <td><span class="badge badge-success">${asset.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline" onclick="deleteAsset(${asset.id})">삭제</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // IT 자산 삭제
+        function deleteAsset(id) {
+            if (confirm('삭제하시겠습니까?')) {
+                itAssets = itAssets.filter(a => a.id !== id);
+                saveData();
+                updateITAssetTable();
+            }
+        }
+
+        // 증명서 생성
+        function generateCertificate() {
+            const empId = document.getElementById('certEmpSelect').value;
+            const certType = document.getElementById('certType').value;
+            const certDate = document.getElementById('certDate').value;
+            const emp = employees.find(e => e.id == empId);
+
+            if (!emp) {
+                alert('직원을 선택해주세요.');
+                return;
+            }
+
+            // 발급일 (선택하지 않으면 오늘)
+            const selectedDate = certDate ? new Date(certDate) : new Date();
+            const today = selectedDate;
+            
+            const joinDate = new Date(emp.joinDate);
+            const years = Math.floor((today - joinDate) / (365.25 * 24 * 60 * 60 * 1000));
+            const months = Math.floor(((today - joinDate) % (365.25 * 24 * 60 * 60 * 1000)) / (30.44 * 24 * 60 * 60 * 1000));
+
+            let content = '';
+            if (certType === '재직') {
+                content = `
+                    <div class="print-area active-print" data-document-type="certificate">
+                        <div class="print-header">
+                            <h1>재 직 증 명 서</h1>
+                        </div>
+                        <div class="print-content">
+                            <p style="text-align: center; margin: 50px 0 60px 0; font-size: 13pt; line-height: 2;">
+                                아래 사람은 본 사업장에 재직 중임을 증명합니다.
+                            </p>
+                            <table style="width: 100%; margin: 50px auto; max-width: 500px; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 15px; border: 1px solid #333; background: #f8f8f8; width: 35%; font-weight: 700; font-size: 12pt;">성 명</td>
+                                    <td style="padding: 15px; border: 1px solid #333; font-size: 12pt;">${emp.name}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 15px; border: 1px solid #333; background: #f8f8f8; font-weight: 700; font-size: 12pt;">생년월일</td>
+                                    <td style="padding: 15px; border: 1px solid #333; font-size: 12pt;">${emp.birthDate || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 15px; border: 1px solid #333; background: #f8f8f8; font-weight: 700; font-size: 12pt;">부 서</td>
+                                    <td style="padding: 15px; border: 1px solid #333; font-size: 12pt;">${emp.dept || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 15px; border: 1px solid #333; background: #f8f8f8; font-weight: 700; font-size: 12pt;">직 책</td>
+                                    <td style="padding: 15px; border: 1px solid #333; font-size: 12pt;">${emp.position || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 15px; border: 1px solid #333; background: #f8f8f8; font-weight: 700; font-size: 12pt;">입사일</td>
+                                    <td style="padding: 15px; border: 1px solid #333; font-size: 12pt;">${emp.joinDate}</td>
+                                </tr>
+                            </table>
+                            <p style="text-align: center; margin: 60px 0 80px 0; font-size: 13pt; line-height: 2;">
+                                위와 같이 증명합니다.
+                            </p>
+                            <div class="print-signature" style="text-align: center;">
+                                <p style="font-size: 13pt; margin-bottom: 50px;">${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일</p>
+                                <p style="font-size: 18pt; font-weight: 700; margin-bottom: 15px;">프레스코21</p>
+                                <p style="font-size: 13pt;">대표 &nbsp;&nbsp; 이 진 선 &nbsp;&nbsp; (인)</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                content = `
+                    <div class="print-area active-print" data-document-type="certificate">
+                        <div class="print-header">
+                            <h1>경 력 증 명 서</h1>
+                        </div>
+                        <div class="print-content">
+                            <p style="text-align: center; margin: 50px 0 60px 0; font-size: 13pt; line-height: 2;">
+                                아래 사람의 경력을 증명합니다.
+                            </p>
+                            <table style="width: 100%; margin: 50px auto; max-width: 500px; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 15px; border: 1px solid #333; background: #f8f8f8; width: 35%; font-weight: 700; font-size: 12pt;">성 명</td>
+                                    <td style="padding: 15px; border: 1px solid #333; font-size: 12pt;">${emp.name}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 15px; border: 1px solid #333; background: #f8f8f8; font-weight: 700; font-size: 12pt;">생년월일</td>
+                                    <td style="padding: 15px; border: 1px solid #333; font-size: 12pt;">${emp.birthDate || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 15px; border: 1px solid #333; background: #f8f8f8; font-weight: 700; font-size: 12pt;">근무기간</td>
+                                    <td style="padding: 15px; border: 1px solid #333; font-size: 12pt;">${emp.joinDate} ~ 현재 (${years}년 ${months}개월)</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 15px; border: 1px solid #333; background: #f8f8f8; font-weight: 700; font-size: 12pt;">직 책</td>
+                                    <td style="padding: 15px; border: 1px solid #333; font-size: 12pt;">${emp.position || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 15px; border: 1px solid #333; background: #f8f8f8; font-weight: 700; font-size: 12pt;">담당업무</td>
+                                    <td style="padding: 15px; border: 1px solid #333; font-size: 12pt;">${emp.dept ? emp.dept + ' 업무 전반' : '업무 전반'}</td>
+                                </tr>
+                            </table>
+                            <p style="text-align: center; margin: 60px 0 80px 0; font-size: 13pt; line-height: 2;">
+                                위와 같이 증명합니다.
+                            </p>
+                            <div class="print-signature" style="text-align: center;">
+                                <p style="font-size: 13pt; margin-bottom: 50px;">${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일</p>
+                                <p style="font-size: 18pt; font-weight: 700; margin-bottom: 15px;">프레스코21</p>
+                                <p style="font-size: 13pt;">대표 &nbsp;&nbsp; 이 진 선 &nbsp;&nbsp; (인)</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 기존 모든 print-area에서 active-print 제거
+            clearActivePrint();
+            
+            // 기존 내용 완전히 초기화 후 새로 생성
+            const certDiv = document.getElementById('certificateView');
+            certDiv.innerHTML = content;
+            
+            // 다운로드 버튼 업데이트
+            window.currentDocument = {
+                type: certType,
+                title: `${certType === '재직' ? '재직증명서' : '경력증명서'}_${emp.name}`,
+                html: content
+            };
+        }
+
+        // 이슈 로그 저장
+        function saveIssueLog() {
+            const empId = document.getElementById('issueEmpSelect').value;
+            const type = document.getElementById('issueType').value;
+            const content = document.getElementById('issueContent').value;
+
+            const emp = employees.find(e => e.id == empId);
+
+            if (!content) {
+                alert('상세 내용을 입력하세요.');
+                return;
+            }
+
+            issueLogs.push({
+                id: Date.now(),
+                date: new Date().toLocaleDateString('ko-KR'),
+                employee: emp.name,
+                type,
+                content
+            });
+
+            saveData();
+            updateIssueTable();
+            document.getElementById('issueContent').value = '';
+            alert('이슈가 기록되었습니다.');
+        }
+
+        // 이슈 테이블 업데이트
+        function updateIssueTable() {
+            const tbody = document.getElementById('issueLogTable');
+            tbody.innerHTML = issueLogs.map(issue => `
+                <tr>
+                    <td>${issue.date}</td>
+                    <td>${issue.employee}</td>
+                    <td><span class="badge badge-warning">${issue.type}</span></td>
+                    <td>${issue.content.substring(0, 30)}...</td>
+                </tr>
+            `).join('');
+        }
+
+        // 법적 서식 생성
+        function generateLegalForm() {
+            const formType = document.getElementById('formType').value;
+            const empId = document.getElementById('formEmpSelect').value;
+            const legalFormDate = document.getElementById('legalFormDate').value;
+            const emp = employees.find(e => e.id == empId);
+
+            if (!emp) {
+                alert('직원을 선택해주세요.');
+                return;
+            }
+
+            // 서식 작성일 (선택하지 않으면 오늘)
+            const selectedDate = legalFormDate ? new Date(legalFormDate) : new Date();
+            const today = selectedDate;
+            const todayStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
+            
+            const futureDate = new Date(today);
+            futureDate.setDate(futureDate.getDate() + 30);
+            const futureDateStr = `${futureDate.getFullYear()}년 ${futureDate.getMonth() + 1}월 ${futureDate.getDate()}일`;
+
+            let content = '';
+
+            switch(formType) {
+                case '경고장':
+                    content = `
+                        <div class="print-area active-print" data-document-type="legal">
+                            <div class="print-header">
+                                <h1>경 고 장</h1>
+                            </div>
+                            <div class="print-content">
+                                <p style="margin: 30px 0; font-size: 12pt;">
+                                    <strong>수신:</strong> ${emp.name} (${emp.dept} ${emp.position})<br>
+                                    <strong>발신:</strong> 대표이사
+                                </p>
+                                <hr style="border: 1px solid #333; margin: 30px 0;">
+                                <p style="font-size: 12pt; line-height: 2; margin: 40px 0;">
+                                    귀하는 <strong style="text-decoration: underline;">[구체적 사유를 기재하시오]</strong>로 인하여 
+                                    회사의 취업규칙 제○조 (복무규정)를 위반하였습니다.
+                                </p>
+                                <p style="font-size: 12pt; line-height: 2; margin: 40px 0;">
+                                    이에 귀하에게 <strong style="color: #d00;">경고</strong>를 발하오니, 향후 동일한 행위가 
+                                    재발하지 않도록 각별히 유의하시기 바랍니다.
+                                </p>
+                                <p style="font-size: 12pt; line-height: 2; margin: 40px 0;">
+                                    만일 동일 또는 유사한 사안이 재발할 경우, 취업규칙에 따라 
+                                    <strong>감봉, 정직, 해고 등</strong>의 징계 조치가 취해질 수 있음을 알려드립니다.
+                                </p>
+                                <div class="print-signature" style="margin-top: 80px;">
+                                    <p style="text-align: right; font-size: 12pt;">${todayStr}</p>
+                                    <p style="text-align: right; font-size: 14pt; margin-top: 30px; font-weight: 700;">프레스코21</p>
+                                    <p style="text-align: right; font-size: 12pt; margin-top: 10px;">대표 이진선 (인)</p>
+                                </div>
+                                <hr style="border: 1px dashed #999; margin: 50px 0;">
+                                <p style="text-align: center; font-size: 11pt; margin: 30px 0;">위 내용을 확인하였습니다.</p>
+                                <p style="text-align: center; font-size: 12pt; margin-top: 40px;">
+                                    확인일자: __________<br><br>
+                                    확인자: ${emp.name} (인)
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case '시말서':
+                    content = `
+                        <div class="print-area active-print" data-document-type="legal">
+                            <div class="print-header">
+                                <h1>시 말 서</h1>
+                            </div>
+                            <div class="print-content">
+                                <p style="margin: 30px 0; font-size: 12pt;">
+                                    <strong>소 속:</strong> ${emp.dept}<br>
+                                    <strong>직책/성명:</strong> ${emp.position} ${emp.name}<br>
+                                    <strong>작성일자:</strong> ${todayStr}
+                                </p>
+                                <hr style="border: 1px solid #333; margin: 30px 0;">
+                                <div style="margin: 40px 0;">
+                                    <p style="font-size: 13pt; font-weight: 700; margin-bottom: 15px;">1. 사고 경위</p>
+                                    <div style="border: 1px solid #999; min-height: 150px; padding: 15px; background: #fafafa;">
+                                        <p style="color: #999; font-size: 11pt;">[구체적인 사고 경위를 상세히 기재하시오]</p>
+                                    </div>
+                                </div>
+                                <div style="margin: 40px 0;">
+                                    <p style="font-size: 13pt; font-weight: 700; margin-bottom: 15px;">2. 반성 및 개선 방안</p>
+                                    <div style="border: 1px solid #999; min-height: 150px; padding: 15px; background: #fafafa;">
+                                        <p style="color: #999; font-size: 11pt;">[반성 내용과 향후 재발 방지를 위한 개선 방안을 기재하시오]</p>
+                                    </div>
+                                </div>
+                                <div class="print-signature" style="margin-top: 80px; text-align: center;">
+                                    <p style="font-size: 12pt; margin-bottom: 50px;">${todayStr}</p>
+                                    <p style="font-size: 13pt;">작성자: <strong>${emp.name}</strong> (인)</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case '권고사직':
+                    content = `
+                        <div class="print-area active-print" data-document-type="legal">
+                            <div class="print-header">
+                                <h1>권 고 사 직 서</h1>
+                            </div>
+                            <div class="print-content">
+                                <p style="margin: 30px 0; font-size: 12pt;">
+                                    <strong>수신:</strong> ${emp.name} (${emp.dept} ${emp.position})
+                                </p>
+                                <hr style="border: 1px solid #333; margin: 30px 0;">
+                                <p style="font-size: 12pt; line-height: 2.2; margin: 40px 0;">
+                                    회사는 아래의 사유로 귀하에게 <strong>사직을 권고</strong>합니다.
+                                </p>
+                                <div style="margin: 40px 0; padding: 20px; border: 2px solid #333;">
+                                    <p style="font-size: 13pt; font-weight: 700; margin-bottom: 15px;">【 권고사직 사유 】</p>
+                                    <p style="font-size: 12pt; line-height: 2; min-height: 100px;">
+                                        [구체적 사유를 기재하시오]<br><br>
+                                        예) 업무 성과 부진, 조직 적응 실패, 경영상 필요 등
+                                    </p>
+                                </div>
+                                <p style="font-size: 12pt; line-height: 2.2; margin: 40px 0;">
+                                    귀하가 본 권고를 수용하실 경우, 아래 조건으로 퇴직 처리됩니다.
+                                </p>
+                                <table style="width: 100%; border-collapse: collapse; margin: 30px 0;">
+                                    <tr>
+                                        <td style="border: 1px solid #333; padding: 12px; background: #f0f0f0; width: 30%; font-weight: 700;">퇴직 예정일</td>
+                                        <td style="border: 1px solid #333; padding: 12px;">${futureDateStr}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #333; padding: 12px; background: #f0f0f0; font-weight: 700;">퇴직금</td>
+                                        <td style="border: 1px solid #333; padding: 12px;">근로기준법에 따라 지급</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #333; padding: 12px; background: #f0f0f0; font-weight: 700;">위로금</td>
+                                        <td style="border: 1px solid #333; padding: 12px;">별도 협의</td>
+                                    </tr>
+                                </table>
+                                <p style="font-size: 11pt; line-height: 1.8; margin: 30px 0; color: #666;">
+                                    ※ 본 권고를 수용하지 않을 경우, 회사는 취업규칙에 따른 절차를 진행할 수 있습니다.
+                                </p>
+                                <div class="print-signature" style="margin-top: 80px;">
+                                    <p style="text-align: right; font-size: 12pt;">${todayStr}</p>
+                                    <p style="text-align: right; font-size: 14pt; margin-top: 30px; font-weight: 700;">프레스코21</p>
+                                    <p style="text-align: right; font-size: 12pt; margin-top: 10px;">대표 이진선 (인)</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case '해고예고':
+                    content = `
+                        <div class="print-area active-print" data-document-type="legal">
+                            <div class="print-header">
+                                <h1>해 고 예 고 통 보 서</h1>
+                            </div>
+                            <div class="print-content">
+                                <p style="margin: 30px 0; font-size: 12pt;">
+                                    <strong>수신:</strong> ${emp.name} (${emp.dept} ${emp.position})
+                                </p>
+                                <hr style="border: 1px solid #333; margin: 30px 0;">
+                                <p style="font-size: 12pt; line-height: 2.2; margin: 40px 0;">
+                                    <strong>근로기준법 제26조</strong>에 의거하여, 귀하에게 해고를 예고합니다.
+                                </p>
+                                <table style="width: 100%; border-collapse: collapse; margin: 40px 0;">
+                                    <tr>
+                                        <td style="border: 1px solid #333; padding: 15px; background: #f0f0f0; width: 30%; font-weight: 700; font-size: 12pt;">해고 사유</td>
+                                        <td style="border: 1px solid #333; padding: 15px; font-size: 12pt;">
+                                            [구체적 사유를 기재하시오]<br>
+                                            <span style="font-size: 10pt; color: #666;">
+                                            예) 취업규칙 제○조 위반, 무단결근 ○일, 업무상 중대한 과실 등
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #333; padding: 15px; background: #f0f0f0; font-weight: 700; font-size: 12pt;">통보일</td>
+                                        <td style="border: 1px solid #333; padding: 15px; font-size: 12pt;">${todayStr}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #333; padding: 15px; background: #f0f0f0; font-weight: 700; font-size: 12pt;">해고 예정일</td>
+                                        <td style="border: 1px solid #333; padding: 15px; font-size: 12pt;"><strong style="color: #d00;">${futureDateStr}</strong> (통보일로부터 30일 후)</td>
+                                    </tr>
+                                </table>
+                                <div style="border: 2px solid #d00; padding: 20px; margin: 40px 0; background: #fff5f5;">
+                                    <p style="font-size: 13pt; font-weight: 700; margin-bottom: 15px; color: #d00;">【 이의 신청 안내 】</p>
+                                    <p style="font-size: 11pt; line-height: 2;">
+                                        • 본 통보에 이의가 있을 경우, <strong>통보일로부터 7일 이내</strong>에 이의신청서를 제출하시기 바랍니다.<br>
+                                        • 이의신청서는 인사팀에 서면으로 제출하여야 합니다.<br>
+                                        • 정당한 사유 없이 기한 내 이의신청을 하지 않을 경우, 본 통보 내용에 동의한 것으로 간주합니다.
+                                    </p>
+                                </div>
+                                <p style="font-size: 11pt; line-height: 1.8; margin: 30px 0; color: #666;">
+                                    ※ 근로기준법 제26조: 사용자는 근로자를 해고하려면 적어도 30일 전에 예고하거나, 
+                                    30일분 이상의 통상임금을 지급하여야 한다.
+                                </p>
+                                <div class="print-signature" style="margin-top: 80px;">
+                                    <p style="text-align: right; font-size: 12pt;">${todayStr}</p>
+                                    <p style="text-align: right; font-size: 14pt; margin-top: 30px; font-weight: 700;">프레스코21</p>
+                                    <p style="text-align: right; font-size: 12pt; margin-top: 10px;">대표 이진선 (인)</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+
+            // 기존 모든 print-area에서 active-print 제거
+            clearActivePrint();
+            
+            // 기존 내용 완전히 초기화 후 새로 생성
+            const formDiv = document.getElementById('legalFormView');
+            formDiv.innerHTML = content;
+            
+            // 다운로드 버튼 업데이트
+            const formTitles = {
+                '경고장': '경고장',
+                '시말서': '시말서',
+                '권고사직': '권고사직서',
+                '해고예고': '해고예고통보서'
+            };
+            window.currentDocument = {
+                type: 'legal',
+                title: `${formTitles[formType]}_${emp.name}`,
+                html: content
+            };
+        }
+
+        // 건강검진 대상자 확인
+        function checkHealthExam() {
+            const currentYear = new Date().getFullYear();
+            const targets = employees.filter(emp => {
+                const birthYear = new Date(emp.birthDate).getFullYear();
+                return birthYear % 2 === currentYear % 2;
+            });
+
+            const html = targets.length > 0 ? `
+                <div class="result-box warning">
+                    <h4>📋 ${currentYear}년 건강검진 대상자 (${targets.length}명)</h4>
+                    <ul style="margin-top: 15px; line-height: 2;">
+                        ${targets.map(emp => `<li>${emp.name} (${emp.dept}) - 출생: ${emp.birthDate}</li>`).join('')}
+                    </ul>
+                    <p style="margin-top: 15px; font-size: 13px; color: var(--text-light);">
+                        ※ 일반 건강검진은 출생연도 기준 홀/짝수년에 실시합니다.
+                    </p>
+                </div>
+            ` : `
+                <div class="result-box">
+                    <p>✅ ${currentYear}년도 건강검진 대상자가 없습니다.</p>
+                </div>
+            `;
+
+            document.getElementById('healthExamList').innerHTML = html;
+        }
+
+        // 경조사 계산
+        function calculateEvent() {
+            const eventType = document.getElementById('eventType').value;
+            
+            const events = {
+                '본인결혼': { leave: 5, support: 500000 },
+                '자녀결혼': { leave: 1, support: 300000 },
+                '부모상': { leave: 5, support: 300000 },
+                '배우자부모상': { leave: 3, support: 200000 },
+                '출산': { leave: 10, support: 0 }
+            };
+
+            const event = events[eventType];
+
+            document.getElementById('eventResult').innerHTML = `
+                <div class="result-box success">
+                    <div class="result-item">
+                        <span class="result-label">경조휴가</span>
+                        <span class="result-value">${event.leave}일</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">경조금 지원</span>
+                        <span class="result-value">${event.support.toLocaleString()}원</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 이슈 로그 추가
+        function addIssueLog() {
+            alert('이슈 정보를 입력한 후 저장 버튼을 클릭하세요.');
+        }
+
+        // ========== 서식 겹침 방지 ==========
+        
+        // 모든 print-area에서 active-print 클래스 제거
+        function clearActivePrint() {
+            document.querySelectorAll('.print-area').forEach(area => {
+                area.classList.remove('active-print');
+            });
+        }
+
+        // 워드로 편집 가능한 HTML 파일 다운로드 (A4 최적화)
+        function downloadAsWord() {
+            if (!window.currentDocument) {
+                alert('먼저 서식을 생성해주세요.');
+                return;
+            }
+
+            const fullHtml = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${window.currentDocument.title}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: '맑은 고딕', 'Malgun Gothic', Arial, sans-serif;
+            width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            font-size: 12pt;
+            line-height: 1.8;
+            color: #000;
+            background: white;
+        }
+        .print-area {
+            width: 100%;
+            min-height: auto;
+            padding: 0;
+            margin: 0;
+            background: white;
+        }
+        .print-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid black;
+            padding-bottom: 15px;
+        }
+        .print-header h1 {
+            font-size: 28pt;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        .print-header p {
+            font-size: 12pt;
+            margin: 5px 0;
+        }
+        .print-content {
+            font-size: 12pt;
+            line-height: 2;
+        }
+        .print-content p {
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            table-layout: fixed;
+        }
+        table th, table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+            font-size: 11pt;
+            word-wrap: break-word;
+        }
+        table th {
+            background-color: #f0f0f0;
+            font-weight: 700;
+        }
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .print-table th, .print-table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+            font-size: 11pt;
+        }
+        .print-table th {
+            background-color: #f0f0f0;
+            font-weight: 700;
+        }
+        .print-signature {
+            margin-top: 50px;
+            text-align: right;
+            font-size: 12pt;
+        }
+        .print-signature p {
+            margin: 15px 0;
+            line-height: 1.8;
+        }
+        hr {
+            border: 1px solid #333;
+            margin: 20px 0;
+        }
+        strong {
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    ${window.currentDocument.html.replace(/class="print-area active-print"/g, 'class="print-area"').replace(/data-document-type="[^"]*"/g, '')}
+</body>
+</html>`;
+
+            const blob = new Blob([fullHtml], { type: 'application/msword;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${window.currentDocument.title}.doc`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            alert('✅ 워드 파일이 다운로드되었습니다!\n\n• MS Word에서 열어서 편집 가능\n• 한글(HWP)에서도 열림\n• A4 용지에 최적화되어 있습니다');
+        }
+
+        // ========== 급여 계산 고도화 ==========
+
+        // 직원 선택 시 급여 정보 자동 로드
+        function loadEmployeeSalary() {
+            const empId = document.getElementById('payslipEmp').value;
+            const emp = employees.find(e => e.id == empId);
+            
+            if (emp && emp.salary) {
+                // 기본급을 총 급여의 70%로 가정
+                const basicSalary = Math.floor(emp.salary * 0.7);
+                document.getElementById('payBasic').value = basicSalary;
+            }
+        }
+
+        // 급여명세서 생성
+        function generatePayslip() {
+            const empId = document.getElementById('payslipEmp').value;
+            const month = document.getElementById('payslipMonth').value;
+            const payslipDate = document.getElementById('payslipDate').value;
+            const basicPay = parseInt(document.getElementById('payBasic').value) || 0;
+            const overtimePay = parseInt(document.getElementById('payOvertime').value) || 0;
+            const mealAllowance = parseInt(document.getElementById('payMeal').value) || 0;
+            const etcPay = parseInt(document.getElementById('payEtc').value) || 0;
+
+            const emp = employees.find(e => e.id == empId);
+            if (!emp) {
+                alert('직원을 선택해주세요.');
+                return;
+            }
+
+            // 발급일 (선택하지 않으면 오늘)
+            const selectedDate = payslipDate ? new Date(payslipDate) : new Date();
+
+            // 과세 대상 급여
+            const taxableIncome = basicPay + overtimePay + etcPay;
+            const totalIncome = taxableIncome + mealAllowance;
+
+            // 4대보험 계산 (2026년 기준 예상 요율)
+            const nationalPension = Math.floor(taxableIncome * 0.045); // 국민연금 4.5%
+            const healthInsurance = Math.floor(taxableIncome * 0.03545); // 건강보험 3.545%
+            const longTermCare = Math.floor(healthInsurance * 0.1295); // 장기요양 12.95%
+            const employmentIns = Math.floor(taxableIncome * 0.009); // 고용보험 0.9%
+
+            const totalInsurance = nationalPension + healthInsurance + longTermCare + employmentIns;
+
+            // 간이세액 계산 (단순화된 계산식)
+            let incomeTax = 0;
+            const monthlyTaxable = taxableIncome - totalInsurance; // 소득공제 후
+            
+            // 간이세액표 적용 (부양가족 1명 가정)
+            if (monthlyTaxable > 0) {
+                if (monthlyTaxable <= 1060000) incomeTax = 0;
+                else if (monthlyTaxable <= 2060000) incomeTax = Math.floor((monthlyTaxable - 1060000) * 0.06);
+                else if (monthlyTaxable <= 4060000) incomeTax = 60000 + Math.floor((monthlyTaxable - 2060000) * 0.15);
+                else if (monthlyTaxable <= 8860000) incomeTax = 360000 + Math.floor((monthlyTaxable - 4060000) * 0.24);
+                else incomeTax = 1512000 + Math.floor((monthlyTaxable - 8860000) * 0.35);
+            }
+
+            const localIncomeTax = Math.floor(incomeTax * 0.1); // 지방소득세 10%
+            const totalTax = incomeTax + localIncomeTax;
+
+            // 총 공제액
+            const totalDeduction = totalInsurance + totalTax;
+
+            // 실수령액
+            const netPay = totalIncome - totalDeduction;
+
+            // 날짜 포맷
+            const today = new Date();
+            const [year, monthNum] = month.split('-');
+
+            const html = `
+                <div class="print-area active-print" data-document-type="payslip">
+                    <div class="print-header">
+                        <h1>급 여 명 세 서</h1>
+                        <p style="font-size: 12pt; margin-top: 10px;">${year}년 ${monthNum}월분</p>
+                    </div>
+                    <div class="print-content">
+                        <table style="width: 100%; border-collapse: collapse; margin: 30px 0;">
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #333; background: #f8f8f8; width: 20%; font-weight: 700;">성명</td>
+                                <td style="padding: 12px; border: 1px solid #333; width: 30%;">${emp.name}</td>
+                                <td style="padding: 12px; border: 1px solid #333; background: #f8f8f8; width: 20%; font-weight: 700;">부서</td>
+                                <td style="padding: 12px; border: 1px solid #333; width: 30%;">${emp.dept || '-'}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #333; background: #f8f8f8; font-weight: 700;">직책</td>
+                                <td style="padding: 12px; border: 1px solid #333;">${emp.position || '-'}</td>
+                                <td style="padding: 12px; border: 1px solid #333; background: #f8f8f8; font-weight: 700;">지급일</td>
+                                <td style="padding: 12px; border: 1px solid #333;">${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일</td>
+                            </tr>
+                        </table>
+
+                        <h3 style="margin: 30px 0 15px; padding-bottom: 10px; border-bottom: 2px solid #333;">💰 지급 내역</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 700;">기본급</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${basicPay.toLocaleString()}원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 700;">연장근로수당</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${overtimePay.toLocaleString()}원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 700;">기타수당</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${etcPay.toLocaleString()}원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 700;">식대 (비과세)</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${mealAllowance.toLocaleString()}원</td>
+                            </tr>
+                            <tr style="background: #f0f0f0;">
+                                <td style="padding: 12px; border: 2px solid #333; font-weight: 700; font-size: 13pt;">지급 총액</td>
+                                <td style="padding: 12px; border: 2px solid #333; text-align: right; font-weight: 700; font-size: 13pt; color: #2563eb;">${totalIncome.toLocaleString()}원</td>
+                            </tr>
+                        </table>
+
+                        <h3 style="margin: 30px 0 15px; padding-bottom: 10px; border-bottom: 2px solid #333;">📉 공제 내역</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 700;">국민연금 (4.5%)</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${nationalPension.toLocaleString()}원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 700;">건강보험 (3.545%)</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${healthInsurance.toLocaleString()}원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 700;">장기요양보험 (12.95%)</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${longTermCare.toLocaleString()}원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 700;">고용보험 (0.9%)</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${employmentIns.toLocaleString()}원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 700;">소득세</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${incomeTax.toLocaleString()}원</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 700;">지방소득세</td>
+                                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${localIncomeTax.toLocaleString()}원</td>
+                            </tr>
+                            <tr style="background: #fff5f5;">
+                                <td style="padding: 12px; border: 2px solid #333; font-weight: 700; font-size: 13pt;">공제 총액</td>
+                                <td style="padding: 12px; border: 2px solid #333; text-align: right; font-weight: 700; font-size: 13pt; color: #ef4444;">${totalDeduction.toLocaleString()}원</td>
+                            </tr>
+                        </table>
+
+                        <table style="width: 100%; border-collapse: collapse; margin: 40px 0 20px;">
+                            <tr style="background: #dbeafe;">
+                                <td style="padding: 20px; border: 3px solid #2563eb; font-weight: 700; font-size: 16pt; text-align: center;">실 수 령 액</td>
+                                <td style="padding: 20px; border: 3px solid #2563eb; font-weight: 700; font-size: 20pt; text-align: right; color: #2563eb;">${netPay.toLocaleString()}원</td>
+                            </tr>
+                        </table>
+
+                        <p style="font-size: 10pt; color: #666; margin-top: 30px;">
+                            ※ 본 명세서는 ${year}년 ${monthNum}월분 급여 지급 내역입니다.<br>
+                            ※ 4대보험 요율 및 간이세액은 2026년 기준으로 계산되었습니다.<br>
+                            ※ 문의사항은 인사팀으로 연락 바랍니다.
+                        </p>
+
+                        <div class="print-signature" style="margin-top: 60px; text-align: center;">
+                            <p style="font-size: 14pt; font-weight: 700;">프레스코21</p>
+                            <p style="font-size: 12pt; margin-top: 10px;">대표 이진선</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 기존 모든 print-area에서 active-print 제거
+            clearActivePrint();
+            
+            // 기존 내용 완전히 초기화 후 새로 생성
+            const payslipDiv = document.getElementById('payslipView');
+            payslipDiv.innerHTML = html;
+            
+            // 다운로드 버튼 업데이트
+            window.currentDocument = {
+                type: 'payslip',
+                title: `급여명세서_${emp.name}_${year}년${monthNum}월`,
+                html: html
+            };
+        }
+
+        // ========== 실제 근태 관리 기능 ==========
+        
+        // 근태 탭 전환
+        function switchAttTab(tabId) {
+            document.querySelectorAll('#attendance .tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('#attendance .tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+
+            // 셀렉트 박스 업데이트
+            updateAllSelects();
+            
+            // 현재 날짜 설정
+            const today = new Date().toISOString().split('T')[0];
+            if (document.getElementById('attCheckDate')) {
+                document.getElementById('attCheckDate').value = today;
+            }
+            if (document.getElementById('leaveStart')) {
+                document.getElementById('leaveStart').value = today;
+                document.getElementById('leaveEnd').value = today;
+            }
+            if (document.getElementById('historyMonth')) {
+                document.getElementById('historyMonth').value = today.substring(0, 7);
+            }
+
+            // 연차 현황 업데이트
+            if (tabId === 'leaveManage') {
+                updateLeaveStatus();
+            }
+        }
+
+        // 출퇴근 기록
+        function recordAttendance() {
+            const empId = document.getElementById('attCheckEmp').value;
+            const date = document.getElementById('attCheckDate').value;
+            const checkIn = document.getElementById('checkInTime').value;
+            const checkOut = document.getElementById('checkOutTime').value;
+            const note = document.getElementById('attNote').value;
+
+            const emp = employees.find(e => e.id == empId);
+            if (!emp) {
+                alert('직원을 선택해주세요.');
+                return;
+            }
+
+            if (!date || !checkIn || !checkOut) {
+                alert('날짜와 시간을 모두 입력해주세요.');
+                return;
+            }
+
+            // 근무 시간 계산
+            const checkInDate = new Date(`${date}T${checkIn}`);
+            const checkOutDate = new Date(`${date}T${checkOut}`);
+            const workHours = (checkOutDate - checkInDate) / (1000 * 60 * 60);
+
+            if (!emp.attendanceRecords) emp.attendanceRecords = [];
+
+            // 기존 기록 확인
+            const existingIndex = emp.attendanceRecords.findIndex(r => r.date === date);
+            const record = {
+                date,
+                checkIn,
+                checkOut,
+                workHours: workHours.toFixed(1),
+                note
+            };
+
+            if (existingIndex >= 0) {
+                emp.attendanceRecords[existingIndex] = record;
+                alert('✅ 출퇴근 기록이 수정되었습니다.');
+            } else {
+                emp.attendanceRecords.push(record);
+                alert('✅ 출퇴근 기록이 저장되었습니다.');
+            }
+
+            saveData();
+            document.getElementById('attNote').value = '';
+        }
+
+        // 연차 사용 기록
+        function recordLeave() {
+            const empId = document.getElementById('leaveEmp').value;
+            const leaveType = document.getElementById('leaveType').value;
+            const startDate = document.getElementById('leaveStart').value;
+            const endDate = document.getElementById('leaveEnd').value;
+            const reason = document.getElementById('leaveReason').value;
+
+            const emp = employees.find(e => e.id == empId);
+            if (!emp) {
+                alert('직원을 선택해주세요.');
+                return;
+            }
+
+            if (!startDate || !endDate) {
+                alert('시작일과 종료일을 입력해주세요.');
+                return;
+            }
+
+            // 일수 계산
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            let days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+            // 반차면 0.5일
+            if (leaveType === '반차') {
+                days = 0.5;
+            }
+
+            if (!emp.leaveRecords) emp.leaveRecords = [];
+            if (!emp.usedLeave) emp.usedLeave = 0;
+
+            emp.leaveRecords.push({
+                id: Date.now(),
+                type: leaveType,
+                startDate,
+                endDate,
+                days,
+                reason,
+                date: new Date().toISOString()
+            });
+
+            // 연차/반차만 차감
+            if (leaveType === '연차' || leaveType === '반차') {
+                emp.usedLeave += days;
+            }
+
+            saveData();
+            updateLeaveStatus();
+            
+            document.getElementById('leaveReason').value = '';
+            alert(`✅ ${leaveType} ${days}일이 기록되었습니다.`);
+        }
+
+        // 연차 현황 업데이트
+        function updateLeaveStatus() {
+            const empId = document.getElementById('leaveEmp').value;
+            const emp = employees.find(e => e.id == empId);
+            
+            if (!emp) return;
+
+            const totalLeave = emp.annualLeave || 15;
+            const usedLeave = emp.usedLeave || 0;
+            const remainLeave = totalLeave - usedLeave;
+
+            let html = `
+                <div class="result-box ${remainLeave < 3 ? 'danger' : 'success'}">
+                    <h4 style="margin-bottom: 15px;">${emp.name}님의 연차 현황</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                        <div>
+                            <div style="color: var(--text-light); font-size: 13px;">총 연차</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--primary);">${totalLeave}일</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-light); font-size: 13px;">사용</div>
+                            <div style="font-size: 28px; font-weight: 700; color: var(--warning);">${usedLeave}일</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-light); font-size: 13px;">잔여</div>
+                            <div style="font-size: 28px; font-weight: 700; color: ${remainLeave < 3 ? 'var(--danger)' : 'var(--success)'};">${remainLeave}일</div>
+                        </div>
+                    </div>
+            `;
+
+            // 연차 사용 이력
+            if (emp.leaveRecords && emp.leaveRecords.length > 0) {
+                html += `
+                    <div style="margin-top: 30px;">
+                        <h5 style="margin-bottom: 15px;">📋 최근 사용 내역</h5>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>종류</th>
+                                    <th>기간</th>
+                                    <th>일수</th>
+                                    <th>사유</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                emp.leaveRecords.slice(-10).reverse().forEach(leave => {
+                    html += `
+                        <tr>
+                            <td><span class="badge badge-primary">${leave.type}</span></td>
+                            <td>${leave.startDate}${leave.endDate !== leave.startDate ? ' ~ ' + leave.endDate : ''}</td>
+                            <td>${leave.days}일</td>
+                            <td>${leave.reason || '-'}</td>
+                            <td><button class="btn btn-sm btn-danger" onclick="deleteLeave(${emp.id}, ${leave.id})">삭제</button></td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+            document.getElementById('leaveStatus').innerHTML = html;
+        }
+
+        // 연차 기록 삭제
+        function deleteLeave(empId, leaveId) {
+            if (!confirm('이 연차 기록을 삭제하시겠습니까?')) return;
+
+            const emp = employees.find(e => e.id == empId);
+            if (!emp) return;
+
+            const leaveIndex = emp.leaveRecords.findIndex(l => l.id == leaveId);
+            if (leaveIndex >= 0) {
+                const leave = emp.leaveRecords[leaveIndex];
+                
+                // 연차/반차면 사용일수 복구
+                if (leave.type === '연차' || leave.type === '반차') {
+                    emp.usedLeave -= leave.days;
+                }
+
+                emp.leaveRecords.splice(leaveIndex, 1);
+                saveData();
+                updateLeaveStatus();
+                alert('✅ 연차 기록이 삭제되었습니다.');
+            }
+        }
+
+        // 근태 이력 조회
+        function loadAttHistory() {
+            const empId = document.getElementById('historyEmp').value;
+            const month = document.getElementById('historyMonth').value;
+            
+            const emp = employees.find(e => e.id == empId);
+            if (!emp || !emp.attendanceRecords) {
+                document.getElementById('attHistoryTable').innerHTML = '<p style="color: var(--text-light); text-align: center; padding: 40px;">근태 기록이 없습니다.</p>';
+                return;
+            }
+
+            const records = emp.attendanceRecords.filter(r => r.date.startsWith(month));
+
+            if (records.length === 0) {
+                document.getElementById('attHistoryTable').innerHTML = '<p style="color: var(--text-light); text-align: center; padding: 40px;">해당 월의 근태 기록이 없습니다.</p>';
+                return;
+            }
+
+            let totalHours = 0;
+            let html = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>날짜</th>
+                            <th>출근</th>
+                            <th>퇴근</th>
+                            <th>근무시간</th>
+                            <th>비고</th>
+                            <th>관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            records.sort((a, b) => b.date.localeCompare(a.date)).forEach(record => {
+                totalHours += parseFloat(record.workHours);
+                html += `
+                    <tr>
+                        <td>${record.date}</td>
+                        <td>${record.checkIn}</td>
+                        <td>${record.checkOut}</td>
+                        <td><strong>${record.workHours}h</strong></td>
+                        <td>${record.note || '-'}</td>
+                        <td><button class="btn btn-sm btn-danger" onclick="deleteAttendance(${emp.id}, '${record.date}')">삭제</button></td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                    <tfoot>
+                        <tr style="background: var(--bg); font-weight: 700;">
+                            <td colspan="3">총 근무일수: ${records.length}일</td>
+                            <td colspan="3">총 근무시간: ${totalHours.toFixed(1)}h</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+
+            document.getElementById('attHistoryTable').innerHTML = html;
+        }
+
+        // 출퇴근 기록 삭제
+        function deleteAttendance(empId, date) {
+            if (!confirm('이 출퇴근 기록을 삭제하시겠습니까?')) return;
+
+            const emp = employees.find(e => e.id == empId);
+            if (!emp) return;
+
+            const index = emp.attendanceRecords.findIndex(r => r.date === date);
+            if (index >= 0) {
+                emp.attendanceRecords.splice(index, 1);
+                saveData();
+                loadAttHistory();
+                alert('✅ 출퇴근 기록이 삭제되었습니다.');
+            }
+        }
+
+        // ========== 데이터 백업/복원 기능 ==========
+        
+        // 데이터 내보내기 (JSON)
+        function exportData() {
+            const exportData = {
+                version: '10.0',
+                exportDate: new Date().toISOString(),
+                employees: employees,
+                kanbanTasks: kanbanTasks,
+                meetingLogs: meetingLogs,
+                issueLogs: issueLogs,
+                itAssets: itAssets,
+                handovers: handovers
+            };
+
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `HR-Backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            alert('✅ 백업 파일이 다운로드되었습니다!');
+        }
+
+        // 데이터 가져오기 (JSON)
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (!importedData.version) {
+                        alert('⚠️ 올바른 백업 파일이 아닙니다.');
+                        return;
+                    }
+
+                    if (confirm('⚠️ 현재 데이터가 모두 대체됩니다. 계속하시겠습니까?')) {
+                        employees = importedData.employees || [];
+                        kanbanTasks = importedData.kanbanTasks || [];
+                        meetingLogs = importedData.meetingLogs || [];
+                        issueLogs = importedData.issueLogs || [];
+                        itAssets = importedData.itAssets || [];
+                        handovers = importedData.handovers || [];
+
+                        saveData();
+                        updateDashboard();
+                        updateEmployeeTable();
+                        updateAllSelects();
+                        updateDataCount();
+                        updateKanban();
+                        updateIssueTable();
+                        updateITAssetTable();
+
+                        alert('✅ 데이터를 성공적으로 불러왔습니다!');
+                    }
+                } catch (error) {
+                    alert('❌ 파일을 읽는 중 오류가 발생했습니다: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // 파일 input 초기화
+            event.target.value = '';
+        }
+
+        // 전체 데이터 초기화
+        function resetAllData() {
+            if (confirm('⚠️⚠️⚠️ 정말로 모든 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다!')) {
+                if (confirm('⚠️ 마지막 확인: 백업하셨습니까?')) {
+                    localStorage.clear();
+                    employees = [];
+                    kanbanTasks = [];
+                    meetingLogs = [];
+                    issueLogs = [];
+                    itAssets = [];
+                    handovers = [];
+                    
+                    saveData();
+                    location.reload();
+                }
+            }
+        }
+
+        // 데이터 현황 업데이트
+        function updateDataCount() {
+            if (document.getElementById('dataCountEmp')) {
+                document.getElementById('dataCountEmp').textContent = employees.length;
+                document.getElementById('dataCountKanban').textContent = kanbanTasks.length;
+                document.getElementById('dataCountIssue').textContent = issueLogs.length;
+            }
+        }
+
+        // ========== V11 Enhanced 신규 기능 ==========
+        
+        // 은행 이체용 엑셀 다운로드
+        function downloadBankTransferExcel() {
+            if (employees.length === 0) {
+                alert('등록된 직원이 없습니다.');
+                return;
+            }
+            
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth() + 1;
+            
+            // 엑셀 데이터 생성
+            const data = employees.map(emp => {
+                // 프리랜서는 3.3% 원천징수
+                let netPay = emp.baseSalary || 0;
+                if (emp.empType === '프리랜서') {
+                    const withholdingTax = Math.floor(netPay * 0.033);
+                    netPay = netPay - withholdingTax;
+                }
+                
+                return {
+                    '이름': emp.name,
+                    '부서': emp.dept || '-',
+                    '계좌번호': emp.bankAccount || '미등록',
+                    '은행명': emp.bankName || '-',
+                    '이체금액': netPay,
+                    '비고': `${month}월 급여`
+                };
+            });
+            
+            // XLSX 생성
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "급여이체");
+            
+            // 다운로드
+            XLSX.writeFile(wb, `급여이체_${year}년${month}월.xlsx`);
+            alert(`✅ 은행 이체용 엑셀 파일이 다운로드되었습니다!\n\n파일명: 급여이체_${year}년${month}월.xlsx`);
+        }
+        
+        // 안전점검 출근 기록
+        function recordSafetyCheckIn(empId) {
+            const emp = employees.find(e => e.id == empId);
+            if (!emp) return;
+            
+            const checks = [];
+            document.querySelectorAll('.safety-checkbox:checked').forEach(cb => {
+                checks.push(cb.value);
+            });
+            
+            if (checks.length < 3) {
+                alert('⚠️ 안전점검을 최소 3개 이상 체크해주세요!\n(중대재해처벌법 대응)');
+                return false;
+            }
+            
+            const today = new Date();
+            const timeStr = `${String(today.getHours()).padStart(2,'0')}:${String(today.getMinutes()).padStart(2,'0')}`;
+            
+            safetyChecks.push({
+                id: Date.now(),
+                empId: empId,
+                empName: emp.name,
+                date: today.toISOString().split('T')[0],
+                time: timeStr,
+                checks: checks,
+                timestamp: today.toISOString()
+            });
+            
+            saveData();
+            alert(`✅ ${emp.name}님 출근 처리 완료!\n\n안전점검 ${checks.length}개 항목 기록됨:\n${checks.map((c, i) => `${i+1}. ${c}`).join('\n')}`);
+            return true;
+        }
+        
+        // 소모품 요청 추가
+        function addSupplyRequest() {
+            const empId = prompt('직원 ID를 입력하세요 (숫자):');
+            const emp = employees.find(e => e.id == parseInt(empId));
+            
+            if (!emp) {
+                alert('직원을 찾을 수 없습니다.');
+                return;
+            }
+            
+            const item = prompt('필요한 소모품명을 입력하세요:\n(예: 코팅장갑, 박스테이프, 안전모 등)');
+            if (!item) return;
+            
+            const qty = prompt('수량을 입력하세요:', '10');
+            if (!qty) return;
+            
+            supplies.push({
+                id: Date.now(),
+                empId: emp.id,
+                empName: emp.name,
+                item: item,
+                qty: parseInt(qty),
+                status: 'pending',
+                date: new Date().toISOString().split('T')[0]
+            });
+            
+            saveData();
+            alert(`✅ 소모품 요청이 등록되었습니다!\n\n요청자: ${emp.name}\n품목: ${item}\n수량: ${qty}개\n\n관리자가 승인할 때까지 대기합니다.`);
+            updateSupplyList();
+        }
+        
+        // 소모품 목록 업데이트
+        function updateSupplyList() {
+            const supplyTable = document.getElementById('supplyTable');
+            if (!supplyTable) return;
+            
+            const pending = supplies.filter(s => s.status === 'pending');
+            const approved = supplies.filter(s => s.status === 'approved');
+            
+            let html = '<h4 style="margin-top:20px;">📦 승인 대기 중 (' + pending.length + '건)</h4>';
+            if (pending.length > 0) {
+                html += '<div style="margin-top:10px;">';
+                pending.forEach(s => {
+                    html += `
+                        <div class="alert-card warning" style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <strong>${s.empName}</strong> - ${s.item} (${s.qty}개)
+                                <br><small>${s.date}</small>
+                            </div>
+                            <button class="btn btn-sm btn-success" onclick="approveSupply(${s.id})">구매 완료</button>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else {
+                html += '<p style="color:var(--text-light); margin-top:10px;">대기 중인 요청이 없습니다.</p>';
+            }
+            
+            html += '<h4 style="margin-top:30px;">✅ 처리 완료 (' + approved.length + '건)</h4>';
+            if (approved.length > 0) {
+                html += '<div style="margin-top:10px;">';
+                approved.slice(0, 5).forEach(s => {
+                    html += `
+                        <div class="alert-card success">
+                            <strong>${s.empName}</strong> - ${s.item} (${s.qty}개) - ${s.date}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            supplyTable.innerHTML = html;
+        }
+        
+        // 소모품 승인
+        function approveSupply(id) {
+            const supply = supplies.find(s => s.id === id);
+            if (supply) {
+                supply.status = 'approved';
+                saveData();
+                alert('✅ 구매 완료 처리되었습니다!');
+                updateSupplyList();
+            }
+        }
+        
+        // 자동 반복 업무 생성
+        function generateRecurringTasks() {
+            const today = new Date();
+            const day = today.getDate();
+            const month = today.getMonth() + 1;
+            
+            // 매월 10일: 원천세 신고
+            if (day === 10) {
+                const exists = kanbanTasks.some(t => t.title.includes(`${month}월 원천세 신고`));
+                if (!exists) {
+                    kanbanTasks.push({
+                        id: Date.now(),
+                        title: `${month}월 원천세 신고 (매월 10일)`,
+                        assignee: '관리자',
+                        status: 'todo'
+                    });
+                }
+            }
+            
+            // 매월 25일: 급여 이체
+            if (day === 25) {
+                const exists = kanbanTasks.some(t => t.title.includes(`${month}월 급여 이체`));
+                if (!exists) {
+                    kanbanTasks.push({
+                        id: Date.now() + 1,
+                        title: `${month}월 급여 이체 (매월 25일)`,
+                        assignee: '관리자',
+                        status: 'todo'
+                    });
+                }
+            }
+            
+            // 분기말: 부가세 신고
+            if ([3, 6, 9, 12].includes(month) && day === 25) {
+                const quarter = Math.ceil(month / 3);
+                const exists = kanbanTasks.some(t => t.title.includes(`${quarter}분기 부가세`));
+                if (!exists) {
+                    kanbanTasks.push({
+                        id: Date.now() + 2,
+                        title: `${quarter}분기 부가세 신고`,
+                        assignee: '관리자',
+                        status: 'todo'
+                    });
+                }
+            }
+            
+            saveData();
+            updateKanban();
+        }
+
+        // ========== 자동 백업 기능 ==========
+        // 30분마다 자동 백업 (localStorage에 별도 저장)
+        setInterval(function() {
+            const autoBackup = {
+                timestamp: new Date().toISOString(),
+                data: {
+                    employees: employees,
+                    kanbanTasks: kanbanTasks,
+                    meetingLogs: meetingLogs,
+                    issueLogs: issueLogs,
+                    itAssets: itAssets,
+                    handovers: handovers,
+                    supplies: supplies,
+                    safetyChecks: safetyChecks,
+                    grants: grants
+                }
+            };
+            localStorage.setItem('hrAutoBackup', JSON.stringify(autoBackup));
+        }, 30 * 60 * 1000); // 30분
+
+        // 페이지 로드 시 데이터 현황 업데이트
+        document.addEventListener('DOMContentLoaded', function() {
+            // 기존 초기화
+            loadData();
+            initializeSampleData();
+            updateDashboard();
+            updateAllSelects();
+            updateEmployeeTable();
+            updateDataCount();
+            document.getElementById('todayDate').textContent = new Date().toLocaleDateString('ko-KR');
+            
+            // 날짜 입력 필드 오늘 날짜로 초기화
+            const today = new Date().toISOString().split('T')[0];
+            const dateInputs = ['attDocDate', 'certDate', 'payslipDate', 'legalFormDate'];
+            dateInputs.forEach(id => {
+                const elem = document.getElementById(id);
+                if (elem) elem.value = today;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+/*
+╔═══════════════════════════════════════════════════════════════╗
+║  한진택배 배송조회 모달 스타일 (선택적 추가)                    ║
+║  프레스코21 브랜드 컬러 시스템 적용                            ║
+╚═══════════════════════════════════════════════════════════════╝
+*/
+
+/* =====================================================
+   1. 모달 배경 (Backdrop)
+   ===================================================== */
+.myp-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(44, 44, 44, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.myp-modal-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* =====================================================
+   2. 모달 컨테이너
+   ===================================================== */
+.myp-modal {
+    position: relative;
+    background: #FFFFFF;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(123, 142, 126, 0.3);
+    max-width: 600px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 0;
+    transform: scale(0.9) translateY(-20px);
+    transition: transform 0.3s ease;
+    z-index: 9999;
+}
+
+.myp-modal-backdrop.active .myp-modal {
+    transform: scale(1) translateY(0);
+}
+
+/* =====================================================
+   3. 모달 헤더
+   ===================================================== */
+.myp-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    border-bottom: 2px solid #E5E3DC;
+    background: linear-gradient(135deg, #F9F8F5 0%, #FFFFFF 100%);
+    border-radius: 16px 16px 0 0;
+}
+
+.myp-modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2C2C2C;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.myp-modal-title svg {
+    stroke: #7B8E7E;
+}
+
+.myp-modal-close {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.myp-modal-close:hover {
+    background: #F9F8F5;
+    transform: rotate(90deg);
+}
+
+.myp-modal-close svg {
+    stroke: #666666;
+}
+
+/* =====================================================
+   4. 모달 본문
+   ===================================================== */
+.myp-modal-body {
+    padding: 32px;
+}
+
+/* 배송 기본 정보 */
+.myp-tracking-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: linear-gradient(135deg, #F9F8F5 0%, #FFFEF9 100%);
+    border-radius: 12px;
+    border: 1px solid #E5E3DC;
+}
+
+.myp-tracking-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.myp-tracking-label {
+    font-size: 0.875rem;
+    color: #666666;
+    font-weight: 500;
+}
+
+.myp-tracking-value {
+    font-size: 1.125rem;
+    color: #2C2C2C;
+    font-weight: 700;
+}
+
+.myp-tracking-value.highlight {
+    color: #7B8E7E;
+    font-size: 1.375rem;
+}
+
+/* 배송 현황 배지 */
+.myp-delivery-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.938rem;
+    font-weight: 700;
+}
+
+.myp-delivery-badge.status-ready {
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    color: #1976D2;
+}
+
+.myp-delivery-badge.status-pickup {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+    color: #E65100;
+}
+
+.myp-delivery-badge.status-transit {
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+    color: #7B1FA2;
+}
+
+.myp-delivery-badge.status-out {
+    background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%);
+    color: #00796B;
+}
+
+.myp-delivery-badge.status-complete {
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    color: #388E3C;
+}
+
+/* =====================================================
+   5. 배송 타임라인
+   ===================================================== */
+.myp-tracking-timeline {
+    position: relative;
+}
+
+.myp-timeline-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #2C2C2C;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.myp-timeline-list {
+    position: relative;
+    padding-left: 40px;
+}
+
+/* 타임라인 세로선 */
+.myp-timeline-list::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 12px;
+    bottom: 12px;
+    width: 2px;
+    background: linear-gradient(180deg, #7B8E7E 0%, #E5E3DC 100%);
+}
+
+.myp-timeline-item {
+    position: relative;
+    padding-bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.myp-timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+/* 타임라인 점 */
+.myp-timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -36px;
+    top: 6px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 3px solid #7B8E7E;
+    box-shadow: 0 2px 8px rgba(123, 142, 126, 0.3);
+    z-index: 1;
+}
+
+/* 최신 항목 강조 */
+.myp-timeline-item.latest::before {
+    width: 24px;
+    height: 24px;
+    left: -40px;
+    top: 2px;
+    background: #7B8E7E;
+    border: 4px solid #9FB0A2;
+    animation: pulse-timeline 2s infinite;
+}
+
+@keyframes pulse-timeline {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(123, 142, 126, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(123, 142, 126, 0);
+    }
+}
+
+.myp-timeline-date {
+    font-size: 0.875rem;
+    color: #666666;
+    font-weight: 500;
+}
+
+.myp-timeline-location {
+    font-size: 1rem;
+    color: #2C2C2C;
+    font-weight: 600;
+}
+
+.myp-timeline-status {
+    font-size: 0.938rem;
+    color: #7B8E7E;
+    font-weight: 500;
+}
+
+.myp-timeline-detail {
+    font-size: 0.875rem;
+    color: #999999;
+    line-height: 1.5;
+}
+
+/* =====================================================
+   6. 모달 푸터
+   ===================================================== */
+.myp-modal-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 24px 32px;
+    border-top: 1px solid #E5E3DC;
+    background: #F9F8F5;
+    border-radius: 0 0 16px 16px;
+}
+
+.myp-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 0.938rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    min-height: 44px;
+}
+
+.myp-modal-btn-primary {
+    background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%);
+    color: #FFFFFF;
+    border-color: #7B8E7E;
+}
+
+.myp-modal-btn-primary:hover {
+    background: linear-gradient(135deg, #5A6B5D 0%, #7B8E7E 100%);
+    box-shadow: 0 6px 20px rgba(123, 142, 126, 0.3);
+    transform: translateY(-2px);
+}
+
+.myp-modal-btn-secondary {
+    background: #FFFFFF;
+    color: #666666;
+    border-color: #E5E3DC;
+}
+
+.myp-modal-btn-secondary:hover {
+    background: #F9F8F5;
+    border-color: #7B8E7E;
+    color: #7B8E7E;
+}
+
+/* =====================================================
+   7. 빈 상태 (배송 정보 없음)
+   ===================================================== */
+.myp-tracking-empty {
+    text-align: center;
+    padding: 48px 32px;
+}
+
+.myp-tracking-empty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F9F8F5 0%, #E5E3DC 100%);
+}
+
+.myp-tracking-empty-icon svg {
+    width: 48px;
+    height: 48px;
+    stroke: #999999;
+}
+
+.myp-tracking-empty-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2C2C2C;
+    margin-bottom: 8px;
+}
+
+.myp-tracking-empty-text {
+    font-size: 0.938rem;
+    color: #666666;
+    line-height: 1.6;
+}
+
+/* =====================================================
+   8. 로딩 상태
+   ===================================================== */
+.myp-tracking-loading {
+    text-align: center;
+    padding: 64px 32px;
+}
+
+.myp-tracking-spinner {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 24px;
+    border: 4px solid #E5E3DC;
+    border-top-color: #7B8E7E;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.myp-tracking-loading-text {
+    font-size: 1rem;
+    color: #666666;
+    font-weight: 500;
+}
+
+/* =====================================================
+   9. 반응형 - 모바일
+   ===================================================== */
+@media (max-width: 767px) {
+    .myp-modal {
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .myp-modal-header {
+        padding: 20px 20px;
+    }
+    
+    .myp-modal-title {
+        font-size: 1.25rem;
+    }
+    
+    .myp-modal-body {
+        padding: 20px;
+    }
+    
+    /* 배송 정보 그리드 1열로 변경 */
+    .myp-tracking-info {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+    
+    .myp-tracking-value {
+        font-size: 1rem;
+    }
+    
+    .myp-tracking-value.highlight {
+        font-size: 1.125rem;
+    }
+    
+    /* 타임라인 조정 */
+    .myp-timeline-list {
+        padding-left: 32px;
+    }
+    
+    .myp-timeline-item::before {
+        width: 14px;
+        height: 14px;
+        left: -30px;
+    }
+    
+    .myp-timeline-item.latest::before {
+        width: 20px;
+        height: 20px;
+        left: -33px;
+    }
+    
+    .myp-timeline-date {
+        font-size: 0.75rem;
+    }
+    
+    .myp-timeline-location {
+        font-size: 0.938rem;
+    }
+    
+    .myp-timeline-status {
+        font-size: 0.875rem;
+    }
+    
+    /* 모달 푸터 */
+    .myp-modal-footer {
+        padding: 16px 20px;
+        flex-direction: column;
+    }
+    
+    .myp-modal-btn {
+        width: 100%;
+    }
+}
+
+/* =====================================================
+   10. 프린트 스타일
+   ===================================================== */
+@media print {
+    .myp-modal-backdrop {
+        background: white;
+    }
+    
+    .myp-modal {
+        box-shadow: none;
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .myp-modal-close,
+    .myp-modal-footer {
+        display: none !important;
+    }
+    
+    .myp-tracking-timeline::before {
+        background: black !important;
+    }
+    
+    .myp-timeline-item::before {
+        border-color: black !important;
+    }
+}
+
+/* =====================================================
+   11. 접근성
+   ===================================================== */
+.myp-modal-backdrop[aria-hidden="true"] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.myp-modal-close:focus-visible,
+.myp-modal-btn:focus-visible {
+    outline: 3px solid #7B8E7E;
+    outline-offset: 2px;
+}
+
+/* 키보드 네비게이션 강조 */
+.myp-timeline-item:focus-within {
+    background: rgba(123, 142, 126, 0.05);
+    border-radius: 8px;
+    margin: -8px;
+    padding: 8px;
+}
+

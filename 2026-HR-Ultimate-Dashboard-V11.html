@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 HR Ultimate Dashboard V11</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+        
+        :root {
+            --primary: #2563eb;
+            --bg-sidebar: #1e293b;
+        }
+
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f3f4f6; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Hide Scrollbar for specific elements */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Print Styles */
+        @media print {
+            body * { visibility: hidden; }
+            .print-area, .print-area * { visibility: visible; }
+            .print-area { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; background: white; }
+            .no-print { display: none !important; }
+            @page { size: A4; margin: 10mm; }
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-slate-800 text-white flex flex-col no-print shadow-xl z-20">
+        <div class="p-6 border-b border-slate-700">
+            <h1 class="text-2xl font-bold text-blue-400"><i class="fa-solid fa-cube"></i> HR Master</h1>
+            <p class="text-xs text-slate-400 mt-1">V11.0 | 5인 이상 사업장 전용</p>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1 px-3">
+                <li><button onclick="renderTab('dashboard')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition flex items-center gap-3"><i class="fa-solid fa-chart-line w-5"></i> 대시보드</button></li>
+                <li><button onclick="renderTab('people')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition flex items-center gap-3"><i class="fa-solid fa-users w-5"></i> 직원 & 지원금</button></li>
+                <li><button onclick="renderTab('time')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition flex items-center gap-3"><i class="fa-regular fa-clock w-5"></i> 근태 & 휴가</button></li>
+                <li><button onclick="renderTab('payroll')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition flex items-center gap-3"><i class="fa-solid fa-money-bill-wave w-5"></i> 급여 & 정산</button></li>
+                <li><button onclick="renderTab('admin')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition flex items-center gap-3"><i class="fa-solid fa-file-signature w-5"></i> 행정 & 문서</button></li>
+                <li><button onclick="renderTab('settings')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-slate-700 transition flex items-center gap-3"><i class="fa-solid fa-gear w-5"></i> 설정 (Admin)</button></li>
+            </ul>
+        </nav>
+        <div class="p-4 border-t border-slate-700 text-center text-xs text-slate-500">
+            데이터는 브라우저에만 저장됩니다.<br>주기적으로 백업하세요.
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-gray-50 relative">
+        <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center no-print z-10">
+            <h2 id="page-title" class="text-xl font-bold text-slate-800">대시보드</h2>
+            <div class="flex items-center gap-4">
+                <span id="current-date" class="text-sm text-slate-500 font-medium"></span>
+                <button onclick="backupData()" class="bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded text-sm hover:bg-indigo-100 transition"><i class="fa-solid fa-download"></i> 백업</button>
+            </div>
+        </header>
+
+        <div id="content-area" class="flex-1 overflow-y-auto p-8 fade-in">
+            </div>
+    </main>
+
+    <script>
+        // ==========================================
+        // 1. Initial Data & Settings (LocalStorage)
+        // ==========================================
+        const DB_KEY = 'HR_MASTER_V11_DB';
+        
+        let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
+            company: {
+                name: "주식회사 예시",
+                ceo: "홍길동",
+                address: "서울시 강남구 테헤란로 123",
+                bizNo: "123-45-67890",
+                seal: "" // Image Data URL
+            },
+            settings: {
+                minWage: 10320, // 2026 Default
+                weeklyHours: 40,
+                insuranceRates: {
+                    pension: 4.5,
+                    health: 3.545,
+                    care: 12.95, // Health * %
+                    employment: 0.9
+                }
+            },
+            employees: [],
+            attendance: [], // {id, empId, date, checkIn, checkOut, type}
+            leaves: [], // {id, empId, type, start, end, days, status}
+            tasks: [
+                {id: 1, title: "1월 급여 이체", status: "todo", deadline: "2026-01-10"},
+                {id: 2, title: "근로계약서 갱신", status: "doing", deadline: "2026-01-15"}
+            ]
+        };
+
+        function saveDB() {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+        }
+
+        // ==========================================
+        // 2. Core Logic Helpers
+        // ==========================================
+        
+        const formatCurrency = (num) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(num);
+        
+        // Grant Sniper Logic (정부지원금 매칭)
+        function analyzeGrants(emp) {
+            const matches = [];
+            const age = new Date().getFullYear() - new Date(emp.birthDate).getFullYear();
+            
+            // 1. 청년일자리도약장려금 (만 15~34세, 실업기간 6개월 이상 가정)
+            if (age >= 15 && age <= 34 && emp.salary >= 2000000) {
+                matches.push({name: "청년일자리도약장려금", amount: "월 60만원 (최대 1년)"});
+            }
+            // 2. 고령자 고용지원금
+            if (age >= 60) {
+                matches.push({name: "고령자 고용지원금", amount: "분기 30만원"});
+            }
+            // 3. 두루누리 (월보수 270만원 미만)
+            if (emp.salary < 2700000) {
+                matches.push({name: "두루누리 사회보험료", amount: "보험료 80% 지원"});
+            }
+            return matches;
+        }
+
+        // Payroll Calculation Engine
+        function calculatePayroll(empId, year, month) {
+            const emp = db.employees.find(e => e.id == empId);
+            if (!emp) return null;
+
+            // Filter attendance for the month
+            const monthStr = `${year}-${String(month).padStart(2,'0')}`;
+            const records = db.attendance.filter(a => a.empId == empId && a.date.startsWith(monthStr));
+
+            let totalWorkHours = 0;
+            let overtimeHours = 0;
+            
+            records.forEach(r => {
+                if(r.checkIn && r.checkOut) {
+                    const start = new Date(`2000-01-01 ${r.checkIn}`);
+                    const end = new Date(`2000-01-01 ${r.checkOut}`);
+                    let hours = (end - start) / (1000 * 60 * 60);
+                    if (hours < 0) hours += 24; // Over midnight
+                    hours -= (hours >= 4 ? 0.5 : 0); // Break deduction logic (simplified)
+                    
+                    totalWorkHours += hours;
+                    if (hours > 8) overtimeHours += (hours - 8); // Daily overtime
+                }
+            });
+
+            // Calculations
+            const hourlyRate = (emp.salary / 209); // Standard divisor
+            const basePay = emp.salary; 
+            const otPay = Math.floor(overtimeHours * hourlyRate * 1.5);
+            const totalPay = basePay + otPay;
+
+            // Tax
+            const tax = {
+                pension: Math.floor(totalPay * (db.settings.insuranceRates.pension / 100)),
+                health: Math.floor(totalPay * (db.settings.insuranceRates.health / 100)),
+                employment: Math.floor(totalPay * (db.settings.insuranceRates.employment / 100)),
+                income: Math.floor(totalPay * 0.03) // Simple estimator
+            };
+            tax.care = Math.floor(tax.health * (db.settings.insuranceRates.care / 100));
+            const totalDeduction = tax.pension + tax.health + tax.care + tax.employment + tax.income;
+
+            return {
+                basePay, otPay, totalPay, tax, totalDeduction, netPay: totalPay - totalDeduction,
+                days: records.length, otHours: overtimeHours.toFixed(1)
+            };
+        }
+
+        // ==========================================
+        // 3. Render Functions (SPA Routing)
+        // ==========================================
+
+        function renderTab(tabName) {
+            const content = document.getElementById('content-area');
+            const title = document.getElementById('page-title');
+            content.innerHTML = '';
+            
+            // Highlight sidebar
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('bg-slate-700', 'text-blue-400'));
+            // (Simple active state logic omitted for brevity, usually handled by event target)
+
+            switch(tabName) {
+                case 'dashboard':
+                    title.innerText = '대시보드';
+                    renderDashboard(content);
+                    break;
+                case 'people':
+                    title.innerText = '직원 관리 & 지원금 매칭';
+                    renderPeople(content);
+                    break;
+                case 'time':
+                    title.innerText = '근태 및 휴가 관리';
+                    renderTime(content);
+                    break;
+                case 'payroll':
+                    title.innerText = '급여 정산 및 명세서';
+                    renderPayroll(content);
+                    break;
+                case 'admin':
+                    title.innerText = '행정 서류 자동화';
+                    renderAdmin(content);
+                    break;
+                case 'settings':
+                    title.innerText = '시스템 설정';
+                    renderSettings(content);
+                    break;
+            }
+        }
+
+        // --- DASHBOARD ---
+        function renderDashboard(container) {
+            const empCount = db.employees.length;
+            const tasksTodo = db.tasks.filter(t => t.status === 'todo').length;
+            const grantOps = db.employees.reduce((acc, emp) => acc + analyzeGrants(emp).length, 0);
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <div class="text-slate-500 text-sm">총 직원 수</div>
+                        <div class="text-3xl font-bold text-slate-800 mt-2">${empCount}명</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <div class="text-slate-500 text-sm">발견된 지원금 기회</div>
+                        <div class="text-3xl font-bold text-emerald-600 mt-2">${grantOps}건</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <div class="text-slate-500 text-sm">처리할 업무 (ToDo)</div>
+                        <div class="text-3xl font-bold text-amber-500 mt-2">${tasksTodo}건</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <div class="text-slate-500 text-sm">이번 달 예상 급여액</div>
+                        <div class="text-3xl font-bold text-blue-600 mt-2">자동계산 중</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
+                        <div class="flex justify-between mb-4">
+                            <h3 class="font-bold text-lg">📌 팀 업무 보드 (Kanban)</h3>
+                            <button onclick="addTaskPrompt()" class="text-sm bg-blue-100 text-blue-600 px-3 py-1 rounded hover:bg-blue-200">+ 업무 추가</button>
+                        </div>
+                        <div class="flex gap-4 overflow-x-auto h-96">
+                            ${['todo', 'doing', 'done'].map(status => `
+                                <div class="flex-1 min-w-[200px] bg-slate-50 rounded-lg p-3">
+                                    <div class="text-xs uppercase font-bold text-slate-400 mb-3">${status}</div>
+                                    <div class="space-y-2" id="kanban-${status}">
+                                        ${db.tasks.filter(t => t.status === status).map(t => `
+                                            <div class="bg-white p-3 rounded shadow-sm border border-slate-200 cursor-move group relative">
+                                                <div class="text-sm font-medium">${t.title}</div>
+                                                <div class="flex justify-between items-center mt-2">
+                                                    <span class="text-xs text-slate-400">${t.deadline || ''}</span>
+                                                    <button onclick="moveTask(${t.id})" class="text-xs text-blue-500 opacity-0 group-hover:opacity-100">이동 ➜</button>
+                                                </div>
+                                                <button onclick="deleteTask(${t.id})" class="text-xs text-red-400 absolute top-1 right-1 opacity-0 group-hover:opacity-100">x</button>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+                        <h3 class="font-bold text-lg mb-4">🔔 주요 일정 알림</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+                                <i class="fa-solid fa-triangle-exclamation mt-1"></i>
+                                <div>
+                                    <span class="font-bold">원천세 신고 마감</span>
+                                    <p class="text-xs mt-1">매월 10일까지 (D-${Math.max(0, 10 - new Date().getDate())})</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3 p-3 bg-amber-50 text-amber-700 rounded-lg text-sm">
+                                <i class="fa-solid fa-file-contract mt-1"></i>
+                                <div>
+                                    <span class="font-bold">근로계약 갱신 임박</span>
+                                    <p class="text-xs mt-1">김철수 수습 종료 3일 전</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- PEOPLE (With Grant Sniper) ---
+        function renderPeople(container) {
+            container.innerHTML = `
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="font-bold">직원 목록</h3>
+                        <button onclick="addEmployeePrompt()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">+ 직원 등록</button>
+                    </div>
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-50 text-slate-500">
+                            <tr>
+                                <th class="p-4">이름/직책</th>
+                                <th class="p-4">입사일</th>
+                                <th class="p-4">급여(월)</th>
+                                <th class="p-4">지원금 매칭 (Grant Sniper)</th>
+                                <th class="p-4 text-right">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            ${db.employees.map(emp => {
+                                const grants = analyzeGrants(emp);
+                                return `
+                                <tr>
+                                    <td class="p-4">
+                                        <div class="font-bold text-slate-800">${emp.name}</div>
+                                        <div class="text-xs text-slate-500">${emp.position || '사원'} (${emp.type || '정규직'})</div>
+                                    </td>
+                                    <td class="p-4">${emp.joinDate}</td>
+                                    <td class="p-4">${formatCurrency(emp.salary)}</td>
+                                    <td class="p-4">
+                                        ${grants.length > 0 
+                                            ? `<div class="flex flex-wrap gap-1">${grants.map(g => `<span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs" title="${g.amount}">${g.name}</span>`).join('')}</div>`
+                                            : `<span class="text-slate-400 text-xs">매칭 없음</span>`
+                                        }
+                                    </td>
+                                    <td class="p-4 text-right">
+                                        <button onclick="deleteEmployee(${emp.id})" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded">삭제</button>
+                                    </td>
+                                </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                    ${db.employees.length === 0 ? '<div class="p-8 text-center text-slate-400">직원을 등록해주세요.</div>' : ''}
+                </div>
+            `;
+        }
+
+        // --- TIME (Simplified) ---
+        function renderTime(container) {
+            const today = new Date().toISOString().split('T')[0];
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold mb-4">⏱️ 간편 출퇴근 입력</h3>
+                        <div class="flex gap-2 mb-4">
+                            <select id="time-emp-select" class="flex-1 border p-2 rounded text-sm bg-gray-50">
+                                <option value="">직원 선택</option>
+                                ${db.employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('')}
+                            </select>
+                            <input type="date" id="time-date" value="${today}" class="border p-2 rounded text-sm bg-gray-50">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="clockAction('in')" class="bg-blue-50 text-blue-600 py-3 rounded-lg hover:bg-blue-100 font-bold">출근 (09:00)</button>
+                            <button onclick="clockAction('out')" class="bg-slate-50 text-slate-600 py-3 rounded-lg hover:bg-slate-100 font-bold">퇴근 (18:00)</button>
+                        </div>
+                        <div class="mt-4 text-xs text-slate-400 text-center">
+                            * 버튼 클릭 시 기본 시간으로 입력됩니다. (수정 가능)
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold mb-4">📋 금일 근태 현황</h3>
+                        <div class="space-y-2 max-h-60 overflow-y-auto">
+                            ${db.attendance.filter(a => a.date === today).map(a => {
+                                const emp = db.employees.find(e => e.id == a.empId);
+                                return `
+                                    <div class="flex justify-between items-center p-2 bg-slate-50 rounded">
+                                        <span class="text-sm font-medium">${emp ? emp.name : 'Unknown'}</span>
+                                        <div class="text-xs">
+                                            <span class="text-blue-600">${a.checkIn || '-'}</span> ~ 
+                                            <span class="text-slate-600">${a.checkOut || '-'}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('') || '<div class="text-slate-400 text-sm">기록 없음</div>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- PAYROLL (Auto Calc) ---
+        function renderPayroll(container) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1; // Current month for demo
+
+            // Filter employees who have data
+            const payrollData = db.employees.map(emp => {
+                const calc = calculatePayroll(emp.id, year, month);
+                return { emp, calc };
+            });
+
+            container.innerHTML = `
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 print-area">
+                    <div class="flex justify-between items-center mb-6 no-print">
+                        <h3 class="font-bold text-lg">💰 ${year}년 ${month}월 급여대장 (예상)</h3>
+                        <button onclick="window.print()" class="bg-slate-800 text-white px-4 py-2 rounded text-sm">🖨️ 명세서 인쇄</button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left whitespace-nowrap">
+                            <thead class="bg-slate-50 text-slate-500 border-b">
+                                <tr>
+                                    <th class="p-3">이름</th>
+                                    <th class="p-3">근무일</th>
+                                    <th class="p-3">연장(h)</th>
+                                    <th class="p-3 text-right">기본급</th>
+                                    <th class="p-3 text-right text-blue-600">연장수당(1.5배)</th>
+                                    <th class="p-3 text-right">공제계(4대보험)</th>
+                                    <th class="p-3 text-right font-bold">실수령액</th>
+                                    <th class="p-3 text-center no-print">상태</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${payrollData.map(({emp, calc}) => {
+                                    if (!calc) return ''; 
+                                    return `
+                                    <tr class="border-b border-slate-50">
+                                        <td class="p-3 font-medium">${emp.name}</td>
+                                        <td class="p-3">${calc.days}일</td>
+                                        <td class="p-3">${calc.otHours}</td>
+                                        <td class="p-3 text-right">${formatCurrency(calc.basePay)}</td>
+                                        <td class="p-3 text-right text-blue-600">+${formatCurrency(calc.otPay)}</td>
+                                        <td class="p-3 text-right text-red-400">-${formatCurrency(calc.totalDeduction)}</td>
+                                        <td class="p-3 text-right font-bold text-slate-800">${formatCurrency(calc.netPay)}</td>
+                                        <td class="p-3 text-center no-print">
+                                            <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">정상</span>
+                                        </td>
+                                    </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-8 p-4 bg-yellow-50 text-yellow-800 text-xs rounded border border-yellow-100 no-print">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                        <strong>주의:</strong> 연장수당은 '근태 관리' 탭의 출퇴근 기록을 기반으로 8시간 초과분을 자동 계산(1.5배)한 결과입니다.
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- ADMIN (Contracts) ---
+        function renderAdmin(container) {
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-file-contract"></i></div>
+                        <h3 class="font-bold text-lg mb-2">근로계약서 원클릭 생성</h3>
+                        <p class="text-sm text-slate-500 mb-4">직원 정보를 불러와 표준 계약서를 자동 완성합니다.</p>
+                        <select id="contract-emp" class="w-full border p-2 rounded text-sm mb-3 bg-gray-50">
+                            <option value="">직원 선택...</option>
+                            ${db.employees.map(e => `<option value="${e.id}">${e.name}</option>`).join('')}
+                        </select>
+                        <button onclick="generateContract()" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">📄 계약서 PDF 미리보기</button>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-4"><i class="fa-solid fa-certificate"></i></div>
+                        <h3 class="font-bold text-lg mb-2">재직/경력 증명서</h3>
+                        <p class="text-sm text-slate-500 mb-4">회사 직인이 포함된 증명서를 즉시 발급합니다.</p>
+                        <button class="w-full border border-emerald-600 text-emerald-600 py-2 rounded hover:bg-emerald-50 transition">발급 하기 (준비중)</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- SETTINGS ---
+        function renderSettings(container) {
+            container.innerHTML = `
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 max-w-2xl">
+                    <h3 class="font-bold text-xl mb-6">🏢 회사 및 급여 기준 설정</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">회사명</label>
+                            <input type="text" id="set-comp-name" value="${db.company.name}" class="w-full border p-2 rounded bg-gray-50">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">대표자명</label>
+                                <input type="text" id="set-comp-ceo" value="${db.company.ceo}" class="w-full border p-2 rounded bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">사업자번호</label>
+                                <input type="text" id="set-comp-biz" value="${db.company.bizNo}" class="w-full border p-2 rounded bg-gray-50">
+                            </div>
+                        </div>
+                        
+                        <div class="border-t pt-4 mt-4">
+                            <h4 class="font-bold text-sm text-slate-800 mb-3">💰 2026 급여 기준 (자동 반영)</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm text-slate-500 mb-1">최저시급 (원)</label>
+                                    <input type="number" id="set-min-wage" value="${db.settings.minWage}" class="w-full border p-2 rounded bg-gray-50">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-slate-500 mb-1">통상임금 산정시간 (209/226)</label>
+                                    <input type="number" value="209" class="w-full border p-2 rounded bg-gray-50" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4">
+                            <button onclick="saveSettings()" class="w-full bg-slate-800 text-white py-3 rounded-lg font-bold hover:bg-slate-900">설정 저장하기</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // 4. Action Functions
+        // ==========================================
+
+        function addEmployeePrompt() {
+            const name = prompt("이름:");
+            if(!name) return;
+            const salary = prompt("월 급여(원):", "2060740"); // 2025 Min wage monthly roughly
+            const joinDate = prompt("입사일 (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+            const birthDate = prompt("생년월일 (YYYY-MM-DD) [지원금 계산용]:", "1995-01-01");
+
+            db.employees.push({
+                id: Date.now(),
+                name,
+                salary: parseInt(salary) || 0,
+                joinDate,
+                birthDate,
+                position: "사원",
+                type: "정규직"
+            });
+            saveDB();
+            renderTab('people');
+        }
+
+        function deleteEmployee(id) {
+            if(confirm("정말 삭제하시겠습니까?")) {
+                db.employees = db.employees.filter(e => e.id !== id);
+                saveDB();
+                renderTab('people');
+            }
+        }
+
+        function clockAction(type) {
+            const empId = document.getElementById('time-emp-select').value;
+            const date = document.getElementById('time-date').value;
+            if(!empId) return alert("직원을 선택하세요.");
+
+            let record = db.attendance.find(a => a.empId == empId && a.date === date);
+            if (!record) {
+                record = { id: Date.now(), empId, date };
+                db.attendance.push(record);
+            }
+
+            if (type === 'in') record.checkIn = "09:00"; // Simplified for demo, ideally use now()
+            if (type === 'out') record.checkOut = "18:00";
+
+            saveDB();
+            renderTab('time'); // Refresh
+        }
+
+        function addTaskPrompt() {
+            const title = prompt("할 일 내용:");
+            if(title) {
+                db.tasks.push({ id: Date.now(), title, status: "todo", deadline: "" });
+                saveDB();
+                renderTab('dashboard');
+            }
+        }
+
+        function moveTask(id) {
+            const task = db.tasks.find(t => t.id === id);
+            if (task.status === 'todo') task.status = 'doing';
+            else if (task.status === 'doing') task.status = 'done';
+            saveDB();
+            renderTab('dashboard');
+        }
+
+        function deleteTask(id) {
+            db.tasks = db.tasks.filter(t => t.id !== id);
+            saveDB();
+            renderTab('dashboard');
+        }
+
+        function saveSettings() {
+            db.company.name = document.getElementById('set-comp-name').value;
+            db.company.ceo = document.getElementById('set-comp-ceo').value;
+            db.company.bizNo = document.getElementById('set-comp-biz').value;
+            db.settings.minWage = parseInt(document.getElementById('set-min-wage').value);
+            saveDB();
+            alert("설정이 저장되었습니다.");
+        }
+
+        function generateContract() {
+            const empId = document.getElementById('contract-emp').value;
+            if(!empId) return alert("직원을 선택하세요.");
+            
+            const emp = db.employees.find(e => e.id == empId);
+            const w = window.open('', '_blank');
+            w.document.write(`
+                <html><body style="font-family: serif; padding: 40px; line-height: 1.8;">
+                    <h1 style="text-align: center; margin-bottom: 40px;">표준근로계약서</h1>
+                    <p><strong>${db.company.name}</strong>(이하 "갑")과 <strong>${emp.name}</strong>(이하 "을")은 다음과 같이 근로계약을 체결한다.</p>
+                    <br>
+                    <p>1. 근로개시일: ${emp.joinDate}</p>
+                    <p>2. 근무장소: ${db.company.address}</p>
+                    <p>3. 업무의 내용: 경영지원 및 일반 사무 업무</p>
+                    <p>4. 소정근로시간: 09:00 ~ 18:00 (휴게시간 12:00~13:00)</p>
+                    <p>5. 임금: 월급 <strong>${formatCurrency(emp.salary)}</strong> (세전)</p>
+                    <p>6. 연차유급휴가: 근로기준법에서 정하는 바에 따른다.</p>
+                    <br><br>
+                    <p style="text-align: center;">2026년 __월 __일</p>
+                    <br>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>(갑) 사업주: ${db.company.name} <br> 대표자: ${db.company.ceo} (인)</div>
+                        <div>(을) 근로자: ${emp.name} (인)</div>
+                    </div>
+                </body></html>
+            `);
+            w.document.close();
+        }
+
+        function backupData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const anchor = document.createElement('a');
+            anchor.setAttribute("href", dataStr);
+            anchor.setAttribute("download", "HR_Backup_V11.json");
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+        }
+
+        // --- Init ---
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+        renderTab('dashboard');
+
+    </script>
+</body>
+</html>
+

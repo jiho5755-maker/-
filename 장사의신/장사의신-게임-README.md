@@ -12,6 +12,7 @@
 - **👨‍🎓 학생 정보 입력**: 학생 이름과 창업 정보 입력
 - **💰 원가 계산**: 시장 상황에 맞는 적정 원가 자동 계산
 - **📊 창업 조언**: 선택한 사업 유형과 등급에 따른 맞춤형 조언 제공
+- **🔗 Google Sheets 연동**: 여러 명이 PC/모바일에서 실시간 데이터 공유 (NEW!)
 
 ## 🚀 설치 방법
 
@@ -29,11 +30,21 @@ python --version
 pip install -r requirements.txt
 ```
 
-또는
+이 명령어로 다음 패키지들이 자동 설치됩니다:
+- streamlit (웹 앱 프레임워크)
+- pandas (데이터 처리)
+- openai (AI 조언자)
+- gspread (Google Sheets 연동)
+- google-auth (Google 인증)
 
-```bash
-pip install streamlit
-```
+### 3. Google Sheets 연동 설정 (선택사항)
+
+여러 명이 동시에 데이터를 공유하려면 Google Sheets 연동을 설정하세요:
+
+📖 **상세 가이드**: `Google-Sheets-연동-가이드.md` 파일 참고
+⚡ **빠른 시작**: `빠른시작-Google-Sheets.md` 파일 참고
+
+Google Sheets를 설정하지 않아도 로컬 모드로 사용할 수 있습니다.
 
 ## ▶️ 실행 방법
 
@@ -137,6 +148,9 @@ streamlit run 장사의신-게임.py
 
 - **Python 3.8+**
 - **Streamlit**: 웹 애플리케이션 프레임워크
+- **Google Sheets API**: 실시간 데이터 공유 (선택사항)
+- **OpenAI API**: AI 조언자 기능 (선택사항)
+- **Pandas**: 데이터 분석 및 처리
 
 ## 📞 문의
 

@@ -1,0 +1,2510 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="origin">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>제휴업체 찾기 - 파트너 지도</title>
+  
+  <!-- 네이버 지도 API: 발급받은 Client ID로 교체하세요 -->
+  <script>
+    // 네이버 지도 API 동적 로드
+    (function() {
+      var script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = 'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=bfp8odep5r&t=' + Date.now();
+      script.async = true;
+      script.onerror = function() {
+        console.error('❌ 네이버 지도 API 스크립트 로드 실패');
+        window.naverMapLoadError = true;
+      };
+      script.onload = function() {
+        console.log('✅ 네이버 지도 API 스크립트 로드 완료');
+        window.naverMapLoaded = true;
+        // 지도 초기화가 대기 중이면 실행
+        if (window.pendingMapInit) {
+          window.pendingMapInit();
+        }
+      };
+      document.head.appendChild(script);
+    })();
+  </script>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Segoe UI', sans-serif; 
+      font-size: 16px; 
+      line-height: 1.7; 
+      color: #2C2C2C; 
+      background-color: #F9F8F5; 
+    }
+    
+    /* 헤더 */
+    .page-header { 
+      background: linear-gradient(135deg, #7B8E7E 0%, #5A6B5D 100%); 
+      color: white; 
+      padding: 48px 20px; 
+      text-align: center; 
+    }
+    
+    .page-title { 
+      font-size: 28px; 
+      font-weight: bold; 
+      margin-bottom: 12px; 
+    }
+    
+    .page-subtitle { 
+      font-size: 16px; 
+      opacity: 0.95; 
+    }
+    
+    /* 상태 알림 */
+    .status-notice { 
+      border-radius: 12px; 
+      padding: 20px; 
+      margin: 20px auto; 
+      max-width: 1280px; 
+      text-align: center; 
+      display: none;
+    }
+    
+    .status-notice h3 { 
+      margin-bottom: 10px; 
+      font-size: 18px; 
+    }
+    
+    .status-notice p { 
+      font-size: 14px; 
+      line-height: 1.6; 
+    }
+    
+    .status-loading { 
+      background-color: #E3F2FD; 
+      border: 2px solid #2196F3; 
+      display: block;
+    }
+    
+    .status-loading h3 { 
+      color: #1976D2; 
+    }
+    
+    .status-error { 
+      background-color: #FFEBEE; 
+      border: 2px solid #F44336; 
+    }
+    
+    .status-error h3 { 
+      color: #D32F2D; 
+    }
+    
+    .status-error .error-details { 
+      margin-top: 12px; 
+      padding: 12px; 
+      background-color: #FFCDD2; 
+      border-radius: 6px; 
+      font-family: monospace; 
+      font-size: 12px; 
+      text-align: left; 
+    }
+    
+    /* 메인 컨테이너 */
+    .main-container {
+      display: flex;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px;
+      gap: 20px;
+    }
+    
+    /* 사이드바 */
+    .sidebar {
+      width: 320px;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+    
+    .sidebar-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2C2C2C;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* 검색창 */
+    .search-box {
+      margin-bottom: 20px;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #E0E0E0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: #7B8E7E;
+      box-shadow: 0 0 0 3px rgba(123, 142, 126, 0.1);
+    }
+    
+    .search-input::placeholder {
+      color: #999;
+    }
+    
+    /* 빠른 액션 버튼 */
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .quick-btn {
+      flex: 1;
+      padding: 10px;
+      background: white;
+      border: 2px solid #E0E0E0;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .quick-btn:hover {
+      border-color: #7B8E7E;
+      background: #F5F5F5;
+    }
+    
+    .quick-btn.active {
+      background: #7B8E7E;
+      color: white;
+      border-color: #7B8E7E;
+    }
+    
+    .filter-section {
+      margin-bottom: 24px;
+    }
+    
+    .filter-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .filter-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .filter-btn {
+      padding: 8px 16px;
+      border: 2px solid #E0E0E0;
+      background: white;
+      color: #666;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    
+    .filter-btn:hover {
+      border-color: #7B8E7E;
+      color: #7B8E7E;
+      background: #F5F5F5;
+    }
+    
+    .filter-btn.active {
+      background: #7B8E7E;
+      color: white;
+      border-color: #7B8E7E;
+    }
+    
+    .partner-count {
+      padding: 12px;
+      background: linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 100%);
+      border-radius: 8px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 16px;
+    }
+    
+    .partner-count strong {
+      font-size: 20px;
+      color: #7B8E7E;
+      font-weight: 700;
+    }
+    
+    /* 업체 목록 */
+    .partner-list {
+      margin-top: 24px;
+      border-top: 2px solid #F0F0F0;
+      padding-top: 16px;
+    }
+    
+    .partner-list-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .sort-dropdown {
+      font-size: 12px;
+      padding: 4px 8px;
+      border: 1px solid #E0E0E0;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+    }
+    
+    .partner-items {
+      max-height: 400px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .partner-items::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .partner-items::-webkit-scrollbar-track {
+      background: #F5F5F5;
+      border-radius: 3px;
+    }
+    
+    .partner-items::-webkit-scrollbar-thumb {
+      background: #C0C0C0;
+      border-radius: 3px;
+    }
+    
+    .partner-items::-webkit-scrollbar-thumb:hover {
+      background: #A0A0A0;
+    }
+    
+    .partner-item {
+      padding: 12px;
+      border: 2px solid #E0E0E0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+    }
+    
+    .partner-item:hover {
+      border-color: #7B8E7E;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .partner-item.active {
+      border-color: #7B8E7E;
+      background: #F5F9F6;
+    }
+    
+    .partner-item.favorited {
+      border-color: #FFB900;
+      background: #FFFAF0;
+    }
+    
+    .partner-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 6px;
+    }
+    
+    .partner-item-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2C2C2C;
+      flex: 1;
+    }
+    
+    .partner-item-favorite {
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .partner-item-favorite:hover {
+      transform: scale(1.2);
+    }
+    
+    .partner-item-favorite.active {
+      color: #FFB900;
+    }
+    
+    .partner-item-info {
+      font-size: 12px;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    
+    .partner-item-distance {
+      color: #7B8E7E;
+      font-weight: 600;
+    }
+    
+    .partner-item-category {
+      display: inline-block;
+      padding: 2px 6px;
+      background: #E8F5E9;
+      color: #5A6B5D;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    /* 지도 영역 */
+    .map-wrapper {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+    }
+    
+    /* 검색 바 */
+    .search-bar {
+      position: absolute;
+      top: 80px;
+      left: 16px;
+      right: 80px;
+      z-index: 100;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px 16px;
+      border: 2px solid #E0E0E0;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: #7B8E7E;
+      box-shadow: 0 4px 12px rgba(123,142,126,0.2);
+    }
+    
+    .search-btn {
+      padding: 12px 16px;
+      background: white;
+      border: 2px solid #E0E0E0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      white-space: nowrap;
+    }
+    
+    .search-btn:hover {
+      border-color: #7B8E7E;
+      background: #F5F5F5;
+    }
+    
+    .search-btn.active {
+      background: #7B8E7E;
+      color: white;
+      border-color: #7B8E7E;
+    }
+    
+    /* 지도 컨트롤 */
+    .map-controls {
+      position: absolute;
+      bottom: 100px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .map-control-btn {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border: 2px solid #E0E0E0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      font-size: 18px;
+    }
+    
+    .map-control-btn:hover {
+      border-color: #7B8E7E;
+      background: #F5F5F5;
+    }
+    
+    .map-control-btn.active {
+      background: #7B8E7E;
+      color: white;
+      border-color: #7B8E7E;
+    }
+    
+    /* 상세 모달 */
+    .detail-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .detail-modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .detail-modal-content {
+      background: white;
+      border-radius: 16px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    
+    .detail-modal-header {
+      position: sticky;
+      top: 0;
+      background: white;
+      padding: 24px;
+      border-bottom: 2px solid #F0F0F0;
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      border-radius: 16px 16px 0 0;
+      z-index: 10;
+    }
+    
+    .detail-modal-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2C2C2C;
+      flex: 1;
+    }
+    
+    .detail-modal-close {
+      width: 32px;
+      height: 32px;
+      background: #F5F5F5;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+      transition: all 0.2s;
+    }
+    
+    .detail-modal-close:hover {
+      background: #E0E0E0;
+    }
+    
+    .detail-modal-body {
+      padding: 24px;
+    }
+    
+    .detail-modal-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .detail-modal-section {
+      margin-bottom: 24px;
+    }
+    
+    .detail-modal-section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2C2C2C;
+      margin-bottom: 12px;
+    }
+    
+    .detail-modal-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 24px;
+    }
+    
+    .detail-modal-btn {
+      padding: 14px;
+      border: 2px solid #7B8E7E;
+      background: white;
+      color: #7B8E7E;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .detail-modal-btn:hover {
+      background: #7B8E7E;
+      color: white;
+    }
+    
+    .detail-modal-btn.primary {
+      background: #7B8E7E;
+      color: white;
+    }
+    
+    .detail-modal-btn.primary:hover {
+      background: #5A6B5D;
+    }
+    
+    /* 지도 컨테이너 */
+    .map-container { 
+      position: relative; 
+      width: 100%; 
+      height: 600px; 
+      background-color: #E5E3DC; 
+      margin: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    
+    #map { 
+      width: 100%; 
+      height: 100%; 
+    }
+    
+    .map-loading { 
+      position: absolute; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+      text-align: center; 
+      color: #666; 
+      font-size: 16px; 
+      z-index: 1000; 
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .map-loading.hidden { 
+      display: none; 
+    }
+    
+    /* InfoWindow 스타일 */
+    .custom-infowindow {
+      background-color: white;
+      border-radius: 16px;
+      padding: 0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      min-width: 280px;
+      max-width: 320px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+      position: relative;
+    }
+    
+    /* 닫기 버튼 */
+    .info-close-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      z-index: 10;
+      transition: all 0.2s;
+    }
+    
+    .info-close-btn:hover {
+      background: rgba(0, 0, 0, 0.7);
+      transform: scale(1.1);
+    }
+    
+    .info-image-container {
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #F5F5F5 0%, #E0E0E0 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .info-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .info-image:not([src]),
+    .info-image[src=""] {
+      display: none;
+    }
+    
+    .info-image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 48px;
+    }
+    
+    .info-content {
+      padding: 16px;
+    }
+    
+    .info-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    
+    .info-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2C2C2C;
+      margin: 0;
+      line-height: 1.4;
+      flex: 1;
+      max-width: 180px;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+    
+    .info-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #7B8E7E, #5A6B5D);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+    
+    .info-description {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+    
+    .info-details {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #F0F0F0;
+    }
+    
+    .info-detail-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    
+    .info-detail-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .info-detail-icon {
+      margin-right: 8px;
+      font-size: 14px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .info-detail-text {
+      flex: 1;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      line-height: 1.5;
+    }
+    
+    .info-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    /* 링크 드롭다운 */
+    .info-links-dropdown {
+      position: relative;
+      flex: 1;
+      min-width: calc(50% - 4px);
+    }
+    
+    .info-links-toggle {
+      width: 100%;
+      padding: 10px 12px;
+      background-color: #7B8E7E;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    
+    .info-links-toggle:hover {
+      background-color: #5A6B5D;
+    }
+    
+    .info-links-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-top: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      overflow: hidden;
+    }
+    
+    .info-links-menu.show {
+      display: block;
+    }
+    
+    .info-links-menu a {
+      display: block;
+      padding: 12px 16px;
+      color: #333;
+      text-decoration: none;
+      font-size: 13px;
+      border-bottom: 1px solid #eee;
+      transition: background 0.2s;
+    }
+    
+    .info-links-menu a:last-child {
+      border-bottom: none;
+    }
+    
+    .info-links-menu a:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .info-btn {
+      flex: 1;
+      min-width: calc(50% - 4px);
+      padding: 10px 12px;
+      background-color: #7B8E7E;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .info-btn:hover {
+      background-color: #5A6B5D;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    
+    .info-btn.secondary {
+      background-color: #F5F5F5;
+      color: #666;
+      border: 1px solid #E0E0E0;
+    }
+    
+    .info-btn.secondary:hover {
+      background-color: #E8E8E8;
+      color: #333;
+    }
+    
+    /* 링크 드롭다운 */
+    .info-links-dropdown {
+      position: relative;
+    }
+    
+    .info-links-toggle {
+      width: 100%;
+      padding: 10px 12px;
+      background-color: #7B8E7E;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .info-links-toggle:hover {
+      background-color: #5A6B5D;
+    }
+    
+    .info-links-menu {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #7B8E7E;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 100;
+    }
+    
+    .info-links-menu.show {
+      display: block;
+    }
+    
+    .info-links-menu a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      color: #2C2C2C;
+      text-decoration: none;
+      border-bottom: 1px solid #F0F0F0;
+      transition: background 0.2s;
+    }
+    
+    .info-links-menu a:last-child {
+      border-bottom: none;
+    }
+    
+    .info-links-menu a:hover {
+      background: #F5F5F5;
+    }
+    
+    /* 반응형 디자인 */
+    @media (max-width: 1024px) {
+      .main-container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        position: static;
+      }
+      
+      .map-wrapper {
+        width: 100%;
+      }
+      
+      .search-bar {
+        flex-direction: column;
+        right: 16px;
+      }
+      
+      .search-input {
+        width: 100%;
+      }
+      
+      .search-btn {
+        width: 100%;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .page-title { 
+        font-size: 24px; 
+      }
+      
+      .page-subtitle { 
+        font-size: 14px; 
+      }
+      
+      .map-container { 
+        height: 500px; 
+        margin: 10px;
+        border-radius: 8px;
+      }
+      
+      .custom-infowindow {
+        min-width: 260px;
+        max-width: 280px;
+      }
+      
+      .info-image-container {
+        height: 150px;
+      }
+      
+      .info-name {
+        font-size: 16px;
+      }
+      
+      .info-content {
+        padding: 14px;
+      }
+      
+      .info-actions {
+        flex-direction: column;
+      }
+      
+      .info-btn,
+      .info-links-dropdown {
+        width: 100%;
+        min-width: 100%;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .custom-infowindow {
+        min-width: 240px;
+        max-width: 260px;
+      }
+      
+      .info-image-container {
+        height: 120px;
+      }
+    }
+    
+    /* ========================================
+       상세 모달 스타일
+       ======================================== */
+    
+    #detail-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #detail-modal.show {
+      display: flex;
+    }
+    
+    .detail-modal-content {
+      background: white;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .detail-modal-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .detail-modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    
+    .detail-modal-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .detail-modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+    
+    .detail-modal-body {
+      padding: 20px;
+      max-height: calc(90vh - 160px);
+      overflow-y: auto;
+    }
+    
+    .detail-modal-image {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .detail-modal-section {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .detail-modal-section:last-of-type {
+      border-bottom: none;
+    }
+    
+    .detail-modal-section-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    
+    .detail-modal-section p {
+      margin: 8px 0;
+      color: #555;
+      line-height: 1.6;
+    }
+    
+    .detail-modal-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .detail-modal-btn {
+      padding: 14px 16px;
+      background-color: #7B8E7E;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .detail-modal-btn:hover {
+      background-color: #5A6B5D;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .detail-modal-btn.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .detail-modal-btn.primary:hover {
+      background: linear-gradient(135deg, #5568d3 0%, #63408d 100%);
+    }
+    
+    @media (max-width: 768px) {
+      .detail-modal-content {
+        width: 95%;
+        max-height: 95vh;
+      }
+      
+      .detail-modal-actions {
+        grid-template-columns: 1fr;
+      }
+      
+      .detail-modal-image {
+        height: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="page-header">
+    <h1 class="page-title">🗺️ 제휴업체 찾기</h1>
+    <p class="page-subtitle">전국 제휴업체 위치를 한눈에 확인하세요</p>
+  </div>
+  
+  <div id="status-notice" class="status-notice status-loading">
+    <h3>📊 데이터를 불러오는 중입니다...</h3>
+    <p>잠시만 기다려주세요.</p>
+  </div>
+  
+  <div class="main-container">
+    <!-- 사이드바 -->
+    <div class="sidebar">
+      <h2 class="sidebar-title">🔍 파트너 공방 찾기</h2>
+      
+      <!-- 검색창 -->
+      <div class="search-box">
+        <input type="text" 
+               id="search-input" 
+               class="search-input" 
+               placeholder="🔍 업체명을 검색하세요..." 
+               autocomplete="off">
+      </div>
+      
+      <!-- 빠른 액션 -->
+      <div class="quick-actions">
+        <button class="quick-btn" id="btn-my-location" title="내 위치 기준으로 정렬">
+          📍 근처
+        </button>
+        <button class="quick-btn" id="btn-favorites" title="즐겨찾기 목록 보기">
+          ⭐ 찜 <span id="favorites-count">(0)</span>
+        </button>
+      </div>
+      
+      <div class="partner-count">
+        <div>전체 <strong id="total-count">0</strong>개</div>
+      </div>
+      
+      <!-- 지역 필터 -->
+      <div class="filter-section">
+        <div class="filter-label">📍 지역</div>
+        <div class="filter-buttons" id="region-filters">
+          <button class="filter-btn active" data-value="all">전체</button>
+        </div>
+      </div>
+      
+      <!-- 카테고리 필터 -->
+      <div class="filter-section">
+        <div class="filter-label">🏷️ 공예 종류</div>
+        <div class="filter-buttons" id="category-filters">
+          <button class="filter-btn active" data-value="all">전체</button>
+        </div>
+      </div>
+      
+      <!-- 협회 필터 -->
+      <div class="filter-section">
+        <div class="filter-label">🏛️ 협회</div>
+        <div class="filter-buttons" id="association-filters">
+          <button class="filter-btn active" data-value="all">전체</button>
+        </div>
+      </div>
+      
+      <!-- 업체 목록 -->
+      <div class="partner-list">
+        <div class="partner-list-title">
+          <span>📋 업체 목록</span>
+          <select class="sort-dropdown" id="sort-select">
+            <option value="name">이름순</option>
+            <option value="distance">거리순</option>
+          </select>
+        </div>
+        <div class="partner-items" id="partner-items">
+          <!-- 동적으로 생성 -->
+        </div>
+      </div>
+    </div>
+    
+    <!-- 지도 영역 -->
+    <div class="map-wrapper">
+      <!-- 검색 바 -->
+      <div class="search-bar">
+        <input type="text" id="search-input" class="search-input" placeholder="업체명 검색...">
+        <button class="search-btn" id="btn-my-location">📍 근처</button>
+        <button class="search-btn" id="btn-favorites">⭐ 찜</button>
+      </div>
+      
+      <!-- 지도 컨트롤 -->
+      <div class="map-controls">
+        <button class="map-control-btn" id="btn-map-style" title="지도 스타일 변경">
+          🗺️
+        </button>
+      </div>
+      
+      <div class="map-container">
+        <div id="map"></div>
+        <div class="map-loading" id="map-loading">
+          <div style="font-size: 48px; margin-bottom: 16px;">🗺️</div>
+          <div>지도를 불러오는 중...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 상세 모달 -->
+  <div class="detail-modal" id="detail-modal">
+    <div class="detail-modal-content">
+      <div class="detail-modal-header">
+        <h2 class="detail-modal-title" id="modal-title"></h2>
+        <button class="detail-modal-close" id="modal-close">×</button>
+      </div>
+      <div class="detail-modal-body" id="modal-body">
+        <!-- 동적으로 생성 -->
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // ========================================
+    // 🔧 설정: 여기만 수정하세요!
+    // ========================================
+    
+    // Google Apps Script 웹 앱 URL
+    var GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbxfp4SbpsUCmQu0gnF02r8oMY0dzzadElkcTcFNSsxPNo3x4zsNcw-z8MvJ3F7xskP6Yw/exec';
+    //                          ↑↑↑ 여기에 발급받은 URL을 붙여넣으세요
+    
+    // 디버그 모드 (true로 설정하면 콘솔에 상세 로그 출력)
+    var DEBUG_MODE = true;
+    
+    // ========================================
+    // 전역 변수
+    // ========================================
+    var partnersData = [];
+    var filteredPartnersData = []; // 필터링된 데이터
+    var map = null;
+    var markers = [];
+    var infowindows = [];
+    var currentInfoWindow = null; // 현재 열린 InfoWindow 추적
+    
+    // 필터 상태
+    var currentFilters = {
+      region: 'all',
+      category: 'all',
+      association: 'all'
+    };
+    
+    // 현재 위치
+    var userLocation = null;
+    
+    // 즐겨찾기 (로컬 저장소)
+    var favorites = [];
+    
+    // 검색어
+    var searchQuery = '';
+    
+    // 정렬 방식
+    var sortBy = 'name'; // 'name' or 'distance'
+    
+    // 지도 스타일
+    var mapStyle = 'normal'; // 'normal' or 'satellite'
+    
+    // ========================================
+    // InfoWindow 닫기 함수 (전역)
+    // ========================================
+    window.closeInfoWindow = function() {
+      if (currentInfoWindow) {
+        currentInfoWindow.close();
+        currentInfoWindow = null;
+      }
+    };
+    
+    // ========================================
+    // 유틸리티 함수들
+    // ========================================
+    
+    // 로컬 저장소: 즐겨찾기 로드
+    function loadFavorites() {
+      try {
+        var stored = localStorage.getItem('partner_favorites');
+        favorites = stored ? JSON.parse(stored) : [];
+        updateFavoritesCount();
+      } catch (e) {
+        favorites = [];
+      }
+    }
+    
+    // 로컬 저장소: 즐겨찾기 저장
+    function saveFavorites() {
+      try {
+        localStorage.setItem('partner_favorites', JSON.stringify(favorites));
+        updateFavoritesCount();
+      } catch (e) {
+        console.error('즐겨찾기 저장 실패:', e);
+      }
+    }
+    
+    // 즐겨찾기 추가/제거
+    function toggleFavorite(partnerName) {
+      var index = favorites.indexOf(partnerName);
+      if (index > -1) {
+        favorites.splice(index, 1);
+      } else {
+        favorites.push(partnerName);
+      }
+      saveFavorites();
+      renderPartnerList();
+    }
+    
+    // 즐겨찾기 확인
+    function isFavorite(partnerName) {
+      return favorites.indexOf(partnerName) > -1;
+    }
+    
+    // 즐겨찾기 개수 업데이트
+    function updateFavoritesCount() {
+      var countEl = document.getElementById('favorites-count');
+      if (countEl) {
+        countEl.textContent = '(' + favorites.length + ')';
+      }
+    }
+    
+    // 거리 계산 (Haversine formula)
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+      var R = 6371; // 지구 반지름 (km)
+      var dLat = (lat2 - lat1) * Math.PI / 180;
+      var dLng = (lng2 - lng1) * Math.PI / 180;
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+    
+    // 거리 포맷팅
+    function formatDistance(km) {
+      if (km < 1) {
+        return Math.round(km * 1000) + 'm';
+      } else {
+        return km.toFixed(1) + 'km';
+      }
+    }
+    
+    // 데이터 분리 (쉼표, 파이프, 줄바꿈)
+    function splitData(text) {
+      if (!text || text.trim() === '') return [];
+      return text.split(/[,|\n]+/).map(function(item) {
+        return item.trim();
+      }).filter(function(item) {
+        return item !== '';
+      });
+    }
+    
+    // URL 파라미터 읽기
+    function getUrlParams() {
+      var params = {};
+      var search = window.location.search.substring(1);
+      if (search) {
+        var pairs = search.split('&');
+        pairs.forEach(function(pair) {
+          var parts = pair.split('=');
+          params[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1] || '');
+        });
+      }
+      return params;
+    }
+    
+    // URL 파라미터 설정
+    function setUrlParams(params) {
+      var searchParams = new URLSearchParams();
+      Object.keys(params).forEach(function(key) {
+        if (params[key] && params[key] !== 'all' && params[key] !== '') {
+          searchParams.set(key, params[key]);
+        }
+      });
+      var newUrl = window.location.pathname + (searchParams.toString() ? '?' + searchParams.toString() : '');
+      window.history.replaceState({}, '', newUrl);
+    }
+    
+    // ========================================
+    // 유틸리티: 로깅
+    // ========================================
+    function debugLog(message, data) {
+      if (DEBUG_MODE) {
+        console.log('[제휴업체지도]', message, data || '');
+      }
+    }
+    
+    // ========================================
+    // 상태 표시
+    // ========================================
+    function showStatus(type, title, message, details) {
+      var notice = document.getElementById('status-notice');
+      if (!notice) return;
+      
+      notice.className = 'status-notice status-' + type;
+      
+      var html = '<h3>' + title + '</h3><p>' + message + '</p>';
+      
+      if (details && type === 'error') {
+        html += '<div class="error-details"><strong>상세 정보:</strong><br>' + details + '</div>';
+      }
+      
+      notice.innerHTML = html;
+      notice.style.display = 'block';
+    }
+    
+    function hideStatus() {
+      var notice = document.getElementById('status-notice');
+      if (notice) {
+        notice.style.display = 'none';
+      }
+    }
+    
+    // ========================================
+    // 구글 드라이브 이미지 URL 변환
+    // ========================================
+    function convertGoogleDriveUrl(url) {
+      if (!url || url.trim() === '') {
+        return null;
+      }
+      
+      var trimmedUrl = url.trim();
+      
+      // 이미 직접 접근 가능한 URL인 경우 (이미지 미리보기 URL)
+      if (trimmedUrl.includes('drive.google.com/uc?') || trimmedUrl.includes('lh3.googleusercontent.com')) {
+        return trimmedUrl;
+      }
+      
+      // 구글 드라이브 공유 링크에서 파일 ID 추출
+      // 형식: https://drive.google.com/file/d/FILE_ID/view
+      // 또는: https://drive.google.com/open?id=FILE_ID
+      var fileId = null;
+      
+      var match1 = trimmedUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (match1) {
+        fileId = match1[1];
+      } else {
+        var match2 = trimmedUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (match2) {
+          fileId = match2[1];
+        }
+      }
+      
+      if (fileId) {
+        // 썸네일 이미지 URL 생성 (최대 800px 너비)
+        return 'https://drive.google.com/uc?export=view&id=' + fileId;
+      }
+      
+      // 파일 ID를 찾을 수 없으면 원본 URL 반환
+      return trimmedUrl;
+    }
+    
+    // ========================================
+    // 데이터 로드
+    // ========================================
+    function loadPartnersData() {
+      debugLog('데이터 로드 시작', GOOGLE_SHEET_API_URL);
+      
+      showStatus('loading', '📊 데이터를 불러오는 중입니다...', '잠시만 기다려주세요.');
+      
+      fetch(GOOGLE_SHEET_API_URL)
+        .then(function(response) {
+          debugLog('응답 수신:', {
+            status: response.status,
+            ok: response.ok
+          });
+          
+          if (!response.ok) {
+            throw new Error('API 응답 오류 (HTTP ' + response.status + ')');
+          }
+          
+          return response.json();
+        })
+        .then(function(data) {
+          debugLog('데이터 파싱 완료:', data);
+          
+          // 에러 응답 체크
+          if (data.error || data.success === false) {
+            throw new Error(data.message || '알 수 없는 오류가 발생했습니다.');
+          }
+          
+          // 데이터 구조 확인
+          if (!data.partners || !Array.isArray(data.partners)) {
+            throw new Error('잘못된 데이터 형식: partners 배열이 없습니다.');
+          }
+          
+          if (data.partners.length === 0) {
+            showStatus('error', 
+              '⚠️ 표시할 업체가 없습니다',
+              '구글 시트에 심사상태가 "승인"이고 위도/경도가 입력된 업체가 없습니다.',
+              '관리자가 업체를 승인하고 주소가 자동으로 좌표로 변환될 때까지 기다려주세요.'
+            );
+            return;
+          }
+          
+          partnersData = data.partners;
+          filteredPartnersData = partnersData; // 초기에는 전체 데이터
+          
+          // 필터 초기화
+          initializeFilters();
+          
+          // 상태 숨김
+          hideStatus();
+          
+          // 지도에 마커 생성
+          if (map) {
+            createMarkers();
+          }
+          
+          debugLog('로드 완료:', partnersData.length + '개 업체');
+        })
+        .catch(function(error) {
+          console.error('❌ 데이터 로드 실패:', error);
+          
+          var errorMsg = error.message || error.toString();
+          var helpMsg = '';
+          
+          // 에러 유형별 도움말
+          if (errorMsg.indexOf('Failed to fetch') > -1 || errorMsg.indexOf('NetworkError') > -1) {
+            helpMsg = 'URL이 올바른지 확인하세요: ' + GOOGLE_SHEET_API_URL;
+          } else if (errorMsg.indexOf('Unauthorized') > -1) {
+            helpMsg = 'Apps Script 배포 설정에서 "액세스 권한"을 "모든 사용자"로 설정하세요.';
+          }
+          
+          showStatus('error',
+            '⚠️ 데이터를 불러올 수 없습니다',
+            errorMsg,
+            helpMsg + '<br><br>F12 키를 눌러 개발자 도구의 Console 탭에서 더 자세한 정보를 확인할 수 있습니다.'
+          );
+        });
+    }
+    
+    // ========================================
+    // 지도 초기화
+    // ========================================
+    function initMap() {
+      try {
+        document.getElementById('map-loading').classList.add('hidden');
+        
+        var mapOptions = {
+          center: new naver.maps.LatLng(37.5665, 126.9780), // 서울시청 기본 중심
+          zoom: 11,
+          zoomControl: true,
+          zoomControlOptions: { 
+            position: naver.maps.Position.TOP_RIGHT 
+          },
+          mapTypeControl: true
+        };
+        
+        map = new naver.maps.Map('map', mapOptions);
+        
+        debugLog('지도 초기화 성공');
+        
+        // 데이터가 이미 로드되었으면 마커 생성
+        if (partnersData.length > 0) {
+          createMarkers();
+        }
+      } catch (error) {
+        console.error('❌ 지도 초기화 실패:', error);
+        document.getElementById('map-loading').innerHTML = 
+          '<div style="color: #C17B7B;">' +
+          '<div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>' +
+          '<div>지도를 불러올 수 없습니다</div>' +
+          '<div style="font-size:12px; margin-top:8px;">네이버 지도 API Client ID를 확인해주세요</div>' +
+          '</div>';
+      }
+    }
+    
+    // ========================================
+    // 필터 관련 함수
+    // ========================================
+    
+    // 지역 추출 함수
+    function extractRegion(address) {
+      if (!address) return '기타';
+      
+      // 시/도 추출
+      var match = address.match(/^([^시도군구]+[시도])/);
+      if (match) {
+        return match[1];
+      }
+      
+      // 특별시/광역시 추출
+      match = address.match(/^(서울|부산|대구|인천|광주|대전|울산|세종)/);
+      if (match) {
+        return match[1];
+      }
+      
+      return '기타';
+    }
+    
+    // 필터 초기화
+    function initializeFilters() {
+      var regions = new Set();
+      var categories = new Set();
+      var associations = new Set();
+      
+      partnersData.forEach(function(partner) {
+        // 지역 추출
+        var region = extractRegion(partner.address);
+        regions.add(region);
+        
+        // 카테고리 (쉼표로 분리)
+        if (partner.category) {
+          var cats = splitData(partner.category);
+          cats.forEach(function(cat) {
+            if (cat) categories.add(cat);
+          });
+        }
+        
+        // 협회 (쉼표로 분리)
+        if (partner.association) {
+          var assocs = splitData(partner.association);
+          assocs.forEach(function(assoc) {
+            if (assoc) associations.add(assoc);
+          });
+        }
+      });
+      
+      // 지역 필터 버튼 생성
+      var regionFilters = document.getElementById('region-filters');
+      regionFilters.innerHTML = '<button class="filter-btn active" data-value="all">전체</button>';
+      Array.from(regions).sort().forEach(function(region) {
+        var btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.setAttribute('data-value', region);
+        btn.textContent = region;
+        btn.onclick = function() { setFilter('region', region); };
+        regionFilters.appendChild(btn);
+      });
+      
+      // 카테고리 필터 버튼 생성
+      var categoryFilters = document.getElementById('category-filters');
+      categoryFilters.innerHTML = '<button class="filter-btn active" data-value="all">전체</button>';
+      Array.from(categories).sort().forEach(function(category) {
+        var btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.setAttribute('data-value', category);
+        btn.textContent = category;
+        btn.onclick = function() { setFilter('category', category); };
+        categoryFilters.appendChild(btn);
+      });
+      
+      // 협회 필터 버튼 생성
+      var associationFilters = document.getElementById('association-filters');
+      associationFilters.innerHTML = '<button class="filter-btn active" data-value="all">전체</button>';
+      Array.from(associations).sort().forEach(function(association) {
+        var btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.setAttribute('data-value', association);
+        btn.textContent = association;
+        btn.onclick = function() { setFilter('association', association); };
+        associationFilters.appendChild(btn);
+      });
+      
+      // "전체" 버튼 이벤트
+      regionFilters.querySelector('[data-value="all"]').onclick = function() { setFilter('region', 'all'); };
+      categoryFilters.querySelector('[data-value="all"]').onclick = function() { setFilter('category', 'all'); };
+      associationFilters.querySelector('[data-value="all"]').onclick = function() { setFilter('association', 'all'); };
+      
+      // 업체 수 업데이트
+      updatePartnerCount();
+    }
+    
+    // 필터 설정
+    function setFilter(filterType, value) {
+      currentFilters[filterType] = value;
+      
+      // 버튼 활성화 상태 변경
+      var containerId = filterType + '-filters';
+      var buttons = document.getElementById(containerId).querySelectorAll('.filter-btn');
+      buttons.forEach(function(btn) {
+        if (btn.getAttribute('data-value') === value) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      
+      // 필터링 적용
+      applyFilters();
+    }
+    
+    // 필터링 적용
+    function applyFilters() {
+      filteredPartnersData = partnersData.filter(function(partner) {
+        // 검색 필터
+        if (searchQuery) {
+          var nameMatch = partner.name && partner.name.toLowerCase().indexOf(searchQuery.toLowerCase()) > -1;
+          if (!nameMatch) return false;
+        }
+        
+        // 지역 필터
+        if (currentFilters.region !== 'all') {
+          var region = extractRegion(partner.address);
+          if (region !== currentFilters.region) {
+            return false;
+          }
+        }
+        
+        // 카테고리 필터 (분리된 데이터 처리)
+        if (currentFilters.category !== 'all') {
+          var cats = splitData(partner.category);
+          if (cats.indexOf(currentFilters.category) === -1) {
+            return false;
+          }
+        }
+        
+        // 협회 필터 (분리된 데이터 처리)
+        if (currentFilters.association !== 'all') {
+          var assocs = splitData(partner.association);
+          if (assocs.indexOf(currentFilters.association) === -1) {
+            return false;
+          }
+        }
+        
+        return true;
+      });
+      
+      // 즐겨찾기 필터 (활성화된 경우)
+      var favBtn = document.getElementById('btn-favorites');
+      if (favBtn && favBtn.classList.contains('active')) {
+        filteredPartnersData = filteredPartnersData.filter(function(partner) {
+          return isFavorite(partner.name);
+        });
+      }
+      
+      // 정렬
+      sortPartners();
+      
+      // 마커 재생성
+      createMarkers();
+      
+      // 업체 목록 렌더링
+      renderPartnerList();
+      
+      // 업체 수 업데이트
+      updatePartnerCount();
+      
+      // URL 상태 저장
+      setUrlParams({
+        region: currentFilters.region,
+        category: currentFilters.category,
+        association: currentFilters.association,
+        search: searchQuery
+      });
+      
+      updatePartnerCount();
+    }
+    
+    // 업체 수 업데이트
+    function updatePartnerCount() {
+      var countElement = document.getElementById('total-count');
+      if (countElement) {
+        countElement.textContent = filteredPartnersData.length;
+      }
+    }
+    
+    // 업체 정렬
+    function sortPartners() {
+      if (sortBy === 'distance' && userLocation) {
+        filteredPartnersData.sort(function(a, b) {
+          var distA = calculateDistance(userLocation.lat, userLocation.lng, a.lat, a.lng);
+          var distB = calculateDistance(userLocation.lat, userLocation.lng, b.lat, b.lng);
+          return distA - distB;
+        });
+      } else {
+        // 이름순
+        filteredPartnersData.sort(function(a, b) {
+          return (a.name || '').localeCompare(b.name || '');
+        });
+      }
+    }
+    
+    // 업체 목록 렌더링
+    function renderPartnerList() {
+      var container = document.getElementById('partner-items');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      filteredPartnersData.forEach(function(partner) {
+        var item = document.createElement('div');
+        item.className = 'partner-item';
+        if (isFavorite(partner.name)) {
+          item.classList.add('favorited');
+        }
+        
+        var distance = '';
+        if (userLocation) {
+          var dist = calculateDistance(userLocation.lat, userLocation.lng, partner.lat, partner.lng);
+          distance = '<span class="partner-item-distance">📍 ' + formatDistance(dist) + '</span>';
+        }
+        
+        var categories = splitData(partner.category).slice(0, 2).join(', ');
+        if (splitData(partner.category).length > 2) {
+          categories += '...';
+        }
+        
+        item.innerHTML = 
+          '<div class="partner-item-header">' +
+          '<div class="partner-item-name">' + escapeHtml(partner.name) + '</div>' +
+          '<div class="partner-item-favorite ' + (isFavorite(partner.name) ? 'active' : '') + '" ' +
+          'data-name="' + escapeHtml(partner.name) + '">★</div>' +
+          '</div>' +
+          '<div class="partner-item-info">' +
+          distance +
+          '<span class="partner-item-category">' + escapeHtml(categories || '공방') + '</span>' +
+          '</div>';
+        
+        item.onclick = function(e) {
+          if (!e.target.classList.contains('partner-item-favorite')) {
+            focusOnPartner(partner);
+          }
+        };
+        
+        var favBtn = item.querySelector('.partner-item-favorite');
+        favBtn.onclick = function(e) {
+          e.stopPropagation();
+          toggleFavorite(partner.name);
+        };
+        
+        container.appendChild(item);
+      });
+    }
+    
+    // 업체에 포커스
+    function focusOnPartner(partner) {
+      if (!map) return;
+      
+      var position = new naver.maps.LatLng(partner.lat, partner.lng);
+      map.setCenter(position);
+      map.setZoom(16);
+      
+      // 해당 마커의 InfoWindow 열기
+      markers.forEach(function(item) {
+        if (item.partner.name === partner.name) {
+          naver.maps.Event.trigger(item.marker, 'click');
+        }
+      });
+    }
+    
+    // ========================================
+    // 마커 생성
+    // ========================================
+    function createMarkers() {
+      debugLog('마커 생성 시작');
+      
+      // 기존 마커 제거
+      markers.forEach(function(item) {
+        item.marker.setMap(null);
+      });
+      markers = [];
+      infowindows = [];
+      
+      var createdCount = 0;
+      
+      // 네이버 지도 API가 로드되지 않았으면 오류 표시
+      if (!map || typeof naver === 'undefined' || !naver.maps) {
+        console.error('❌ 네이버 지도 API가 로드되지 않았습니다.');
+        showStatus('error',
+          '⚠️ 네이버 지도 API 로드 실패',
+          '네이버 지도 API가 로드되지 않았습니다.',
+          '해결 방법:<br><br>' +
+          '1. 네이버 클라우드 플랫폼 콘솔 접속<br>' +
+          '2. Maps → Application → Web Service URL 확인<br>' +
+          '3. http://localhost 또는 http://localhost:8080 등록 확인<br>' +
+          '4. 브라우저 캐시 삭제 (Cmd+Shift+R)<br>' +
+          '5. 5~10분 대기 후 재시도'
+        );
+        return;
+      }
+      
+      var bounds = new naver.maps.LatLngBounds();
+      
+      filteredPartnersData.forEach(function(partner, index) {
+        // 위도/경도 검증
+        if (!partner.lat || !partner.lng || partner.lat === 0 || partner.lng === 0) {
+          console.warn('⚠️ 좌표 없음 또는 잘못됨:', partner.name, '(lat:', partner.lat, ', lng:', partner.lng, ')');
+          return;
+        }
+        
+        var position = new naver.maps.LatLng(partner.lat, partner.lng);
+        bounds.extend(position);
+        
+        // 마커 생성
+        var marker = new naver.maps.Marker({
+          position: position,
+          map: map,
+          title: partner.name,
+          icon: {
+            content: '<div style="background-color: #7B8E7E; color: white; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.2); white-space: nowrap; cursor: pointer; border: 2px solid white;">📍 ' + partner.name + '</div>',
+            anchor: new naver.maps.Point(0, 0)
+          }
+        });
+        
+        // InfoWindow HTML 생성
+        var infoContent = createInfoWindowHTML(partner);
+        
+        var infowindow = new naver.maps.InfoWindow({
+          content: infoContent,
+          backgroundColor: 'transparent',
+          borderWidth: 0,
+          disableAnchor: true,
+          pixelOffset: new naver.maps.Point(0, -10),
+          maxWidth: 320
+        });
+        
+        // 마커 클릭 이벤트
+        naver.maps.Event.addListener(marker, 'click', function() {
+          // 다른 InfoWindow 닫기
+          infowindows.forEach(function(iw) { 
+            iw.close(); 
+          });
+          
+          // 현재 InfoWindow 열기
+          infowindow.open(map, marker);
+          currentInfoWindow = infowindow; // 현재 InfoWindow 추적
+          map.panTo(position);
+        });
+        
+        markers.push({ 
+          marker: marker, 
+          partner: partner, 
+          infowindow: infowindow 
+        });
+        
+        infowindows.push(infowindow);
+        createdCount++;
+      });
+      
+      // 모든 마커가 보이도록 지도 범위 조정
+      if (createdCount > 0) {
+        map.fitBounds(bounds, { padding: 50 });
+      }
+      
+      debugLog('마커 생성 완료:', createdCount + '개');
+    }
+    
+    // ========================================
+    // InfoWindow HTML 생성
+    // ========================================
+    function createInfoWindowHTML(partner) {
+      // 이미지 URL 변환
+      var imageUrl = convertGoogleDriveUrl(partner.imageUrl);
+      
+      // 이미지 HTML
+      var imageHTML = '';
+      if (imageUrl) {
+        imageHTML = '<div class="info-image-container">' +
+                    '<img src="' + escapeHtml(imageUrl) + '" ' +
+                    'alt="' + escapeHtml(partner.name) + '" ' +
+                    'class="info-image" ' +
+                    'onerror="this.parentElement.innerHTML=\'<div class=\\\'info-image-placeholder\\\'>🏢</div>\'">' +
+                    '</div>';
+      } else {
+        imageHTML = '<div class="info-image-container">' +
+                    '<div class="info-image-placeholder">🏢</div>' +
+                    '</div>';
+      }
+      
+      // 전체 주소 (도로명 주소 + 상세 주소)
+      var fullAddress = partner.address;
+      if (partner.detailAddress && partner.detailAddress.trim() !== '') {
+        fullAddress += ' ' + partner.detailAddress;
+      }
+      
+      // 운영시간 표시
+      var hoursHTML = '';
+      if (partner.hours && partner.hours.trim() !== '') {
+        hoursHTML = '<div class="info-detail-item">' +
+                    '<span class="info-detail-icon">🕐</span>' +
+                    '<span class="info-detail-text">' + escapeHtml(partner.hours) + '</span>' +
+                    '</div>';
+      }
+      
+      // 전화번호 버튼
+      var phoneButtonHTML = '';
+      if (partner.phone && partner.phone.trim() !== '') {
+        var phoneDisplay = partner.phone.trim();
+        var phoneLink = phoneDisplay.replace(/[^0-9]/g, '');
+        phoneButtonHTML = '<a href="tel:' + escapeHtml(phoneLink) + '" class="info-btn secondary">📞 ' + escapeHtml(phoneDisplay) + '</a>';
+      }
+      
+      // 링크 버튼 (드롭다운 방식)
+      var linkButtonsHTML = '';
+      if (partner.link && partner.link.trim() !== '') {
+        var links = splitData(partner.link);
+        
+        if (links.length === 1) {
+          // 링크가 하나면 바로 버튼
+          var linkText = '🔗 방문';
+          if (links[0].includes('instagram')) linkText = '📷 인스타그램';
+          else if (links[0].includes('facebook')) linkText = '📘 페이스북';
+          else if (links[0].includes('blog')) linkText = '📝 블로그';
+          else if (links[0].includes('youtube')) linkText = '▶️ 유튜브';
+          
+          linkButtonsHTML = '<a href="' + escapeHtml(links[0]) + '" target="_blank" class="info-btn">' + linkText + '</a>';
+        } else if (links.length > 1) {
+          // 여러 링크는 드롭다운
+          linkButtonsHTML = '<div class="info-links-dropdown">' +
+            '<button class="info-links-toggle" onclick="toggleLinksMenu(event)">🔗 링크 보기 (' + links.length + ') ▼</button>' +
+            '<div class="info-links-menu">';
+          
+          links.forEach(function(link) {
+            var icon = '🔗';
+            var text = '웹사이트';
+            if (link.includes('instagram')) { icon = '📷'; text = '인스타그램'; }
+            else if (link.includes('facebook')) { icon = '📘'; text = '페이스북'; }
+            else if (link.includes('blog')) { icon = '📝'; text = '블로그'; }
+            else if (link.includes('youtube')) { icon = '▶️'; text = '유튜브'; }
+            
+            linkButtonsHTML += '<a href="' + escapeHtml(link) + '" target="_blank">' + icon + ' ' + text + '</a>';
+          });
+          
+          linkButtonsHTML += '</div></div>';
+        }
+      }
+      
+      // 길찾기 버튼 (네이버 지도만)
+      var navigationHTML = '';
+      if (partner.lat && partner.lng) {
+        var naverMapUrl = 'https://map.naver.com/v5/directions/-/-/-/car?c=' + partner.lng + ',' + partner.lat + ',15,0,0,0,dh';
+        navigationHTML = '<a href="' + naverMapUrl + '" target="_blank" class="info-btn">🚗 길찾기</a>';
+      }
+      
+      // 상세보기 버튼 (데이터 속성 사용)
+      var detailButtonHTML = '<button class="info-btn secondary" onclick="showDetailModalById(\'' + 
+        partner.name.replace(/'/g, "\\'") + '\')">📄 상세보기</button>';
+      
+      // 카테고리 짧게 표시 (최대 2개)
+      var categoryDisplay = partner.category || '제휴업체';
+      var categories = splitData(categoryDisplay);
+      if (categories.length > 2) {
+        categoryDisplay = categories.slice(0, 2).join(', ') + '...';
+      } else if (categories.length > 0) {
+        categoryDisplay = categories.join(', ');
+      }
+      
+      var html = '<div class="custom-infowindow">' +
+                  '<button class="info-close-btn" onclick="closeInfoWindow()" title="닫기">×</button>' +
+                  imageHTML +
+                  '<div class="info-content">' +
+                  '<div class="info-header">' +
+                  '<h3 class="info-name">' + escapeHtml(partner.name) + '</h3>' +
+                  '<span class="info-badge">' + escapeHtml(categoryDisplay) + '</span>' +
+                  '</div>';
+      
+      // 한 줄 소개
+      if (partner.description && partner.description.trim() !== '') {
+        html += '<p class="info-description">' + escapeHtml(partner.description) + '</p>';
+      }
+      
+      html += '<div class="info-details">' +
+              '<div class="info-detail-item">' +
+              '<span class="info-detail-icon">📍</span>' +
+              '<span class="info-detail-text">' + escapeHtml(fullAddress) + '</span>' +
+              '</div>' +
+              hoursHTML +
+              '</div>' +
+              '<div class="info-actions">' +
+              phoneButtonHTML +
+              navigationHTML +
+              linkButtonsHTML +
+              detailButtonHTML +
+              '</div>' +
+              '</div>' +
+              '</div>';
+      
+      return html;
+    }
+    
+    // 링크 메뉴 토글
+    window.toggleLinksMenu = function(event) {
+      if (event) event.stopPropagation();
+      var button = event ? event.target : null;
+      if (!button) return;
+      
+      var menu = button.nextElementSibling;
+      if (menu && menu.classList.contains('info-links-menu')) {
+        menu.classList.toggle('show');
+      }
+    };
+    
+    // 이름으로 업체 찾아서 상세 모달 표시
+    window.showDetailModalById = function(partnerName) {
+      var partner = partnersData.find(function(p) {
+        return p.name === partnerName;
+      });
+      
+      if (partner) {
+        showDetailModal(partner);
+      }
+    };
+    
+    // 상세 모달 표시
+    function showDetailModal(partner) {
+      var modal = document.getElementById('detail-modal');
+      var title = document.getElementById('modal-title');
+      var body = document.getElementById('modal-body');
+      
+      if (!modal || !title || !body) return;
+      
+      title.textContent = partner.name;
+      
+      var imageUrl = convertGoogleDriveUrl(partner.imageUrl);
+      var imageHTML = imageUrl ? 
+        '<img src="' + escapeHtml(imageUrl) + '" class="detail-modal-image" alt="' + escapeHtml(partner.name) + '">' : '';
+      
+      var fullAddress = partner.address;
+      if (partner.detailAddress) fullAddress += ' ' + partner.detailAddress;
+      
+      var categories = splitData(partner.category).join(', ') || '공방';
+      var associations = splitData(partner.association).join(', ') || '-';
+      
+      var naverMapUrl = 'https://map.naver.com/v5/directions/-/-/-/car?c=' + partner.lng + ',' + partner.lat + ',15,0,0,0,dh';
+      
+      body.innerHTML = imageHTML +
+        '<div class="detail-modal-section">' +
+        '<div class="detail-modal-section-title">📋 기본 정보</div>' +
+        '<p><strong>카테고리:</strong> ' + escapeHtml(categories) + '</p>' +
+        '<p><strong>협회:</strong> ' + escapeHtml(associations) + '</p>' +
+        '</div>' +
+        '<div class="detail-modal-section">' +
+        '<div class="detail-modal-section-title">📝 소개</div>' +
+        '<p>' + escapeHtml(partner.description || '소개가 없습니다.') + '</p>' +
+        '</div>' +
+        '<div class="detail-modal-section">' +
+        '<div class="detail-modal-section-title">📍 위치 및 연락처</div>' +
+        '<p><strong>주소:</strong> ' + escapeHtml(fullAddress) + '</p>' +
+        '<p><strong>전화:</strong> ' + escapeHtml(partner.phone || '-') + '</p>' +
+        '<p><strong>운영시간:</strong> ' + escapeHtml(partner.hours || '-') + '</p>' +
+        '</div>' +
+        '<div class="detail-modal-actions">' +
+        '<a href="tel:' + escapeHtml(partner.phone) + '" class="detail-modal-btn primary">📞 전화하기</a>' +
+        '<a href="' + naverMapUrl + '" target="_blank" class="detail-modal-btn">🚗 길찾기</a>' +
+        '<button class="detail-modal-btn" onclick="toggleFavoriteFromModal(\'' + partner.name.replace(/'/g, "\\'") + '\')">' +
+        (isFavorite(partner.name) ? '⭐ 찜 해제' : '⭐ 찜하기') + '</button>' +
+        '<button class="detail-modal-btn" onclick="sharePartner(\'' + partner.name.replace(/'/g, "\\'") + '\')">🔗 공유</button>' +
+        '</div>';
+      
+      modal.classList.add('show');
+    }
+    
+    // 모달에서 즐겨찾기 토글
+    window.toggleFavoriteFromModal = function(name) {
+      toggleFavorite(name);
+      showDetailModal(JSON.stringify(partnersData.find(function(p) { return p.name === name; })));
+    };
+    
+    // 업체 공유
+    window.sharePartner = function(name) {
+      var url = window.location.origin + window.location.pathname + '?search=' + encodeURIComponent(name);
+      if (navigator.share) {
+        navigator.share({
+          title: name + ' - 제휴업체',
+          url: url
+        });
+      } else {
+        navigator.clipboard.writeText(url).then(function() {
+          alert('링크가 복사되었습니다!\n' + url);
+        });
+      }
+    };
+    
+    // ========================================
+    // HTML 이스케이프
+    // ========================================
+    function escapeHtml(text) {
+      if (!text) return '';
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    // ========================================
+    // 지도 초기화 함수 (대기 가능)
+    // ========================================
+    function tryInitMap() {
+      if (typeof naver !== 'undefined' && naver.maps) {
+        initMap();
+        return true;
+      }
+      return false;
+    }
+    
+    // ========================================
+    // 초기화
+    // ========================================
+    function initializeApp() {
+        debugLog('DOM 로드 완료');
+        
+      // 네이버 지도 API 로드 대기 (최대 10초)
+      var checkCount = 0;
+      var maxChecks = 50; // 10초 (200ms * 50)
+      
+      function checkNaverMap() {
+        checkCount++;
+        
+        if (tryInitMap()) {
+          debugLog('지도 초기화 성공');
+          loadPartnersData();
+        } else if (window.naverMapLoadError) {
+          // 스크립트 로드 실패
+          console.error('⚠️ 네이버 지도 API 스크립트 로드 실패');
+          document.getElementById('map-loading').innerHTML = 
+            '<div style="color: #C17B7B;">' +
+            '<div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>' +
+            '<div>네이버 지도 API 로딩 실패</div>' +
+            '<div style="font-size:12px; margin-top:8px;">네이버 클라우드 콘솔에서 Web Service URL 설정을 확인해주세요</div>' +
+            '</div>';
+          loadPartnersData(); // 데이터는 로드 시도
+        } else if (checkCount < maxChecks) {
+          // 아직 로드 중, 계속 대기
+          setTimeout(checkNaverMap, 200);
+        } else {
+          // 타임아웃
+          console.warn('⚠️ 네이버 지도 API 로드 타임아웃');
+          document.getElementById('map-loading').innerHTML = 
+            '<div style="color: #C17B7B;">' +
+            '<div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>' +
+            '<div>네이버 지도 API 로딩 타임아웃</div>' +
+            '<div style="font-size:12px; margin-top:8px;">네이버 클라우드 콘솔에서 설정을 확인해주세요</div>' +
+            '</div>';
+          loadPartnersData(); // 데이터는 로드 시도
+        }
+      }
+      
+      // 지도 API 로드 확인 시작
+      checkNaverMap();
+      
+      // ========================================
+      // 이벤트 리스너 등록
+      // ========================================
+      
+      // 검색 입력
+      var searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+          searchQuery = e.target.value;
+          applyFilters();
+        });
+      }
+      
+      // 근처 버튼 (지도 중심 기준)
+      var btnMyLocation = document.getElementById('btn-my-location');
+      if (btnMyLocation) {
+        btnMyLocation.addEventListener('click', function() {
+          if (this.classList.contains('active')) {
+            // 비활성화
+            this.classList.remove('active');
+            userLocation = null;
+            sortBy = 'name';
+            this.textContent = '📍 근처';
+            applyFilters();
+          } else {
+            // 지도 중심점 기준으로 설정
+            if (map) {
+              var center = map.getCenter();
+              userLocation = {
+                lat: center.y,
+                lng: center.x
+              };
+              sortBy = 'distance';
+              this.classList.add('active');
+              this.textContent = '📍 근처 (지도 중심)';
+              
+              // 정렬 드롭다운도 변경
+              var sortSelect = document.getElementById('sort-select');
+              if (sortSelect) sortSelect.value = 'distance';
+              
+              applyFilters();
+            } else {
+              alert('지도가 로드되지 않았습니다.');
+            }
+          }
+        });
+      }
+      
+      // 찜 버튼
+      var btnFavorites = document.getElementById('btn-favorites');
+      if (btnFavorites) {
+        btnFavorites.addEventListener('click', function() {
+          this.classList.toggle('active');
+          applyFilters();
+        });
+      }
+      
+      // 정렬 드롭다운
+      var sortSelect = document.getElementById('sort-select');
+      if (sortSelect) {
+        sortSelect.addEventListener('change', function(e) {
+          sortBy = e.target.value;
+          applyFilters();
+        });
+      }
+      
+      // 지도 스타일 버튼
+      var btnMapStyle = document.getElementById('btn-map-style');
+      if (btnMapStyle) {
+        btnMapStyle.addEventListener('click', function() {
+          if (map) {
+            if (mapStyle === 'normal') {
+              map.setMapTypeId(naver.maps.MapTypeId.HYBRID);
+              mapStyle = 'satellite';
+              this.textContent = '🛰️';
+              this.classList.add('active');
+            } else {
+              map.setMapTypeId(naver.maps.MapTypeId.NORMAL);
+              mapStyle = 'normal';
+              this.textContent = '🗺️';
+              this.classList.remove('active');
+            }
+          }
+        });
+      }
+      
+      // 모달 닫기
+      var modalClose = document.getElementById('modal-close');
+      if (modalClose) {
+        modalClose.addEventListener('click', function() {
+          document.getElementById('detail-modal').classList.remove('show');
+        });
+      }
+      
+      // 모달 배경 클릭 시 닫기
+      var detailModal = document.getElementById('detail-modal');
+      if (detailModal) {
+        detailModal.addEventListener('click', function(e) {
+          if (e.target === this) {
+            this.classList.remove('show');
+          }
+        });
+      }
+      
+      // ========================================
+      // 초기 설정
+      // ========================================
+      
+      // 즐겨찾기 로드
+      loadFavorites();
+      
+      // URL 파라미터 복원
+      var urlParams = getUrlParams();
+      if (urlParams.region && urlParams.region !== 'all') {
+        currentFilters.region = urlParams.region;
+      }
+      if (urlParams.category && urlParams.category !== 'all') {
+        currentFilters.category = urlParams.category;
+      }
+      if (urlParams.association && urlParams.association !== 'all') {
+        currentFilters.association = urlParams.association;
+      }
+      if (urlParams.search) {
+        searchQuery = urlParams.search;
+        if (searchInput) searchInput.value = searchQuery;
+      }
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+      initializeApp();
+    }
+  </script>
+  
+  <!-- 상세 모달 -->
+  <div id="detail-modal">
+    <div class="detail-modal-content">
+      <div class="detail-modal-header">
+        <h2 id="modal-title">업체명</h2>
+        <button class="detail-modal-close" id="modal-close">×</button>
+      </div>
+      <div class="detail-modal-body" id="modal-body">
+        <!-- 동적으로 생성 -->
+      </div>
+    </div>
+  </div>
+  
+</body>
+</html>
+

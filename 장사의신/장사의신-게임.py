@@ -8,6 +8,8 @@ import gspread
 from google.oauth2.service_account import Credentials
 import json
 import time
+import plotly.graph_objects as go
+import plotly.express as px
 
 # 페이지 설정
 st.set_page_config(
@@ -39,6 +41,8 @@ BUYER_CHARACTERS = {
             "emoji": "⭐",
             "budget": "1,000,000원",
             "personality": "트렌디하고 유명한 것 선호, SNS 감성",
+            "price_multiplier": {"min": 2.0, "max": 3.5, "sweet": 2.6},
+            "category_bonus": {"서비스": 1.0, "제조": 1.5, "유통": 1.3, "대여": 0.8, "지식": 0.9},
             "speech": ["인스타에 올리면 좋겠어요", "요즘 유행하는 거예요?", "이거 힙하네요!"],
             "behavior": "SNS 찍기 좋은지 확인하고, 트렌드에 민감함"
         },
@@ -47,6 +51,8 @@ BUYER_CHARACTERS = {
             "emoji": "⚕️",
             "budget": "1,000,000원",
             "personality": "건강과 품질 최우선, 전문가적 안목",
+            "price_multiplier": {"min": 1.9, "max": 3.2, "sweet": 2.5},
+            "category_bonus": {"서비스": 1.4, "제조": 1.3, "유통": 0.8, "대여": 0.7, "지식": 1.2},
             "speech": ["건강에 좋은가요?", "품질 보증이 되나요?", "성분이 뭐예요?"],
             "behavior": "꼼꼼하게 따져보지만, 마음에 들면 확실하게 구매"
         },
@@ -55,6 +61,8 @@ BUYER_CHARACTERS = {
             "emoji": "⚖️",
             "budget": "1,000,000원",
             "personality": "논리적이고 분석적, 계약 조건 중시",
+            "price_multiplier": {"min": 1.7, "max": 2.8, "sweet": 2.2},
+            "category_bonus": {"서비스": 1.2, "제조": 1.0, "유통": 0.9, "대여": 1.0, "지식": 1.4},
             "speech": ["근거가 뭐죠?", "이 가격이 합리적인 이유가?", "보증은 되나요?"],
             "behavior": "논리적으로 설득되면 구매, 근거 있는 설명 선호"
         },
@@ -63,6 +71,8 @@ BUYER_CHARACTERS = {
             "emoji": "🏢",
             "budget": "1,000,000원",
             "personality": "여유롭고 느긋함, 마음에 들면 즉시 구매",
+            "price_multiplier": {"min": 1.6, "max": 3.0, "sweet": 2.3},
+            "category_bonus": {"서비스": 1.1, "제조": 1.1, "유통": 1.0, "대여": 1.2, "지식": 0.9},
             "speech": ["그래요? 재밌네요", "좋아 보이면 사죠", "얼마예요? 아 괜찮네요"],
             "behavior": "친절하고 여유있게 대화, 느낌으로 판단"
         },
@@ -71,6 +81,8 @@ BUYER_CHARACTERS = {
             "emoji": "💎",
             "budget": "1,000,000원",
             "personality": "명품 선호, 독특하고 희귀한 것 좋아함",
+            "price_multiplier": {"min": 2.2, "max": 4.0, "sweet": 3.0},
+            "category_bonus": {"서비스": 1.2, "제조": 1.6, "유통": 0.7, "대여": 1.0, "지식": 0.8},
             "speech": ["이거 한정판이에요?", "특별한 게 뭐예요?", "다른 데는 없죠?"],
             "behavior": "독특함과 희소성에 끌림, 프리미엄 선호"
         }
@@ -81,6 +93,8 @@ BUYER_CHARACTERS = {
             "emoji": "💼",
             "budget": "500,000원",
             "personality": "실용적이고 가성비 중시, 급여날 여유",
+            "price_multiplier": {"min": 1.3, "max": 2.0, "sweet": 1.6},
+            "category_bonus": {"서비스": 0.9, "제조": 1.0, "유통": 1.2, "대여": 1.0, "지식": 1.3},
             "speech": ["가성비 괜찮은가요?", "이 가격이면 적당하네요", "실용적인가요?"],
             "behavior": "꼼꼼하게 비교하고, 합리적이면 구매"
         },
@@ -89,6 +103,8 @@ BUYER_CHARACTERS = {
             "emoji": "🎓",
             "budget": "500,000원",
             "personality": "알바비 받은 날, 자기 보상 원함",
+            "price_multiplier": {"min": 1.2, "max": 1.9, "sweet": 1.5},
+            "category_bonus": {"서비스": 0.8, "제조": 1.2, "유통": 1.1, "대여": 0.9, "지식": 1.0},
             "speech": ["알바비 받았는데", "나한테 선물하려고요", "이거 힙한 거 맞죠?"],
             "behavior": "트렌디하고 자기만족 되는 것 선호"
         },
@@ -97,6 +113,8 @@ BUYER_CHARACTERS = {
             "emoji": "💑",
             "budget": "500,000원",
             "personality": "신혼집 꾸미기, 실용적이면서 예쁜 것",
+            "price_multiplier": {"min": 1.4, "max": 2.1, "sweet": 1.7},
+            "category_bonus": {"서비스": 1.3, "제조": 1.2, "유통": 1.0, "대여": 1.1, "지식": 0.9},
             "speech": ["신혼집에 어울릴까요?", "배우자가 좋아할까요?", "실용적이에요?"],
             "behavior": "파트너와 상의하는 듯한 제스처, 신중하게 선택"
         },
@@ -105,6 +123,8 @@ BUYER_CHARACTERS = {
             "emoji": "💻",
             "budget": "500,000원",
             "personality": "자유로운 영혼, 창의적인 것 선호",
+            "price_multiplier": {"min": 1.3, "max": 2.2, "sweet": 1.7},
+            "category_bonus": {"서비스": 1.0, "제조": 1.4, "유통": 0.9, "대여": 1.0, "지식": 1.2},
             "speech": ["독특하네요", "창의적이에요", "이거 재밌겠다"],
             "behavior": "독창성과 재미를 중시, 감성적 구매"
         },
@@ -113,6 +133,8 @@ BUYER_CHARACTERS = {
             "emoji": "📚",
             "budget": "500,000원",
             "personality": "교육적 가치 중시, 의미있는 구매",
+            "price_multiplier": {"min": 1.3, "max": 2.0, "sweet": 1.6},
+            "category_bonus": {"서비스": 0.9, "제조": 1.1, "유통": 1.0, "대여": 1.0, "지식": 1.5},
             "speech": ["교육적으로 좋네요", "학생들한테 보여줄까?", "의미있는 것 같아요"],
             "behavior": "스토리와 가치를 중시, 설명을 잘 들음"
         },
@@ -121,6 +143,8 @@ BUYER_CHARACTERS = {
             "emoji": "💉",
             "budget": "500,000원",
             "personality": "실용성과 편리성 중시, 야근 많아 간편한 것",
+            "price_multiplier": {"min": 1.2, "max": 1.8, "sweet": 1.5},
+            "category_bonus": {"서비스": 1.4, "제조": 0.9, "유통": 1.0, "대여": 1.1, "지식": 1.0},
             "speech": ["편리한가요?", "관리하기 쉬워요?", "바빠도 괜찮을까요?"],
             "behavior": "실용적이고 편리한 것 우선, 빠른 결정"
         },
@@ -129,6 +153,8 @@ BUYER_CHARACTERS = {
             "emoji": "🏛️",
             "budget": "500,000원",
             "personality": "안정적이고 검증된 것 선호",
+            "price_multiplier": {"min": 1.2, "max": 1.9, "sweet": 1.5},
+            "category_bonus": {"서비스": 0.9, "제조": 1.0, "유통": 1.1, "대여": 1.0, "지식": 1.0},
             "speech": ["믿을 만한가요?", "많이 팔렸어요?", "후기 어때요?"],
             "behavior": "검증되고 안전한 선택 선호, 신중함"
         }
@@ -139,6 +165,8 @@ BUYER_CHARACTERS = {
             "emoji": "🏠",
             "budget": "200,000원",
             "personality": "집안 살림 책임, 한 푼이 아까움",
+            "price_multiplier": {"min": 1.0, "max": 1.5, "sweet": 1.2},
+            "category_bonus": {"서비스": 0.7, "제조": 0.9, "유통": 1.2, "대여": 1.0, "지식": 0.8},
             "speech": ["너무 비싼데...", "좀 깎아주세요", "집에 돈 쓸 데가 많아서"],
             "behavior": "가격 흥정 시도, 할인 여부 확인"
         },
@@ -147,6 +175,8 @@ BUYER_CHARACTERS = {
             "emoji": "👴",
             "budget": "200,000원",
             "personality": "연금 생활, 아껴서 써야 함",
+            "price_multiplier": {"min": 1.0, "max": 1.4, "sweet": 1.1},
+            "category_bonus": {"서비스": 0.8, "제조": 0.9, "유통": 1.1, "대여": 0.9, "지식": 0.9},
             "speech": ["연금으로 살아서...", "꼭 필요한 것만", "더 싼 거 없어요?"],
             "behavior": "필요성을 따져봄, 매우 신중함"
         },
@@ -155,6 +185,8 @@ BUYER_CHARACTERS = {
             "emoji": "📝",
             "budget": "200,000원",
             "personality": "취업 준비 중, 돈이 너무 없음",
+            "price_multiplier": {"min": 1.0, "max": 1.5, "sweet": 1.2},
+            "category_bonus": {"서비스": 0.7, "제조": 0.9, "유통": 1.1, "대여": 0.8, "지식": 1.2},
             "speech": ["취업하면 사야지...", "지금은 너무 비싸요", "할인 안 되나요?"],
             "behavior": "사고 싶지만 참는 모습, 가격에 매우 민감"
         },
@@ -163,6 +195,8 @@ BUYER_CHARACTERS = {
             "emoji": "🍔",
             "budget": "200,000원",
             "personality": "최저시급, 아껴서 모으는 중",
+            "price_multiplier": {"min": 1.0, "max": 1.4, "sweet": 1.1},
+            "category_bonus": {"서비스": 0.7, "제조": 0.8, "유통": 1.2, "대여": 0.9, "지식": 0.9},
             "speech": ["한 시간 일해야 버는 돈인데", "너무 비싸요", "반값 안 되나요?"],
             "behavior": "시간당 임금으로 환산해서 생각, 아까워함"
         },
@@ -171,6 +205,8 @@ BUYER_CHARACTERS = {
             "emoji": "📖",
             "budget": "200,000원",
             "personality": "등록금 내고 남은 돈, 라면으로 연명",
+            "price_multiplier": {"min": 1.0, "max": 1.5, "sweet": 1.2},
+            "category_bonus": {"서비스": 0.7, "제조": 0.8, "유통": 1.1, "대여": 0.9, "지식": 1.3},
             "speech": ["대학원생이라...", "이거 꼭 필요한가요?", "더 싼 거요?"],
             "behavior": "필요성 따지고, 가격 협상 시도"
         },
@@ -179,6 +215,8 @@ BUYER_CHARACTERS = {
             "emoji": "👔",
             "budget": "200,000원",
             "personality": "첫 월급인데 쓸 데가 많음, 빚도 있음",
+            "price_multiplier": {"min": 1.0, "max": 1.5, "sweet": 1.2},
+            "category_bonus": {"서비스": 0.8, "제조": 0.9, "유통": 1.1, "대여": 1.0, "지식": 1.1},
             "speech": ["첫 월급인데 빠듯해서", "할부 되나요?", "조금만 깎아주세요"],
             "behavior": "사고 싶지만 가격 부담, 망설임"
         },
@@ -187,6 +225,8 @@ BUYER_CHARACTERS = {
             "emoji": "🏪",
             "budget": "200,000원",
             "personality": "장사 안 돼서 힘듦, 절약 모드",
+            "price_multiplier": {"min": 1.0, "max": 1.4, "sweet": 1.1},
+            "category_bonus": {"서비스": 0.9, "제조": 0.9, "유통": 1.1, "대여": 1.0, "지식": 1.0},
             "speech": ["요즘 장사가 안 돼서", "딱 필요한 것만", "에이 너무 비싸"],
             "behavior": "필요하면 살지만, 가격 흥정 많이 함"
         }
@@ -1115,6 +1155,43 @@ st.sidebar.markdown("### 💵 초기 자본금")
 st.sidebar.success(f"**{INITIAL_CAPITAL:,}원**")
 st.sidebar.caption("모든 학생 동일")
 
+# 구매자 캐릭터 자동 할당
+if st.session_state.is_admin:
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 🎲 구매자 할당")
+    
+    if st.sidebar.button("🎭 구매자 자동 할당", help="게임에 참여할 구매자 캐릭터를 자동으로 선택합니다"):
+        total_buyers = st.session_state.market_settings.get('total_buyers', 10)
+        
+        # 비율대로 캐릭터 할당
+        big_count = int(total_buyers * 0.2)
+        normal_count = int(total_buyers * 0.5)
+        frugal_count = total_buyers - big_count - normal_count
+        
+        assigned_buyers = []
+        
+        # 큰손
+        available_big = BUYER_CHARACTERS['big_spender']
+        assigned_buyers.extend(random.sample(available_big, min(big_count, len(available_big))))
+        
+        # 일반
+        available_normal = BUYER_CHARACTERS['normal']
+        assigned_buyers.extend(random.sample(available_normal, min(normal_count, len(available_normal))))
+        
+        # 짠물
+        available_frugal = BUYER_CHARACTERS['frugal']
+        assigned_buyers.extend(random.sample(available_frugal, min(frugal_count, len(available_frugal))))
+        
+        st.session_state['assigned_buyers'] = assigned_buyers
+        st.sidebar.success(f"✅ {len(assigned_buyers)}명 할당 완료!")
+        st.rerun()
+    
+    # 할당된 구매자 표시
+    if st.session_state.get('assigned_buyers'):
+        with st.sidebar.expander(f"👥 할당된 구매자 ({len(st.session_state['assigned_buyers'])}명)", expanded=False):
+            for idx, buyer in enumerate(st.session_state['assigned_buyers'], 1):
+                st.write(f"{idx}. {buyer['emoji']} {buyer['name']}")
+
 # ==================== 메인 탭 ====================
 
 tab1, tab2, tab3, tab4 = st.tabs([
@@ -1137,6 +1214,124 @@ with tab1:
     if not st.session_state.is_admin:
         st.warning("⚠️ 관리자 로그인이 필요합니다.")
     else:
+        # 사업계획서 작성 시스템
+        st.subheader("📝 사업계획서 작성 (선택사항)")
+        st.caption("게임 시작 전, 학생이 자신의 창업 아이디어를 구체화할 수 있습니다")
+        
+        with st.expander("✍️ 사업계획서 작성하기", expanded=False):
+            plan_col1, plan_col2 = st.columns(2)
+            
+            with plan_col1:
+                item_name = st.text_input(
+                    "💡 아이템명",
+                    help="예: 손수건, 대필 서비스, 자전거 대여 등",
+                    key="plan_item_name"
+                )
+                
+                item_description = st.text_area(
+                    "📄 아이템 설명",
+                    help="무엇을 파는지 구체적으로 설명하세요 (2-3줄)",
+                    height=100,
+                    key="plan_description"
+                )
+                
+                target_customer = st.text_input(
+                    "🎯 목표 고객",
+                    help="예: 초등학생, 운동을 좋아하는 사람, 바쁜 직장인 등",
+                    key="plan_target"
+                )
+                
+                unique_value = st.text_area(
+                    "⭐ 차별점/강점",
+                    help="다른 사람과 다른 나만의 특별함은?",
+                    height=100,
+                    key="plan_unique"
+                )
+            
+            with plan_col2:
+                estimated_cost = st.number_input(
+                    "💰 예상 원가 (1만원 단위)",
+                    min_value=0,
+                    max_value=500000,
+                    value=50000,
+                    step=10000,
+                    help="이 아이템을 만들거나 구매하는 데 드는 비용",
+                    key="plan_cost"
+                )
+                
+                estimated_price = st.number_input(
+                    "💵 예상 판매가 (1만원 단위)",
+                    min_value=0,
+                    max_value=1000000,
+                    value=100000,
+                    step=10000,
+                    help="얼마에 팔 계획인가요?",
+                    key="plan_price"
+                )
+                
+                estimated_quantity = st.number_input(
+                    "📦 목표 판매량",
+                    min_value=0,
+                    max_value=100,
+                    value=5,
+                    step=1,
+                    help="몇 개를 팔 계획인가요?",
+                    key="plan_quantity"
+                )
+                
+                if estimated_price > 0 and estimated_cost > 0:
+                    estimated_profit = (estimated_price - estimated_cost) * estimated_quantity
+                    st.metric("🎯 목표 수익", f"{estimated_profit:,}원")
+                    
+                    margin_rate = ((estimated_price - estimated_cost) / estimated_price) * 100
+                    st.metric("📊 예상 마진율", f"{margin_rate:.1f}%")
+            
+            if st.button("💾 사업계획서 저장", type="primary", key="save_business_plan"):
+                if not item_name:
+                    st.error("⚠️ 아이템명을 입력하세요!")
+                else:
+                    business_plan = {
+                        "아이템명": item_name,
+                        "아이템_설명": item_description,
+                        "목표_고객": target_customer,
+                        "차별점_강점": unique_value,
+                        "예상_원가": estimated_cost,
+                        "예상_판매가": estimated_price,
+                        "목표_판매량": estimated_quantity,
+                        "목표_수익": (estimated_price - estimated_cost) * estimated_quantity,
+                        "작성일시": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    
+                    st.session_state['business_plan'] = business_plan
+                    st.success("✅ 사업계획서가 저장되었습니다!")
+                    st.balloons()
+        
+        # 저장된 계획서 조회
+        if st.session_state.get('business_plan'):
+            with st.expander("📄 내 사업계획서 보기"):
+                plan = st.session_state['business_plan']
+                
+                st.markdown(f"""
+                ### 💡 {plan['아이템명']}
+                
+                **📄 설명**: {plan['아이템_설명']}
+                
+                **🎯 목표 고객**: {plan['목표_고객']}
+                
+                **⭐ 차별점**: {plan['차별점_강점']}
+                
+                ---
+                
+                **💰 예상 원가**: {plan['예상_원가']:,}원  
+                **💵 예상 판매가**: {plan['예상_판매가']:,}원  
+                **📦 목표 판매량**: {plan['목표_판매량']}개  
+                **🎯 목표 수익**: {plan['목표_수익']:,}원
+                
+                *작성일: {plan['작성일시']}*
+                """)
+        
+        st.markdown("---")
+        
         st.subheader("1️⃣ 학생 정보")
         
         col1, col2 = st.columns(2)
@@ -1214,23 +1409,73 @@ with tab1:
                 
                 # 자동 적용 버튼
                 if st.button("✨ AI 추천 자동 적용", key="apply_ai"):
+                    rec = st.session_state['ai_recommendation']
+                    st.session_state['applied_ai_type'] = rec['recommended_type']
+                    st.session_state['applied_ai_cost'] = rec['cost']
+                    st.session_state['applied_ai_price_min'] = rec['price_range_min']
+                    st.session_state['applied_ai_price_max'] = rec['price_range_max']
                     st.session_state['auto_apply_ai'] = True
+                    st.success("✨ AI 추천이 적용됩니다!")
                     st.rerun()
         
         # AI 분석 결과 표시 (축소 가능)
         if 'ai_recommendation' in st.session_state and st.session_state['ai_recommendation']:
-            with st.expander("📊 AI 분석 결과 다시 보기"):
+            with st.expander("📊 AI 분석 결과 다시 보기", expanded=False):
                 rec = st.session_state['ai_recommendation']
-                st.json(rec)
+                
+                # 보기 좋게 표시
+                st.markdown("### 💡 AI 추천 요약")
+                
+                result_col1, result_col2 = st.columns(2)
+                
+                with result_col1:
+                    st.info(f"""
+                    **🏪 추천 유형**: {rec['recommended_type']}  
+                    **💰 추천 원가**: {rec['cost']:,}원  
+                    **💵 판매가 범위**: {rec['price_range_min']:,}원 ~ {rec['price_range_max']:,}원  
+                    **⏱️ 10분 제한**: {rec['max_sales_per_10min'] if rec['max_sales_per_10min'] else '무제한'}
+                    """)
+                
+                with result_col2:
+                    st.markdown(f"""
+                    **💭 추천 이유**  
+                    {rec.get('reason', 'N/A')}
+                    
+                    **🎯 전략**  
+                    {rec.get('strategy', 'N/A')}
+                    """)
+                
+                # 시장 분석 정보
+                if 'economics' in rec:
+                    st.markdown("### 📊 시장 환경 분석")
+                    eco = rec['economics']
+                    
+                    eco_col1, eco_col2, eco_col3 = st.columns(3)
+                    with eco_col1:
+                        st.metric("평균 구매력", f"{eco.get('avg_buying_power', 0):,}원")
+                    with eco_col2:
+                        st.metric("시장 포화도", f"{eco.get('market_saturation', 0):.1%}")
+                    with eco_col3:
+                        st.metric("경쟁 강도", f"{eco.get('competition_intensity', 0):.2f}")
+                    
+                    if 'market_health' in eco:
+                        health = eco['market_health']
+                        st.write(f"**시장 상태**: {health['status']} - {health['description']}")
         
         st.markdown("---")
         
         st.subheader("3️⃣ 창업 유형 선택")
         
+        # AI 추천 적용 시 자동 선택
+        default_index = 0
+        if st.session_state.get('applied_ai_type') and st.session_state['applied_ai_type'] in BUSINESS_TYPES.keys():
+            default_index = list(BUSINESS_TYPES.keys()).index(st.session_state['applied_ai_type'])
+        
         selected_business = st.selectbox(
             "사업 유형",
             options=list(BUSINESS_TYPES.keys()),
-            help="학생의 아이디어에 맞는 유형 선택 (AI 추천 참고)"
+            index=default_index,
+            help="학생의 아이디어에 맞는 유형 선택 (AI 추천 참고 또는 수동 선택)"
         )
         
         business_info = BUSINESS_TYPES[selected_business]
@@ -1290,20 +1535,55 @@ with tab1:
         if adjusted_cost != business_info['cost']:
             st.info(f"📝 원가 조정: {business_info['cost']:,}원 → {adjusted_cost:,}원")
         
-        # 추천 판매가 범위 표시
+        # 추천 판매가 범위 표시 (MarketEconomyEngine으로 동적 계산)
         st.markdown("---")
-        st.subheader("💵 추천 판매가 범위")
+        st.subheader("💵 추천 판매가 범위 (시장 상황 반영)")
+        
+        # MarketEconomyEngine으로 동적 범위 계산
+        market_engine = MarketEconomyEngine(
+            st.session_state.market_settings,
+            INITIAL_CAPITAL
+        )
+        
+        economics = market_engine.calculate_market_economics()
+        
+        # 동적 마진율 적용
+        dynamic_markup_min = economics['optimal_markup_range']['min']
+        dynamic_markup_max = economics['optimal_markup_range']['max']
+        
+        calculated_min = int(adjusted_cost * dynamic_markup_min)
+        calculated_max = int(adjusted_cost * dynamic_markup_max)
+        
+        # 1만원 단위로 반올림
+        recommended_min = int(round(calculated_min / 10000) * 10000)
+        recommended_max = int(round(calculated_max / 10000) * 10000)
+        
+        # 시장 상황 표시
+        market_status = economics['market_health']['status']
+        if market_status == "건강함":
+            status_color = "🟢"
+        elif market_status == "경고":
+            status_color = "🟡"
+        else:
+            status_color = "🔴"
+        
+        st.info(f"""
+        {status_color} **시장 상태**: {market_status}  
+        {economics['market_health']['description']}  
+        
+        💡 **추천 전략**: {economics['strategy']}
+        """)
         
         range_col1, range_col2, range_col3 = st.columns(3)
         
         with range_col1:
-            st.metric("최저가", f"{recommended_min:,}원")
+            st.metric("최저가", f"{recommended_min:,}원", f"원가 x {dynamic_markup_min:.1f}")
         with range_col2:
             recommended_mid = (recommended_min + recommended_max) // 2
             recommended_mid = int(round(recommended_mid / 10000) * 10000)
-            st.metric("중간가 (참고)", f"{recommended_mid:,}원", "학생이 고민할 범위")
+            st.metric("중간가 (참고)", f"{recommended_mid:,}원", "균형잡힌 선택")
         with range_col3:
-            st.metric("최고가", f"{recommended_max:,}원")
+            st.metric("최고가", f"{recommended_max:,}원", f"원가 x {dynamic_markup_max:.1f}")
         
         st.success(f"💡 학생에게: **{recommended_min:,}원 ~ {recommended_max:,}원** 사이에서 가격을 정해보세요!")
         
@@ -1985,16 +2265,55 @@ with tab3:
                 students_names = list(st.session_state.students.keys())
                 revenues = [st.session_state.students[name]['total_revenue'] for name in students_names]
                 profits = [st.session_state.students[name]['total_profit'] for name in students_names]
+                costs = [st.session_state.students[name]['total_cost'] for name in students_names]
                 
-                # 차트 데이터프레임
-                chart_df = pd.DataFrame({
-                    '학생': students_names,
-                    '매출': revenues,
-                    '순이익': profits
-                })
+                # Plotly 인터랙티브 차트
+                fig = go.Figure()
                 
-                # 막대 차트
-                st.bar_chart(chart_df.set_index('학생'))
+                fig.add_trace(go.Bar(
+                    name='💰 매출',
+                    x=students_names,
+                    y=revenues,
+                    marker_color='lightblue',
+                    text=revenues,
+                    texttemplate='%{text:,}원',
+                    textposition='outside',
+                    hovertemplate='<b>%{x}</b><br>매출: %{y:,}원<extra></extra>'
+                ))
+                
+                fig.add_trace(go.Bar(
+                    name='✅ 순이익',
+                    x=students_names,
+                    y=profits,
+                    marker_color='lightgreen',
+                    text=profits,
+                    texttemplate='%{text:,}원',
+                    textposition='outside',
+                    hovertemplate='<b>%{x}</b><br>순이익: %{y:,}원<extra></extra>'
+                ))
+                
+                fig.add_trace(go.Bar(
+                    name='💸 원가',
+                    x=students_names,
+                    y=costs,
+                    marker_color='lightcoral',
+                    text=costs,
+                    texttemplate='%{text:,}원',
+                    textposition='outside',
+                    hovertemplate='<b>%{x}</b><br>원가: %{y:,}원<extra></extra>'
+                ))
+                
+                fig.update_layout(
+                    title='학생별 매출 vs 순이익 vs 원가',
+                    xaxis_title='학생',
+                    yaxis_title='금액 (원)',
+                    barmode='group',
+                    height=500,
+                    hovermode='x unified',
+                    showlegend=True
+                )
+                
+                st.plotly_chart(fig, use_container_width=True)
                 
                 # 통계 요약
                 col1, col2, col3 = st.columns(3)
@@ -2017,10 +2336,32 @@ with tab3:
                         round_info = st.session_state.students[name]['rounds'].get(round_num, {})
                         round_data[name].append(round_info.get('profit', 0))
                 
-                # 라운드별 차트 데이터
-                round_df = pd.DataFrame(round_data, index=['1라운드', '2라운드'])
+                # Plotly 라인 차트
+                fig2 = go.Figure()
                 
-                st.line_chart(round_df)
+                for name in students_names:
+                    fig2.add_trace(go.Scatter(
+                        x=['1라운드', '2라운드'],
+                        y=round_data[name],
+                        mode='lines+markers+text',
+                        name=name,
+                        text=[f"{v:,}원" for v in round_data[name]],
+                        textposition='top center',
+                        line=dict(width=3),
+                        marker=dict(size=10),
+                        hovertemplate='<b>%{fullData.name}</b><br>%{x}: %{y:,}원<extra></extra>'
+                    ))
+                
+                fig2.update_layout(
+                    title='라운드별 순이익 변화',
+                    xaxis_title='라운드',
+                    yaxis_title='순이익 (원)',
+                    height=500,
+                    hovermode='x unified',
+                    showlegend=True
+                )
+                
+                st.plotly_chart(fig2, use_container_width=True)
                 
                 st.info("💡 라운드별 순이익 변화를 확인하세요. 전략 수정이 효과가 있었나요?")
             
@@ -2046,9 +2387,42 @@ with tab3:
                 if avg_prices:
                     price_df = pd.DataFrame(avg_prices)
                     
-                    # 판매가와 원가 비교
-                    chart_data = price_df.set_index('학생')[['평균 판매가', '원가']]
-                    st.bar_chart(chart_data)
+                    # Plotly 막대 차트 (가격 vs 원가)
+                    fig3 = go.Figure()
+                    
+                    fig3.add_trace(go.Bar(
+                        name='💵 평균 판매가',
+                        x=price_df['학생'],
+                        y=price_df['평균 판매가'],
+                        marker_color='gold',
+                        text=price_df['평균 판매가'],
+                        texttemplate='%{text:,}원',
+                        textposition='outside',
+                        hovertemplate='<b>%{x}</b><br>평균 판매가: %{y:,}원<extra></extra>'
+                    ))
+                    
+                    fig3.add_trace(go.Bar(
+                        name='💰 원가',
+                        x=price_df['학생'],
+                        y=price_df['원가'],
+                        marker_color='lightcoral',
+                        text=price_df['원가'],
+                        texttemplate='%{text:,}원',
+                        textposition='outside',
+                        hovertemplate='<b>%{x}</b><br>원가: %{y:,}원<extra></extra>'
+                    ))
+                    
+                    fig3.update_layout(
+                        title='평균 판매가 vs 원가',
+                        xaxis_title='학생',
+                        yaxis_title='금액 (원)',
+                        barmode='group',
+                        height=500,
+                        hovermode='x unified',
+                        showlegend=True
+                    )
+                    
+                    st.plotly_chart(fig3, use_container_width=True)
                     
                     st.success("💡 판매가가 원가보다 높을수록 마진이 높습니다!")
                 else:
@@ -2255,10 +2629,54 @@ with tab4:
             
             st.markdown("---")
             
-            # 학생별 구매 가격대 정보
+            # 전체 구매자 가격표 (한눈에 보기)
             if st.session_state.students:
-                st.markdown("### 📊 학생별 구매 가격 범위 (업종 반영)")
-                st.caption("각 학생의 아이템 특성에 따른 구매자별 실제 구매 가능 가격")
+                st.markdown("### 📊 전체 구매자 가격표 (한눈에 보기)")
+                st.caption("학생별 구매자별 구매 가능 가격 범위")
+                
+                # 학생별로 구매자 가격 계산
+                guide_table = []
+                
+                all_buyers = []
+                for category, buyers in BUYER_CHARACTERS.items():
+                    all_buyers.extend([(category, buyer) for buyer in buyers])
+                
+                for category, buyer in all_buyers:
+                    row = {
+                        "유형": "💎 큰손" if category == "big_spender" else "😊 일반" if category == "normal" else "🤏 짠물",
+                        "구매자": f"{buyer['emoji']} {buyer['name']}",
+                        "예산": buyer.get('budget', 'N/A'),
+                        "성향": buyer.get('personality', 'N/A')[:20] + "..."
+                    }
+                    
+                    # 각 학생별 구매 가능 가격
+                    for student_name, student_data in st.session_state.students.items():
+                        price_range = calculate_buyer_price_range(
+                            buyer,
+                            student_data['cost'],
+                            student_data['business_type']
+                        )
+                        row[f"{student_name}"] = f"{price_range['sweet_spot']:,}원 ({price_range['min']:,}~{price_range['max']:,})"
+                    
+                    guide_table.append(row)
+                
+                guide_df = pd.DataFrame(guide_table)
+                st.dataframe(guide_df, use_container_width=True, hide_index=True, height=600)
+                
+                # CSV 다운로드
+                csv = guide_df.to_csv(index=False, encoding='utf-8-sig')
+                st.download_button(
+                    label="📥 CSV 다운로드 (인쇄용)",
+                    data=csv,
+                    file_name="구매자_가이드.csv",
+                    mime="text/csv",
+                    help="Excel에서 열어서 인쇄할 수 있습니다"
+                )
+                
+                st.markdown("---")
+                
+                # 학생별 상세 정보 (접을 수 있음)
+                st.markdown("### 📋 학생별 상세 구매 조건")
                 
                 for name, data in st.session_state.students.items():
                     cost = data['cost']
@@ -2374,48 +2792,172 @@ with tab4:
         st.subheader("📊 학습 리포트")
         st.caption("학생별 성과와 학습 포인트를 요약합니다")
         
-        if st.button("📄 리포트 생성", type="primary"):
-            st.markdown("---")
-            
-            for name, data in st.session_state.students.items():
-                st.markdown(f"## 🎓 {name}님 학습 리포트")
-                
-                report_col1, report_col2 = st.columns(2)
-                
-                with report_col1:
-                    st.markdown("### 📋 기본 정보")
-                    st.write(f"**유형**: {data['business_type']}")
-                    st.write(f"**원가**: {data['cost']:,}원")
-                    st.write(f"**초기 자본**: {data['initial_capital']:,}원")
-                
-                with report_col2:
-                    st.markdown("### 💰 최종 성과")
-                    st.write(f"**총 매출**: {data['total_revenue']:,}원")
-                    st.write(f"**총 순이익**: {data['total_profit']:,}원")
-                    st.write(f"**최종 자본**: {data['final_capital']:,}원")
-                
-                # 평가
-                st.markdown("### 📊 평가")
-                
-                if data['total_profit'] > 800000:
-                    st.success("🌟 탁월함! 전략과 실행 모두 완벽했습니다.")
-                elif data['total_profit'] > 500000:
-                    st.success("✅ 우수! 좋은 전략으로 안정적인 수익을 냈습니다.")
-                elif data['total_profit'] > 200000:
-                    st.info("💙 양호. 기본은 잘 이해했습니다.")
-                else:
-                    st.warning("💪 다음엔 더 잘할 수 있어요! 마진 관리에 주목하세요.")
-                
-                # 배운 점
-                st.markdown("### 🎓 배운 점")
-                
-                margin_rate = (data['total_profit'] / data['total_revenue'] * 100) if data['total_revenue'] > 0 else 0
-                
-                st.write(f"- 마진율: {margin_rate:.1f}% ({'높음' if margin_rate > 60 else '중간' if margin_rate > 40 else '낮음'})")
-                st.write(f"- 재고 관리: {'우수' if data['inventory'] <= 2 else '개선 필요'}")
-                st.write("- 창업에서 중요한 것은 매출보다 **순이익**입니다!")
-                
+        report_type = st.radio(
+            "리포트 유형",
+            ["📄 전체 클래스 종합", "🎓 개별 학생 상세"],
+            horizontal=True
+        )
+        
+        if report_type == "📄 전체 클래스 종합":
+            if st.button("📄 전체 리포트 생성", type="primary"):
                 st.markdown("---")
+                st.markdown("# 📊 장사의 신 - 전체 클래스 종합 리포트")
+                st.caption(f"생성일시: {datetime.now().strftime('%Y년 %m월 %d일 %H:%M:%S')}")
+                
+                if not st.session_state.students:
+                    st.warning("⚠️ 아직 등록된 학생이 없습니다.")
+                else:
+                    # 1. 전체 통계
+                    st.markdown("## 📈 전체 통계")
+                    
+                    total_students = len(st.session_state.students)
+                    total_revenue = sum(s['total_revenue'] for s in st.session_state.students.values())
+                    total_profit = sum(s['total_profit'] for s in st.session_state.students.values())
+                    avg_margin = (total_profit / total_revenue * 100) if total_revenue > 0 else 0
+                    
+                    stat_col1, stat_col2, stat_col3, stat_col4 = st.columns(4)
+                    
+                    with stat_col1:
+                        st.metric("👥 참여 학생", f"{total_students}명")
+                    with stat_col2:
+                        st.metric("💰 총 매출", f"{total_revenue:,}원")
+                    with stat_col3:
+                        st.metric("✅ 총 순이익", f"{total_profit:,}원")
+                    with stat_col4:
+                        st.metric("📊 평균 마진율", f"{avg_margin:.1f}%")
+                    
+                    # 2. 교육 목표 달성도
+                    st.markdown("## 🎯 교육 목표 달성도")
+                    
+                    # 마진 이해도
+                    high_margin_count = sum(1 for s in st.session_state.students.values() 
+                                           if (s['total_profit'] / s['total_revenue'] * 100) > 50 if s['total_revenue'] > 0)
+                    
+                    st.progress(high_margin_count / total_students if total_students > 0 else 0)
+                    st.write(f"**마진 개념 이해**: {high_margin_count}/{total_students}명 (50% 이상 마진 달성)")
+                    
+                    # 가격 전략 다양성
+                    avg_prices = []
+                    for name, data in st.session_state.students.items():
+                        total_qty = sum(data['rounds'][r].get('quantity_sold', 0) for r in data['rounds'])
+                        if total_qty > 0:
+                            avg_price = data['total_revenue'] / total_qty
+                            avg_prices.append(avg_price)
+                    
+                    if len(avg_prices) > 1:
+                        price_variance = pd.Series(avg_prices).std()
+                        st.write(f"**가격 전략 다양성**: {price_variance:,.0f}원 (표준편차)")
+                        
+                        if price_variance > 50000:
+                            st.success("✅ 학생들이 다양한 가격 전략을 시도했습니다!")
+                        else:
+                            st.info("💡 학생들의 가격이 비슷합니다. 더 창의적인 전략을 유도해보세요.")
+                    
+                    # 3. 유형별 분석
+                    st.markdown("## 🏪 유형별 분석")
+                    
+                    type_analysis = {}
+                    for name, data in st.session_state.students.items():
+                        btype = data['business_type']
+                        if btype not in type_analysis:
+                            type_analysis[btype] = {'count': 0, 'total_profit': 0, 'total_revenue': 0}
+                        
+                        type_analysis[btype]['count'] += 1
+                        type_analysis[btype]['total_profit'] += data['total_profit']
+                        type_analysis[btype]['total_revenue'] += data['total_revenue']
+                    
+                    type_df = pd.DataFrame([
+                        {
+                            '유형': btype,
+                            '학생 수': info['count'],
+                            '평균 매출': f"{info['total_revenue'] / info['count']:,.0f}원",
+                            '평균 순이익': f"{info['total_profit'] / info['count']:,.0f}원",
+                            '마진율': f"{(info['total_profit'] / info['total_revenue'] * 100) if info['total_revenue'] > 0 else 0:.1f}%"
+                        }
+                        for btype, info in type_analysis.items()
+                    ])
+                    
+                    st.dataframe(type_df, use_container_width=True, hide_index=True)
+                    
+                    # 4. 우수 전략 사례
+                    st.markdown("## 🌟 우수 전략 사례")
+                    
+                    # 순이익 1위
+                    if st.session_state.students:
+                        top_profit = max(st.session_state.students.items(), key=lambda x: x[1]['total_profit'])
+                        st.success(f"""
+                        **💰 최고 수익**: {top_profit[0]}  
+                        순이익 {top_profit[1]['total_profit']:,}원 달성!  
+                        전략: {top_profit[1]['business_type']}로 높은 마진율 유지
+                        """)
+                        
+                        # 마진율 1위
+                        top_margin = max(
+                            st.session_state.students.items(),
+                            key=lambda x: (x[1]['total_profit'] / x[1]['total_revenue']) if x[1]['total_revenue'] > 0 else 0
+                        )
+                        margin_rate = (top_margin[1]['total_profit'] / top_margin[1]['total_revenue'] * 100) if top_margin[1]['total_revenue'] > 0 else 0
+                        
+                        st.info(f"""
+                        **📊 최고 마진율**: {top_margin[0]}  
+                        마진율 {margin_rate:.1f}% 달성!  
+                        전략: 적정 가격으로 효율적 판매
+                        """)
+                    
+                    # 5. 학습 포인트
+                    st.markdown("## 💡 핵심 학습 포인트")
+                    
+                    st.write("""
+                    - **순이익 > 매출**: 매출이 높아도 순이익이 낮으면 의미 없음
+                    - **가격 전략**: 너무 높으면 판매 안 되고, 너무 낮으면 마진 부족
+                    - **재고 관리**: 남은 재고는 손실, 적정 재고 유지 필요
+                    - **시장 분석**: 경쟁자와 구매자 특성 파악 중요
+                    - **전략 수정**: 1라운드 경험을 바탕으로 2라운드 개선
+                    """)
+        
+        else:  # 개별 학생 상세
+            if st.button("📄 개별 리포트 생성", type="primary"):
+                st.markdown("---")
+                
+                for name, data in st.session_state.students.items():
+                    st.markdown(f"## 🎓 {name}님 학습 리포트")
+                    
+                    report_col1, report_col2 = st.columns(2)
+                    
+                    with report_col1:
+                        st.markdown("### 📋 기본 정보")
+                        st.write(f"**유형**: {data['business_type']}")
+                        st.write(f"**원가**: {data['cost']:,}원")
+                        st.write(f"**초기 자본**: {data['initial_capital']:,}원")
+                    
+                    with report_col2:
+                        st.markdown("### 💰 최종 성과")
+                        st.write(f"**총 매출**: {data['total_revenue']:,}원")
+                        st.write(f"**총 순이익**: {data['total_profit']:,}원")
+                        st.write(f"**최종 자본**: {data['final_capital']:,}원")
+                    
+                    # 평가
+                    st.markdown("### 📊 평가")
+                    
+                    if data['total_profit'] > 800000:
+                        st.success("🌟 탁월함! 전략과 실행 모두 완벽했습니다.")
+                    elif data['total_profit'] > 500000:
+                        st.success("✅ 우수! 좋은 전략으로 안정적인 수익을 냈습니다.")
+                    elif data['total_profit'] > 200000:
+                        st.info("💙 양호. 기본은 잘 이해했습니다.")
+                    else:
+                        st.warning("💪 다음엔 더 잘할 수 있어요! 마진 관리에 주목하세요.")
+                    
+                    # 배운 점
+                    st.markdown("### 🎓 배운 점")
+                    
+                    margin_rate = (data['total_profit'] / data['total_revenue'] * 100) if data['total_revenue'] > 0 else 0
+                    
+                    st.write(f"- 마진율: {margin_rate:.1f}% ({'높음' if margin_rate > 60 else '중간' if margin_rate > 40 else '낮음'})")
+                    st.write(f"- 재고 관리: {'우수' if data['inventory'] <= 2 else '개선 필요'}")
+                    st.write("- 창업에서 중요한 것은 매출보다 **순이익**입니다!")
+                    
+                    st.markdown("---")
     
     with tool_tab4:
         st.subheader("⚙️ 유형 밸런스 조정")
