@@ -290,6 +290,17 @@ def load_students_from_sheets(worksheet):
     if not worksheet:
         return {}
     
+    def safe_int(value, default=0):
+        """안전하게 정수로 변환"""
+        try:
+            if value and str(value).strip():
+                # 숫자만 추출
+                cleaned = ''.join(filter(str.isdigit, str(value)))
+                return int(cleaned) if cleaned else default
+            return default
+        except:
+            return default
+    
     try:
         all_values = worksheet.get_all_values()
         
@@ -299,43 +310,52 @@ def load_students_from_sheets(worksheet):
         students = {}
         
         for row in all_values[1:]:
-            if not row[0]:
+            if not row or not row[0]:
                 continue
             
             name = row[0]
-            students[name] = {
-                "business_type": row[1] if len(row) > 1 else "",
-                "cost": int(row[2]) if len(row) > 2 and row[2] else 0,
-                "recommended_price": int(row[2]) * 2 if len(row) > 2 and row[2] else 0,
-                "initial_capital": int(row[3]) if len(row) > 3 and row[3] else INITIAL_CAPITAL,
-                "purchased_quantity": int(row[4]) if len(row) > 4 and row[4] else 0,
-                "inventory": int(row[5]) if len(row) > 5 and row[5] else 0,
-                "rounds": {
-                    1: {
-                        "selling_price": int(row[6]) if len(row) > 6 and row[6] else 0,
-                        "quantity_sold": int(row[7]) if len(row) > 7 and row[7] else 0,
-                        "revenue": int(row[8]) if len(row) > 8 and row[8] else 0,
-                        "cost_total": int(row[9]) if len(row) > 9 and row[9] else 0,
-                        "profit": int(row[10]) if len(row) > 10 and row[10] else 0,
+            
+            try:
+                cost = safe_int(row[2] if len(row) > 2 else 0, 0)
+                
+                students[name] = {
+                    "business_type": row[1] if len(row) > 1 else "",
+                    "cost": cost,
+                    "recommended_price": cost * 2 if cost > 0 else 0,
+                    "initial_capital": safe_int(row[3] if len(row) > 3 else INITIAL_CAPITAL, INITIAL_CAPITAL),
+                    "purchased_quantity": safe_int(row[4] if len(row) > 4 else 0, 0),
+                    "inventory": safe_int(row[5] if len(row) > 5 else 0, 0),
+                    "rounds": {
+                        1: {
+                            "selling_price": safe_int(row[6] if len(row) > 6 else 0, 0),
+                            "quantity_sold": safe_int(row[7] if len(row) > 7 else 0, 0),
+                            "revenue": safe_int(row[8] if len(row) > 8 else 0, 0),
+                            "cost_total": safe_int(row[9] if len(row) > 9 else 0, 0),
+                            "profit": safe_int(row[10] if len(row) > 10 else 0, 0),
+                        },
+                        2: {
+                            "selling_price": safe_int(row[11] if len(row) > 11 else 0, 0),
+                            "quantity_sold": safe_int(row[12] if len(row) > 12 else 0, 0),
+                            "revenue": safe_int(row[13] if len(row) > 13 else 0, 0),
+                            "cost_total": safe_int(row[14] if len(row) > 14 else 0, 0),
+                            "profit": safe_int(row[15] if len(row) > 15 else 0, 0),
+                        }
                     },
-                    2: {
-                        "selling_price": int(row[11]) if len(row) > 11 and row[11] else 0,
-                        "quantity_sold": int(row[12]) if len(row) > 12 and row[12] else 0,
-                        "revenue": int(row[13]) if len(row) > 13 and row[13] else 0,
-                        "cost_total": int(row[14]) if len(row) > 14 and row[14] else 0,
-                        "profit": int(row[15]) if len(row) > 15 and row[15] else 0,
-                    }
-                },
-                "total_revenue": int(row[16]) if len(row) > 16 and row[16] else 0,
-                "total_cost": int(row[17]) if len(row) > 17 and row[17] else 0,
-                "total_profit": int(row[18]) if len(row) > 18 and row[18] else 0,
-                "final_capital": int(row[19]) if len(row) > 19 and row[19] else INITIAL_CAPITAL,
-                "actual_money": int(row[20]) if len(row) > 20 and row[20] else 0
-            }
+                    "total_revenue": safe_int(row[16] if len(row) > 16 else 0, 0),
+                    "total_cost": safe_int(row[17] if len(row) > 17 else 0, 0),
+                    "total_profit": safe_int(row[18] if len(row) > 18 else 0, 0),
+                    "final_capital": safe_int(row[19] if len(row) > 19 else INITIAL_CAPITAL, INITIAL_CAPITAL),
+                    "actual_money": safe_int(row[20] if len(row) > 20 else 0, 0)
+                }
+            except Exception as row_error:
+                # 개별 행 에러는 건너뛰기
+                st.warning(f"⚠️ {name}님 데이터 로드 실패 (건너뜀): {str(row_error)}")
+                continue
         
         return students
     except Exception as e:
-        st.error(f"데이터 로드 오류: {str(e)}")
+        st.error(f"❌ 데이터 로드 오류: {str(e)}")
+        st.info("💡 새로 시작하려면 Google Sheets의 '학생데이터' 시트를 삭제하고 새로고침하세요.")
         return {}
 
 # ==================== 초기화 ====================
