@@ -1587,7 +1587,7 @@ with tab4:
             st.markdown("---")
             
             # 전체 초기화
-            if st.button("🔄 모든 유형 기본값으로 초기화", type="secondary"):
+            if st.button("🔄 모든 유형 기본값으로 초기화", type="secondary", key="reset_business_types"):
                 st.warning("⚠️ 개발 중: 페이지 새로고침하면 기본값으로 돌아갑니다")
     
     with tool_tab5:
@@ -1622,7 +1622,7 @@ with tab4:
                 )
                 
                 if student_to_delete != "선택하세요":
-                    if st.button(f"🗑️ {student_to_delete} 삭제", type="secondary"):
+                    if st.button(f"🗑️ {student_to_delete} 삭제", type="secondary", key="delete_single_student"):
                         del st.session_state.students[student_to_delete]
                         
                         if st.session_state.use_google_sheets and st.session_state.worksheet:
@@ -1647,7 +1647,7 @@ with tab4:
             st.markdown("### 🔄 라운드 초기화")
             st.caption("현재 라운드를 1라운드로 되돌립니다 (학생 데이터는 유지)")
             
-            if st.button("🔄 라운드 초기화", type="secondary"):
+            if st.button("🔄 라운드 초기화", type="secondary", key="reset_round"):
                 st.session_state.current_round = 1
                 st.success("✅ 라운드가 1라운드로 초기화되었습니다!")
                 st.rerun()
@@ -1658,7 +1658,7 @@ with tab4:
             st.markdown("### 📊 판매 기록 초기화")
             st.caption("모든 학생의 판매 기록, 재고, 자본을 초기 상태로 되돌립니다")
             
-            if st.button("📊 판매 기록 초기화", type="secondary"):
+            if st.button("📊 판매 기록 초기화", type="secondary", key="reset_sales_records"):
                 if st.session_state.get('confirm_reset_sales'):
                     for name in st.session_state.students:
                         st.session_state.students[name]['purchased_quantity'] = 0
@@ -1687,7 +1687,7 @@ with tab4:
             st.markdown("### ⚠️ 전체 데이터 초기화")
             st.caption("⚠️ 모든 학생 데이터와 기록을 삭제합니다 (복구 불가능)")
             
-            if st.button("🗑️ 전체 데이터 삭제", type="secondary"):
+            if st.button("🗑️ 전체 데이터 삭제", type="secondary", key="delete_all_data"):
                 if st.session_state.get('confirm_delete_all'):
                     st.session_state.students = {}
                     st.session_state.current_round = 1
