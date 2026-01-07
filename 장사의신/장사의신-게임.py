@@ -275,16 +275,18 @@ def get_or_create_market_settings_sheet(_spreadsheet):
 @st.cache_data(ttl=300)  # 5분간 캐시
 def load_market_settings(_settings_sheet):
     """시장 설정을 불러옵니다."""
+    # 기본값 정의
+    default_settings = {
+        'total_money': 1000000,
+        'total_buyers': 30,
+        'game_mode': '전략 모드',
+        'big_spender_ratio': 20,
+        'normal_ratio': 50,
+        'frugal_ratio': 30
+    }
+    
     if not _settings_sheet:
-        # 기본값 반환
-        return {
-            'total_money': 1000000,
-            'total_buyers': 30,
-            'game_mode': '전략 모드',
-            'big_spender_ratio': 20,
-            'normal_ratio': 50,
-            'frugal_ratio': 30
-        }
+        return default_settings
     
     try:
         all_values = _settings_sheet.get_all_values()
@@ -308,17 +310,14 @@ def load_market_settings(_settings_sheet):
                 elif key == '짠물_비율':
                     settings['frugal_ratio'] = int(value)
         
+        # 빈 딕셔너리이거나 필수 키가 없으면 기본값 반환
+        if not settings or 'total_money' not in settings:
+            return default_settings
+            
         return settings
     except Exception as e:
         st.error(f"설정 로드 오류: {str(e)}")
-        return {
-            'total_money': 1000000,
-            'total_buyers': 30,
-            'game_mode': '전략 모드',
-            'big_spender_ratio': 20,
-            'normal_ratio': 50,
-            'frugal_ratio': 30
-        }
+        return default_settings
 
 def save_market_settings(settings_sheet, settings):
     """시장 설정을 저장합니다."""
@@ -655,16 +654,16 @@ else:
     st.sidebar.markdown("### 📊 시장 정보 (읽기 전용)")
     st.sidebar.caption("💡 관리자만 설정을 변경할 수 있습니다")
     
-    total_money = st.session_state.market_settings['total_money']
-    total_buyers = st.session_state.market_settings['total_buyers']
-    big_spender_ratio = st.session_state.market_settings['big_spender_ratio']
-    normal_ratio = st.session_state.market_settings['normal_ratio']
-    frugal_ratio = st.session_state.market_settings['frugal_ratio']
+    total_money = st.session_state.market_settings.get('total_money', 1000000)
+    total_buyers = st.session_state.market_settings.get('total_buyers', 30)
+    big_spender_ratio = st.session_state.market_settings.get('big_spender_ratio', 20)
+    normal_ratio = st.session_state.market_settings.get('normal_ratio', 50)
+    frugal_ratio = st.session_state.market_settings.get('frugal_ratio', 30)
     
     st.sidebar.info(f"""
     **💰 시장 총 화폐량**: {total_money:,}원  
     **👥 전체 구매자 수**: {total_buyers}명  
-    **🎮 게임 모드**: {st.session_state.market_settings['game_mode']}  
+    **🎮 게임 모드**: {st.session_state.market_settings.get('game_mode', '전략 모드')}  
     
     **구매자 비율**:  
     🤑 큰손: {big_spender_ratio}%  
@@ -673,7 +672,7 @@ else:
     """)
     
     # 모드 타입 설정
-    mode_type = "simple" if "간단" in st.session_state.market_settings['game_mode'] else "strategic"
+    mode_type = "simple" if "간단" in st.session_state.market_settings.get('game_mode', '전략 모드') else "strategic"
     
     # 게임 모드 설명
     if mode_type == "simple":
