@@ -236,6 +236,108 @@ def check_admin_password(password):
         admin_password = "admin2026"
     return password == admin_password
 
+def save_student_to_sheets(worksheet, name, student_data):
+    """학생 데이터를 Google Sheets에 저장합니다."""
+    if not worksheet:
+        return False
+    
+    try:
+        all_values = worksheet.get_all_values()
+        row_index = None
+        
+        for idx, row in enumerate(all_values[1:], start=2):
+            if row[0] == name:
+                row_index = idx
+                break
+        
+        new_row = [
+            name,
+            student_data['business_type'],
+            student_data['cost'],
+            student_data['initial_capital'],
+            student_data['purchased_quantity'],
+            student_data['inventory'],
+            student_data['rounds'][1]['selling_price'],
+            student_data['rounds'][1]['quantity_sold'],
+            student_data['rounds'][1]['revenue'],
+            student_data['rounds'][1]['cost_total'],
+            student_data['rounds'][1]['profit'],
+            student_data['rounds'][2]['selling_price'],
+            student_data['rounds'][2]['quantity_sold'],
+            student_data['rounds'][2]['revenue'],
+            student_data['rounds'][2]['cost_total'],
+            student_data['rounds'][2]['profit'],
+            student_data['total_revenue'],
+            student_data['total_cost'],
+            student_data['total_profit'],
+            student_data['final_capital'],
+            student_data.get('actual_money', 0)
+        ]
+        
+        if row_index:
+            worksheet.update(f'A{row_index}:U{row_index}', [new_row])
+        else:
+            worksheet.append_row(new_row)
+        
+        time.sleep(1.0)
+        return True
+    except Exception as e:
+        st.error(f"데이터 저장 오류: {str(e)}")
+        return False
+
+def load_students_from_sheets(worksheet):
+    """Google Sheets에서 학생 데이터를 불러옵니다."""
+    if not worksheet:
+        return {}
+    
+    try:
+        all_values = worksheet.get_all_values()
+        
+        if len(all_values) <= 1:
+            return {}
+        
+        students = {}
+        
+        for row in all_values[1:]:
+            if not row[0]:
+                continue
+            
+            name = row[0]
+            students[name] = {
+                "business_type": row[1] if len(row) > 1 else "",
+                "cost": int(row[2]) if len(row) > 2 and row[2] else 0,
+                "recommended_price": int(row[2]) * 2 if len(row) > 2 and row[2] else 0,
+                "initial_capital": int(row[3]) if len(row) > 3 and row[3] else INITIAL_CAPITAL,
+                "purchased_quantity": int(row[4]) if len(row) > 4 and row[4] else 0,
+                "inventory": int(row[5]) if len(row) > 5 and row[5] else 0,
+                "rounds": {
+                    1: {
+                        "selling_price": int(row[6]) if len(row) > 6 and row[6] else 0,
+                        "quantity_sold": int(row[7]) if len(row) > 7 and row[7] else 0,
+                        "revenue": int(row[8]) if len(row) > 8 and row[8] else 0,
+                        "cost_total": int(row[9]) if len(row) > 9 and row[9] else 0,
+                        "profit": int(row[10]) if len(row) > 10 and row[10] else 0,
+                    },
+                    2: {
+                        "selling_price": int(row[11]) if len(row) > 11 and row[11] else 0,
+                        "quantity_sold": int(row[12]) if len(row) > 12 and row[12] else 0,
+                        "revenue": int(row[13]) if len(row) > 13 and row[13] else 0,
+                        "cost_total": int(row[14]) if len(row) > 14 and row[14] else 0,
+                        "profit": int(row[15]) if len(row) > 15 and row[15] else 0,
+                    }
+                },
+                "total_revenue": int(row[16]) if len(row) > 16 and row[16] else 0,
+                "total_cost": int(row[17]) if len(row) > 17 and row[17] else 0,
+                "total_profit": int(row[18]) if len(row) > 18 and row[18] else 0,
+                "final_capital": int(row[19]) if len(row) > 19 and row[19] else INITIAL_CAPITAL,
+                "actual_money": int(row[20]) if len(row) > 20 and row[20] else 0
+            }
+        
+        return students
+    except Exception as e:
+        st.error(f"데이터 로드 오류: {str(e)}")
+        return {}
+
 # ==================== 초기화 ====================
 
 # Google Sheets 연결
@@ -272,9 +374,12 @@ if 'market_settings' not in st.session_state or \
                 'frugal_ratio': 30
             }
 
-# 학생 데이터 초기화
+# 학생 데이터 초기화 (Google Sheets에서 로드)
 if 'students' not in st.session_state:
-    st.session_state.students = {}
+    if st.session_state.use_google_sheets and st.session_state.worksheet:
+        st.session_state.students = load_students_from_sheets(st.session_state.worksheet)
+    else:
+        st.session_state.students = {}
 
 # 관리자 모드
 if 'is_admin' not in st.session_state:
@@ -333,7 +438,8 @@ if st.session_state.is_admin:
         min_value=1000000,
         max_value=100000000,
         value=total_money,
-        step=1000000
+        step=10000,
+        help="1만원 단위로 입력"
     )
     
     new_total_buyers = st.sidebar.number_input(
@@ -444,12 +550,12 @@ with tab1:
         
         with col2:
             adjusted_cost = st.number_input(
-                "최종 원가 설정",
+                "최종 원가 설정 (1만원 단위)",
                 min_value=10000,
                 max_value=500000,
                 value=business_info['cost'],
                 step=10000,
-                help="게임 밸런스에 맞게 조정하세요",
+                help="실제 화폐: 10만원권, 5만원권, 1만원권",
                 key="cost_adjustment"
             )
         
@@ -458,6 +564,42 @@ with tab1:
         
         # 추천 판매가 자동 계산
         recommended_selling_price = int(adjusted_cost * 2.0)
+        
+        # 구매자 조건 자동 표시
+        st.markdown("---")
+        st.subheader("👥 구매자 구매 조건")
+        st.caption(f"원가 {adjusted_cost:,}원 기준")
+        
+        buyer_col1, buyer_col2, buyer_col3 = st.columns(3)
+        
+        with buyer_col1:
+            big_spender_max = int(adjusted_cost * 2.5)
+            st.success(f"""
+            **💎 큰손 (20%)**  
+            {int(adjusted_cost * 1.5):,}원 ~ {big_spender_max:,}원
+            
+            품질 중시, 비싸도 OK
+            """)
+        
+        with buyer_col2:
+            normal_max = int(adjusted_cost * 2.0)
+            st.info(f"""
+            **😊 일반 (50%)**  
+            {int(adjusted_cost * 1.3):,}원 ~ {normal_max:,}원
+            
+            가성비 중시, 적정가
+            """)
+        
+        with buyer_col3:
+            frugal_max = int(adjusted_cost * 1.5)
+            st.warning(f"""
+            **🤏 짠물 (30%)**  
+            {adjusted_cost:,}원 ~ {frugal_max:,}원
+            
+            저가 선호, 싼 것만
+            """)
+        
+        st.info(f"💡 **추천 판매가 {recommended_selling_price:,}원**: 큰손(2명) + 일반(5명) = 7명 구매 가능!")
         
         st.markdown("---")
         
@@ -497,6 +639,10 @@ with tab1:
                     "final_capital": INITIAL_CAPITAL,  # 아직 변화 없음
                     "actual_money": 0  # 실물 소지금 (나중에 입력)
                 }
+                
+                # Google Sheets에 저장
+                if st.session_state.use_google_sheets and st.session_state.worksheet:
+                    save_student_to_sheets(st.session_state.worksheet, student_name, st.session_state.students[student_name])
                 
                 st.balloons()
                 st.success(f"✅ {student_name}님이 등록되었습니다!")
@@ -600,6 +746,11 @@ with tab2:
                             st.session_state.students[name]['purchased_quantity'] = purchase_quantity
                             st.session_state.students[name]['inventory'] = purchase_quantity
                             st.session_state.students[name]['final_capital'] = remaining_capital
+                            
+                            # Google Sheets에 저장
+                            if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                            
                             st.success(f"✅ {purchase_quantity}개 구매 완료!")
                             st.rerun()
                     else:
@@ -621,11 +772,12 @@ with tab2:
                     
                     with sell_col1:
                         selling_price = st.number_input(
-                            "판매가 (원)",
+                            "판매가 (1만원 단위)",
                             min_value=0,
                             max_value=1000000,
                             value=data['recommended_price'],
                             step=10000,
+                            help="10만원권, 5만원권, 1만원권으로 거래",
                             key=f"price_{name}_r{st.session_state.current_round}"
                         )
                     
@@ -645,7 +797,14 @@ with tab2:
                     
                     if quantity_sold > 0:
                         revenue = selling_price * quantity_sold
-                        cost_total = data['cost'] * quantity_sold
+                        
+                        # 대여업 2라운드는 원가 0원 (이미 구매한 물건 재사용)
+                        if "빌려주기" in data['business_type'] and st.session_state.current_round == 2:
+                            cost_total = 0
+                            st.info("🎪 대여업 2라운드: 원가 0원! (물건 재사용)")
+                        else:
+                            cost_total = data['cost'] * quantity_sold
+                        
                         profit = revenue - cost_total
                         
                         result_col1, result_col2, result_col3 = st.columns(3)
@@ -686,6 +845,10 @@ with tab2:
                                 st.session_state.students[name]['rounds'][r]['profit'] 
                                 for r in [1, 2]
                             )
+                            
+                            # Google Sheets에 저장
+                            if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
                             
                             st.success(f"✅ {quantity_sold}개 판매 기록 완료!")
                             st.balloons()
@@ -838,6 +1001,92 @@ with tab3:
         if df_data:
             df = pd.DataFrame(df_data)
             st.dataframe(df, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # 최종 정산 (실물 화폐 검증)
+        if st.session_state.is_admin:
+            st.subheader("💰 최종 정산 (실물 화폐 검증)")
+            st.caption("학생들이 실제로 손에 쥔 돈을 세고 시스템과 비교합니다")
+            
+            for name, data in st.session_state.students.items():
+                with st.expander(f"💵 {name} - 소지금 확인"):
+                    verify_col1, verify_col2, verify_col3 = st.columns(3)
+                    
+                    with verify_col1:
+                        expected_capital = data['final_capital']
+                        st.metric("💻 시스템 계산", f"{expected_capital:,}원")
+                        st.caption("초기자본 - 구매비용 + 판매수입")
+                    
+                    with verify_col2:
+                        actual_money = st.number_input(
+                            "💰 실제 소지금 (손에 쥔 돈)",
+                            min_value=0,
+                            max_value=10000000,
+                            value=data.get('actual_money', expected_capital),
+                            step=10000,
+                            key=f"actual_{name}",
+                            help="학생이 세어본 실제 돈"
+                        )
+                        
+                        if st.button("✅ 확정", key=f"confirm_{name}"):
+                            st.session_state.students[name]['actual_money'] = actual_money
+                            
+                            # Google Sheets에 저장
+                            if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                            
+                            st.success("기록됨!")
+                            st.rerun()
+                    
+                    with verify_col3:
+                        diff = actual_money - expected_capital
+                        if diff == 0:
+                            st.success("✅ 일치!")
+                            st.balloons()
+                        elif diff > 0:
+                            st.warning(f"💰 {diff:,}원 많음")
+                            st.caption("확인 필요")
+                        else:
+                            st.error(f"💸 {abs(diff):,}원 부족")
+                            st.caption("확인 필요")
+            
+            st.markdown("---")
+            
+            # 화폐 배분 가이드
+            st.subheader("💵 화폐 준비 가이드")
+            
+            num_students = len(st.session_state.students)
+            if num_students > 0:
+                guide_col1, guide_col2 = st.columns(2)
+                
+                with guide_col1:
+                    st.markdown("#### 📦 초기 자본 배분")
+                    st.write(f"**학생 수**: {num_students}명")
+                    st.write(f"**인당 자본**: {INITIAL_CAPITAL:,}원")
+                    st.write("")
+                    st.info(f"""
+                    **필요한 화폐** (학생 {num_students}명 기준):
+                    - 10만원권: {num_students * 4}장
+                    - 5만원권: {num_students * 2}장
+                    - 1만원권: 0장
+                    
+                    **총액**: {INITIAL_CAPITAL * num_students:,}원
+                    """)
+                
+                with guide_col2:
+                    st.markdown("#### 💰 거스름돈 준비")
+                    total_market = st.session_state.market_settings.get('total_money', 10000000)
+                    st.write(f"**시장 총 화폐**: {total_market:,}원")
+                    st.write("")
+                    st.success(f"""
+                    **거래용 화폐** (구매자 역할):
+                    - 10만원권: 50장 이상
+                    - 5만원권: 40장 이상
+                    - 1만원권: 100장 이상
+                    
+                    **권장 총액**: {total_market:,}원
+                    """)
 
 # ==================== TAB 4: 도구 ====================
 with tab4:
@@ -868,11 +1117,12 @@ with tab4:
                 
                 with sim_col1:
                     sim_price = st.number_input(
-                        "판매가 설정",
+                        "판매가 설정 (1만원 단위)",
                         min_value=0,
                         max_value=1000000,
                         value=student_data['recommended_price'],
                         step=10000,
+                        help="실제 화폐 단위",
                         key="sim_price"
                     )
                 
