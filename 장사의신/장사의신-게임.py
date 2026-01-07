@@ -246,17 +246,17 @@ def delete_all_students_from_sheets(worksheet):
 
 # 시장 설정 관리 함수들
 @st.cache_resource(ttl=600)  # 10분간 캐시
-def get_or_create_market_settings_sheet(spreadsheet):
+def get_or_create_market_settings_sheet(_spreadsheet):
     """시장 설정 시트를 가져오거나 생성합니다."""
-    if not spreadsheet:
+    if not _spreadsheet:
         return None
     
     try:
         try:
-            settings_sheet = spreadsheet.worksheet("시장설정")
+            settings_sheet = _spreadsheet.worksheet("시장설정")
         except:
             # 시장설정 시트 생성
-            settings_sheet = spreadsheet.add_worksheet(title="시장설정", rows="10", cols="2")
+            settings_sheet = _spreadsheet.add_worksheet(title="시장설정", rows="10", cols="2")
             # 기본값 설정
             settings_sheet.update('A1:B6', [
                 ['설정항목', '값'],
