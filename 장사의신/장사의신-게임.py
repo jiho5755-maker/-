@@ -240,6 +240,109 @@ def delete_all_students_from_sheets(worksheet):
         st.error(f"데이터 삭제 오류: {str(e)}")
         return False
 
+# 시장 설정 관리 함수들
+def get_or_create_market_settings_sheet(spreadsheet):
+    """시장 설정 시트를 가져오거나 생성합니다."""
+    if not spreadsheet:
+        return None
+    
+    try:
+        try:
+            settings_sheet = spreadsheet.worksheet("시장설정")
+        except:
+            # 시장설정 시트 생성
+            settings_sheet = spreadsheet.add_worksheet(title="시장설정", rows="10", cols="2")
+            # 기본값 설정
+            settings_sheet.update('A1:B6', [
+                ['설정항목', '값'],
+                ['시장_총_화폐량', '1000000'],
+                ['전체_구매자_수', '30'],
+                ['게임_모드', '전략 모드'],
+                ['큰손_비율', '20'],
+                ['일반_비율', '50'],
+                ['짠물_비율', '30']
+            ])
+        return settings_sheet
+    except Exception as e:
+        st.error(f"시장설정 시트 오류: {str(e)}")
+        return None
+
+def load_market_settings(settings_sheet):
+    """시장 설정을 불러옵니다."""
+    if not settings_sheet:
+        # 기본값 반환
+        return {
+            'total_money': 1000000,
+            'total_buyers': 30,
+            'game_mode': '전략 모드',
+            'big_spender_ratio': 20,
+            'normal_ratio': 50,
+            'frugal_ratio': 30
+        }
+    
+    try:
+        all_values = settings_sheet.get_all_values()
+        settings = {}
+        
+        for row in all_values[1:]:  # 헤더 제외
+            if len(row) >= 2:
+                key = row[0]
+                value = row[1]
+                
+                if key == '시장_총_화폐량':
+                    settings['total_money'] = int(value)
+                elif key == '전체_구매자_수':
+                    settings['total_buyers'] = int(value)
+                elif key == '게임_모드':
+                    settings['game_mode'] = value
+                elif key == '큰손_비율':
+                    settings['big_spender_ratio'] = int(value)
+                elif key == '일반_비율':
+                    settings['normal_ratio'] = int(value)
+                elif key == '짠물_비율':
+                    settings['frugal_ratio'] = int(value)
+        
+        return settings
+    except Exception as e:
+        st.error(f"설정 로드 오류: {str(e)}")
+        return {
+            'total_money': 1000000,
+            'total_buyers': 30,
+            'game_mode': '전략 모드',
+            'big_spender_ratio': 20,
+            'normal_ratio': 50,
+            'frugal_ratio': 30
+        }
+
+def save_market_settings(settings_sheet, settings):
+    """시장 설정을 저장합니다."""
+    if not settings_sheet:
+        return False
+    
+    try:
+        settings_sheet.update('B2:B7', [
+            [str(settings['total_money'])],
+            [str(settings['total_buyers'])],
+            [settings['game_mode']],
+            [str(settings['big_spender_ratio'])],
+            [str(settings['normal_ratio'])],
+            [str(settings['frugal_ratio'])]
+        ])
+        time.sleep(0.5)  # API 제한 방지
+        return True
+    except Exception as e:
+        st.error(f"설정 저장 오류: {str(e)}")
+        return False
+
+def check_admin_password(password):
+    """관리자 비밀번호 확인"""
+    try:
+        admin_password = st.secrets.get("admin_password", "admin2026")
+    except:
+        admin_password = "admin2026"
+    
+    return password == admin_password
+
 # AI 창업 아이템 분석 함수
 def analyze_business_idea_with_ai(business_idea, market_money, num_buyers):
     """AI가 창업 아이템을 분석하고 원가율, 노력도 등을 제안합니다."""
@@ -348,6 +451,9 @@ if 'worksheet' not in st.session_state:
     spreadsheet, worksheet = get_or_create_spreadsheet()
     st.session_state.worksheet = worksheet
     st.session_state.spreadsheet = spreadsheet
+    
+    # 시장 설정 시트 로드
+    st.session_state.settings_sheet = get_or_create_market_settings_sheet(spreadsheet)
 
 # 데이터 로드 (Google Sheets 또는 로컬 session_state)
 if 'use_google_sheets' not in st.session_state:
@@ -360,6 +466,25 @@ if 'students' not in st.session_state:
     else:
         # 로컬 모드
         st.session_state.students = {}
+
+# 시장 설정 로드
+if 'market_settings' not in st.session_state:
+    if st.session_state.use_google_sheets and hasattr(st.session_state, 'settings_sheet'):
+        st.session_state.market_settings = load_market_settings(st.session_state.settings_sheet)
+    else:
+        # 기본값
+        st.session_state.market_settings = {
+            'total_money': 1000000,
+            'total_buyers': 30,
+            'game_mode': '전략 모드',
+            'big_spender_ratio': 20,
+            'normal_ratio': 50,
+            'frugal_ratio': 30
+        }
+
+# 관리자 모드 상태
+if 'is_admin' not in st.session_state:
+    st.session_state.is_admin = False
 
 if 'current_round' not in st.session_state:
     st.session_state.current_round = 1
@@ -374,8 +499,33 @@ if 'last_sync_time' not in st.session_state:
 st.title("🏪 장사의 신 게임 관리 시스템")
 st.markdown("---")
 
-# 사이드바: 시장 설정
-st.sidebar.header("⚙️ 시장 설정 (Admin)")
+# 사이드바: 관리자 인증 및 시장 설정
+st.sidebar.header("🏪 장사의 신")
+
+# 관리자 비밀번호 입력
+st.sidebar.markdown("### 🔐 관리자 로그인")
+admin_password_input = st.sidebar.text_input(
+    "비밀번호",
+    type="password",
+    placeholder="관리자 비밀번호 입력",
+    help="관리자만 시장 설정을 변경할 수 있습니다",
+    key="admin_password"
+)
+
+if admin_password_input:
+    if check_admin_password(admin_password_input):
+        st.session_state.is_admin = True
+        st.sidebar.success("✅ 관리자 모드 활성화")
+    else:
+        st.session_state.is_admin = False
+        st.sidebar.error("❌ 비밀번호가 틀렸습니다")
+else:
+    if st.session_state.is_admin:
+        st.sidebar.info("👥 학생 모드 (설정 읽기 전용)")
+        if st.sidebar.button("🔐 관리자 모드로 전환"):
+            pass  # 비밀번호 입력란에 포커스
+
+st.sidebar.markdown("---")
 
 # Google Sheets 연결 상태
 st.sidebar.markdown("### 🔗 데이터 저장 방식")
@@ -386,6 +536,7 @@ if st.session_state.use_google_sheets and st.session_state.worksheet:
     # 새로고침 버튼
     if st.sidebar.button("🔄 데이터 새로고침", help="Google Sheets에서 최신 데이터를 불러옵니다"):
         st.session_state.students = load_students_from_sheets(st.session_state.worksheet)
+        st.session_state.market_settings = load_market_settings(st.session_state.settings_sheet)
         st.session_state.last_sync_time = time.time()
         st.sidebar.success("✅ 데이터가 새로고침되었습니다!")
         st.rerun()
@@ -396,123 +547,143 @@ if st.session_state.use_google_sheets and st.session_state.worksheet:
 else:
     st.sidebar.warning("⚠️ 로컬 모드 (세션 전용)")
     st.sidebar.caption("💡 Google Sheets를 설정하면 모든 사용자가 데이터를 공유할 수 있습니다.")
-    
-    with st.sidebar.expander("📖 Google Sheets 설정 방법", expanded=False):
-        st.markdown("""
-        1. Google Cloud Console에서 서비스 계정 생성
-        2. Google Sheets API 활성화
-        3. 서비스 계정 키(JSON) 다운로드
-        4. Streamlit Secrets에 추가:
-        ```
-        [gcp_service_account]
-        type = "service_account"
-        project_id = "your-project-id"
-        private_key = "-----BEGIN PRIVATE KEY-----\\n..."
-        client_email = "your-service-account@..."
-        ...
-        ```
-        """)
 
 st.sidebar.markdown("---")
 
-# AI 설정
-st.sidebar.markdown("### 🤖 AI 조언자 설정")
-with st.sidebar.expander("OpenAI API 키 설정", expanded=False):
-    api_key_input = st.text_input(
-        "API 키 입력",
-        type="password",
-        help="OpenAI API 키를 입력하면 AI 조언자 기능이 활성화됩니다",
-        key="openai_api_key_input"
+# 시장 설정 (관리자/학생 모드 분기)
+if st.session_state.is_admin:
+    # ==== 관리자 모드: 설정 변경 가능 ====
+    st.sidebar.markdown("### ⚙️ 시장 설정 (관리자)")
+    
+    total_money = st.sidebar.number_input(
+        "💰 시장 총 화폐량 (원)",
+        min_value=10000,
+        max_value=10000000,
+        value=st.session_state.market_settings['total_money'],
+        step=10000,
+        help="게임에서 사용할 전체 화폐량을 입력하세요"
     )
     
-    # Streamlit Secrets 확인
-    has_secret_key = False
-    try:
-        secret_key = st.secrets.get("OPENAI_API_KEY")
-        if secret_key:
-            has_secret_key = True
-    except:
-        pass
+    total_buyers = st.sidebar.number_input(
+        "👥 전체 구매자(조교) 수",
+        min_value=5,
+        max_value=200,
+        value=st.session_state.market_settings['total_buyers'],
+        step=1,
+        help="구매자 역할을 하는 조교/선생님 인원수"
+    )
     
-    if api_key_input:
-        os.environ["OPENAI_API_KEY"] = api_key_input
-        st.success("✅ AI 조언자 활성화됨! (세션용)")
-        st.caption("💡 페이지를 새로고침하면 다시 입력해야 합니다.")
-    elif has_secret_key:
-        st.success("✅ AI 조언자 사용 가능 (Secrets 설정됨)")
-        st.caption("🔒 Streamlit Secrets에서 API 키를 안전하게 관리 중입니다.")
+    st.sidebar.markdown("### 🎮 게임 모드 선택")
+    
+    game_mode_options = ["🟢 간단 모드 (초등 저학년)", "🔵 전략 모드 (초등 고학년 이상)"]
+    current_mode_index = 1 if "전략" in st.session_state.market_settings['game_mode'] else 0
+    
+    game_mode = st.sidebar.radio(
+        "난이도 선택",
+        game_mode_options,
+        index=current_mode_index,
+        help="게임의 난이도와 전략적 깊이를 선택하세요"
+    )
+    
+    if "간단" in game_mode:
+        st.sidebar.info("""
+        **🟢 간단 모드**
+        - 모든 고객이 4개씩 구매
+        - 계산이 쉽고 이해하기 쉬움
+        - 초등 3-4학년 추천
+        """)
+        mode_type = "simple"
     else:
-        st.warning("⚠️ AI 조언자 비활성화")
-        st.caption("API 키를 입력하거나 Streamlit Secrets에 설정해주세요.")
+        st.sidebar.success("""
+        **🔵 전략 모드**
+        - 큰손: 2개 (고가 상품)
+        - 일반: 4개 (중가 상품)
+        - 짠물: 6개 (저가 상품)
+        - 타겟팅 전략이 중요!
+        - 초등 5-6학년, 중학생 추천
+        """)
+        mode_type = "strategic"
     
-    st.caption("💡 API 키는 [OpenAI 웹사이트](https://platform.openai.com/api-keys)에서 발급받을 수 있습니다.")
+    st.sidebar.markdown("### 🎯 구매자 성향 비율 설정")
+    st.sidebar.info("💡 세 가지 비율의 합이 100%가 되도록 설정하세요!")
+    
+    col1, col2, col3 = st.sidebar.columns(3)
+    with col1:
+        big_spender_ratio = st.number_input("🤑 큰손", min_value=0, max_value=100, value=st.session_state.market_settings['big_spender_ratio'], step=5)
+    with col2:
+        normal_ratio = st.number_input("😊 일반", min_value=0, max_value=100, value=st.session_state.market_settings['normal_ratio'], step=5)
+    with col3:
+        frugal_ratio = st.number_input("🤏 짠물", min_value=0, max_value=100, value=st.session_state.market_settings['frugal_ratio'], step=5)
+    
+    # 비율 합계 체크
+    total_ratio = big_spender_ratio + normal_ratio + frugal_ratio
+    if total_ratio != 100:
+        st.sidebar.error(f"⚠️ 비율 합계: {total_ratio}% (100%가 되어야 합니다!)")
+    else:
+        st.sidebar.success("✅ 비율 설정 완료!")
+    
+    # 설정 저장 버튼
+    if st.sidebar.button("💾 설정 저장", type="primary"):
+        new_settings = {
+            'total_money': total_money,
+            'total_buyers': total_buyers,
+            'game_mode': '간단 모드' if '간단' in game_mode else '전략 모드',
+            'big_spender_ratio': big_spender_ratio,
+            'normal_ratio': normal_ratio,
+            'frugal_ratio': frugal_ratio
+        }
+        st.session_state.market_settings = new_settings
+        
+        # Google Sheets에 저장
+        if st.session_state.use_google_sheets and hasattr(st.session_state, 'settings_sheet'):
+            if save_market_settings(st.session_state.settings_sheet, new_settings):
+                st.sidebar.success("✅ 설정이 저장되었습니다!")
+            else:
+                st.sidebar.warning("⚠️ Google Sheets 저장 실패 (로컬에는 저장됨)")
+        st.rerun()
 
-st.sidebar.markdown("### 💵 시장 기본 설정")
-
-total_money = st.sidebar.number_input(
-    "💰 시장 총 화폐량 (원)",
-    min_value=10000,
-    max_value=10000000,
-    value=1000000,
-    step=10000,
-    help="게임에서 사용할 전체 화폐량을 입력하세요"
-)
-
-total_buyers = st.sidebar.number_input(
-    "👥 전체 구매자(조교) 수",
-    min_value=5,
-    max_value=200,
-    value=30,
-    step=1,
-    help="구매자 역할을 하는 조교/선생님 인원수"
-)
-
-st.sidebar.markdown("### 🎮 게임 모드 선택")
-
-game_mode = st.sidebar.radio(
-    "난이도 선택",
-    ["🟢 간단 모드 (초등 저학년)", "🔵 전략 모드 (초등 고학년 이상)"],
-    help="게임의 난이도와 전략적 깊이를 선택하세요"
-)
-
-if "간단" in game_mode:
-    st.sidebar.info("""
-    **🟢 간단 모드**
-    - 모든 고객이 4개씩 구매
-    - 계산이 쉽고 이해하기 쉬움
-    - 초등 3-4학년 추천
-    """)
-    mode_type = "simple"
 else:
-    st.sidebar.success("""
-    **🔵 전략 모드**
-    - 큰손: 2개 (고가 상품)
-    - 일반: 4개 (중가 상품)
-    - 짠물: 6개 (저가 상품)
-    - 타겟팅 전략이 중요!
-    - 초등 5-6학년, 중학생 추천
+    # ==== 학생 모드: 읽기 전용 ====
+    st.sidebar.markdown("### 📊 시장 정보 (읽기 전용)")
+    st.sidebar.caption("💡 관리자만 설정을 변경할 수 있습니다")
+    
+    total_money = st.session_state.market_settings['total_money']
+    total_buyers = st.session_state.market_settings['total_buyers']
+    big_spender_ratio = st.session_state.market_settings['big_spender_ratio']
+    normal_ratio = st.session_state.market_settings['normal_ratio']
+    frugal_ratio = st.session_state.market_settings['frugal_ratio']
+    
+    st.sidebar.info(f"""
+    **💰 시장 총 화폐량**: {total_money:,}원  
+    **👥 전체 구매자 수**: {total_buyers}명  
+    **🎮 게임 모드**: {st.session_state.market_settings['game_mode']}  
+    
+    **구매자 비율**:  
+    🤑 큰손: {big_spender_ratio}%  
+    😊 일반: {normal_ratio}%  
+    🤏 짠물: {frugal_ratio}%
     """)
-    mode_type = "strategic"
+    
+    # 모드 타입 설정
+    mode_type = "simple" if "간단" in st.session_state.market_settings['game_mode'] else "strategic"
+    
+    # 게임 모드 설명
+    if mode_type == "simple":
+        st.sidebar.info("""
+        **🟢 간단 모드**
+        - 모든 고객이 4개씩 구매
+        """)
+    else:
+        st.sidebar.success("""
+        **🔵 전략 모드**
+        - 큰손: 2개 (고가)
+        - 일반: 4개 (중가)
+        - 짠물: 6개 (저가)
+        """)
+    
+    total_ratio = 100  # 학생 모드에서는 항상 100%
 
-st.sidebar.markdown("### 🎯 구매자 성향 비율 설정")
-st.sidebar.info("💡 세 가지 비율의 합이 100%가 되도록 설정하세요!")
-
-col1, col2, col3 = st.sidebar.columns(3)
-with col1:
-    big_spender_ratio = st.number_input("🤑 큰손", min_value=0, max_value=100, value=20, step=5)
-with col2:
-    normal_ratio = st.number_input("😊 일반", min_value=0, max_value=100, value=50, step=5)
-with col3:
-    frugal_ratio = st.number_input("🤏 짠물", min_value=0, max_value=100, value=30, step=5)
-
-# 비율 합계 체크
-total_ratio = big_spender_ratio + normal_ratio + frugal_ratio
-if total_ratio != 100:
-    st.sidebar.error(f"⚠️ 비율 합계: {total_ratio}% (100%가 되어야 합니다!)")
-else:
-    st.sidebar.success("✅ 비율 설정 완료!")
-
-# 구매자 그룹별 계산
+# 구매자 그룹별 계산 (공통)
 if total_ratio == 100:
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📊 구매자 그룹 분석")
