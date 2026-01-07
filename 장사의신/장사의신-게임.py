@@ -358,6 +358,25 @@ def load_students_from_sheets(worksheet):
         st.info("💡 새로 시작하려면 Google Sheets의 '학생데이터' 시트를 삭제하고 새로고침하세요.")
         return {}
 
+def delete_all_students_from_sheets(worksheet):
+    """Google Sheets에서 모든 학생 데이터를 삭제합니다."""
+    if not worksheet:
+        return False
+    
+    try:
+        # 헤더 유지하고 데이터만 삭제
+        worksheet.clear()
+        headers = ["학생이름", "사업유형", "원가", "초기자본", "구매수량", "재고",
+                  "1R판매가", "1R판매수", "1R매출", "1R원가", "1R이익",
+                  "2R판매가", "2R판매수", "2R매출", "2R원가", "2R이익",
+                  "총매출", "총원가", "총순이익", "최종자본", "실물소지금"]
+        worksheet.update('A1:U1', [headers])
+        time.sleep(1.0)
+        return True
+    except Exception as e:
+        st.error(f"데이터 삭제 오류: {str(e)}")
+        return False
+
 # ==================== 초기화 ====================
 
 # Google Sheets 연결
@@ -530,12 +549,77 @@ with tab1:
         
         st.markdown("---")
         
-        st.subheader("2️⃣ 창업 유형 선택")
+        st.subheader("2️⃣ AI 창업 아이디어 분석")
+        
+        student_idea = st.text_area(
+            "💡 학생의 창업 아이디어",
+            placeholder="예: 손으로 만든 팔찌를 판매하고 싶어요",
+            help="학생이 설명한 창업 아이템을 입력하세요",
+            key="student_idea"
+        )
+        
+        if student_idea and st.button("🤖 AI 분석 시작", key="analyze_idea"):
+            with st.spinner("AI가 아이디어를 분석 중입니다..."):
+                try:
+                    openai_api_key = st.secrets.get("OPENAI_API_KEY", "")
+                    
+                    if not openai_api_key:
+                        st.error("⚠️ OpenAI API 키가 설정되지 않았습니다.")
+                    else:
+                        from openai import OpenAI
+                        client = OpenAI(api_key=openai_api_key)
+                        
+                        # AI에게 분석 요청
+                        prompt = f"""
+다음 학생의 창업 아이디어를 분석하고, 가장 적합한 비즈니스 유형을 추천해주세요.
+
+학생 아이디어: {student_idea}
+
+비즈니스 유형 목록:
+{', '.join(BUSINESS_TYPES.keys())}
+
+다음 정보를 포함해서 답변해주세요:
+1. 추천 유형 (위 목록 중 1개)
+2. 추천 이유 (2-3문장)
+3. 성공을 위한 조언 (2-3문장)
+
+형식:
+추천유형: [유형명]
+이유: [설명]
+조언: [설명]
+"""
+                        
+                        response = client.chat.completions.create(
+                            model="gpt-4o-mini",
+                            messages=[
+                                {"role": "system", "content": "당신은 초등학생부터 고등학생까지를 대상으로 하는 창업 교육 전문가입니다."},
+                                {"role": "user", "content": prompt}
+                            ],
+                            temperature=0.7,
+                            max_tokens=500
+                        )
+                        
+                        ai_response = response.choices[0].message.content
+                        st.session_state['ai_analysis'] = ai_response
+                        st.success("✅ AI 분석 완료!")
+                        st.markdown(ai_response)
+                
+                except Exception as e:
+                    st.error(f"⚠️ AI 분석 오류: {str(e)}")
+        
+        # AI 분석 결과 표시
+        if 'ai_analysis' in st.session_state and st.session_state['ai_analysis']:
+            with st.expander("📊 AI 분석 결과 보기", expanded=True):
+                st.markdown(st.session_state['ai_analysis'])
+        
+        st.markdown("---")
+        
+        st.subheader("3️⃣ 창업 유형 선택")
         
         selected_business = st.selectbox(
             "사업 유형",
             options=list(BUSINESS_TYPES.keys()),
-            help="학생의 아이디어에 맞는 유형 선택"
+            help="학생의 아이디어에 맞는 유형 선택 (AI 추천 참고)"
         )
         
         business_info = BUSINESS_TYPES[selected_business]
@@ -561,7 +645,7 @@ with tab1:
         
         st.markdown("---")
         
-        st.subheader("3️⃣ 원가 조정 (관리자)")
+        st.subheader("4️⃣ 원가 조정 (관리자)")
         
         col1, col2 = st.columns(2)
         
@@ -623,7 +707,24 @@ with tab1:
         
         st.markdown("---")
         
-        st.subheader("4️⃣ 학생 등록")
+        st.subheader("5️⃣ 초기 자본금 설정")
+        
+        custom_capital = st.number_input(
+            "💰 이 학생의 초기 자본금",
+            min_value=100000,
+            max_value=10000000,
+            value=INITIAL_CAPITAL,
+            step=10000,
+            help="기본 500,000원 / 학생별로 다르게 설정 가능",
+            key="custom_capital"
+        )
+        
+        if custom_capital != INITIAL_CAPITAL:
+            st.warning(f"⚠️ 자본금 조정: {INITIAL_CAPITAL:,}원 → {custom_capital:,}원")
+        
+        st.markdown("---")
+        
+        st.subheader("6️⃣ 학생 등록")
         
         if st.button("✅ 학생 등록하기", type="primary", key="register_student"):
             if not student_name:
@@ -634,7 +735,7 @@ with tab1:
                     "business_type": selected_business,
                     "cost": adjusted_cost,
                     "recommended_price": recommended_selling_price,
-                    "initial_capital": INITIAL_CAPITAL,
+                    "initial_capital": custom_capital,
                     "purchased_quantity": 0,  # 아직 구매 안 함
                     "inventory": 0,
                     "rounds": {
@@ -656,7 +757,7 @@ with tab1:
                     "total_revenue": 0,
                     "total_cost": 0,
                     "total_profit": 0,
-                    "final_capital": INITIAL_CAPITAL,  # 아직 변화 없음
+                    "final_capital": custom_capital,  # 초기 자본금
                     "actual_money": 0  # 실물 소지금 (나중에 입력)
                 }
                 
@@ -889,6 +990,83 @@ with tab2:
                     st.info(f"**총 순이익**\n\n{data['total_profit']:,}원")
                 with status_col4:
                     st.info(f"**현재 자본**\n\n{data['final_capital']:,}원")
+                
+                # 관리자 전용: 데이터 수정/삭제
+                if st.session_state.is_admin:
+                    st.markdown("---")
+                    st.markdown("### ⚙️ 관리자 기능")
+                    
+                    edit_col1, edit_col2, edit_col3 = st.columns(3)
+                    
+                    with edit_col1:
+                        if st.button("📝 정보 수정", key=f"edit_{name}"):
+                            st.session_state[f'editing_{name}'] = True
+                            st.rerun()
+                    
+                    with edit_col2:
+                        if st.button("🔄 재고 초기화", key=f"reset_inventory_{name}"):
+                            st.session_state.students[name]['purchased_quantity'] = 0
+                            st.session_state.students[name]['inventory'] = 0
+                            st.session_state.students[name]['final_capital'] = data['initial_capital']
+                            
+                            if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                            
+                            st.success("✅ 재고 초기화됨!")
+                            st.rerun()
+                    
+                    with edit_col3:
+                        if st.button("🗑️ 학생 삭제", key=f"delete_{name}", type="secondary"):
+                            if st.session_state.get(f'confirm_delete_{name}'):
+                                del st.session_state.students[name]
+                                st.success(f"✅ {name}님 삭제됨!")
+                                st.rerun()
+                            else:
+                                st.session_state[f'confirm_delete_{name}'] = True
+                                st.warning("⚠️ 한 번 더 클릭하여 삭제 확인")
+                    
+                    # 정보 수정 모드
+                    if st.session_state.get(f'editing_{name}'):
+                        st.markdown("---")
+                        st.markdown("#### 📝 정보 수정")
+                        
+                        edit_form_col1, edit_form_col2 = st.columns(2)
+                        
+                        with edit_form_col1:
+                            new_cost = st.number_input(
+                                "원가 수정",
+                                min_value=10000,
+                                max_value=500000,
+                                value=data['cost'],
+                                step=10000,
+                                key=f"edit_cost_{name}"
+                            )
+                        
+                        with edit_form_col2:
+                            new_capital = st.number_input(
+                                "초기 자본 수정",
+                                min_value=100000,
+                                max_value=10000000,
+                                value=data['initial_capital'],
+                                step=10000,
+                                key=f"edit_capital_{name}"
+                            )
+                        
+                        if st.button("✅ 수정 완료", key=f"save_edit_{name}"):
+                            st.session_state.students[name]['cost'] = new_cost
+                            st.session_state.students[name]['recommended_price'] = new_cost * 2
+                            st.session_state.students[name]['initial_capital'] = new_capital
+                            
+                            # 자본금 변경 시 현재 자본도 조정
+                            capital_diff = new_capital - data['initial_capital']
+                            st.session_state.students[name]['final_capital'] += capital_diff
+                            
+                            if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                            
+                            st.session_state[f'editing_{name}'] = False
+                            st.success("✅ 수정 완료!")
+                            st.rerun()
 
         st.markdown("---")
         
@@ -1112,10 +1290,12 @@ with tab3:
 with tab4:
     st.header("🎯 게임 도구")
     
-    tool_tab1, tool_tab2, tool_tab3 = st.tabs([
+    tool_tab1, tool_tab2, tool_tab3, tool_tab4, tool_tab5 = st.tabs([
         "💰 수익 시뮬레이터",
         "📋 구매자 가이드",
-        "📊 학습 리포트"
+        "📊 학습 리포트",
+        "⚙️ 유형 밸런스",
+        "🗑️ 데이터 관리"
     ])
     
     with tool_tab1:
@@ -1221,37 +1401,79 @@ with tab4:
             
             st.markdown("---")
             
+            # 학생별 구매 가격대 정보
+            if st.session_state.students:
+                st.markdown("### 📊 학생별 구매 가격 범위")
+                st.caption("각 학생의 아이템에 대한 구매 조건")
+                
+                for name, data in st.session_state.students.items():
+                    cost = data['cost']
+                    
+                    # 각 구매자 유형별 가격대
+                    big_spender_range = f"{cost:,}원 ~ {int(cost * 2.5):,}원"
+                    normal_range = f"{cost:,}원 ~ {int(cost * 2.0):,}원"
+                    frugal_range = f"{cost:,}원 ~ {int(cost * 1.5):,}원"
+                    
+                    with st.expander(f"**{name}** - {data['business_type']}"):
+                        guide_col1, guide_col2, guide_col3 = st.columns(3)
+                        
+                        with guide_col1:
+                            st.markdown(f"""
+                            **💎 큰손**  
+                            {big_spender_range}  
+                            (원가의 ~2.5배)
+                            """)
+                        
+                        with guide_col2:
+                            st.markdown(f"""
+                            **😊 일반**  
+                            {normal_range}  
+                            (원가의 ~2.0배)
+                            """)
+                        
+                        with guide_col3:
+                            st.markdown(f"""
+                            **💰 짠물**  
+                            {frugal_range}  
+                            (원가의 ~1.5배)
+                            """)
+                
+                st.markdown("---")
+            
             # 큰손
-            st.markdown("### 💎 큰손 구매자")
+            st.markdown("### 💎 큰손 구매자 (상위 20%)")
             for i in range(big_spender_count):
                 with st.expander(f"큰손 #{i+1}"):
                     st.write(f"""
                     **💰 예산**: 1,000,000원  
                     **🎯 특성**: 품질 중시, 비싸도 괜찮음  
-                    **📋 구매 조건**: 원가의 2.5배 이하면 구매  
-                    **💬 말투**: "이거 품질 좋아 보이네요!", "조금 비싸도 괜찮아요"
+                    **📋 구매 조건**: **원가 ~ 원가의 2.5배** 가격이면 구매  
+                    **💬 말투**: "이거 품질 좋아 보이네요!", "조금 비싸도 괜찮아요"  
+                    **🎪 행동**: 학생들 설명 듣고 마음에 들면 적극 구매
                     """)
             
             # 일반
-            st.markdown("### 😊 일반 구매자")
+            st.markdown("### 😊 일반 구매자 (중간 50%)")
             for i in range(normal_count):
                 with st.expander(f"일반 #{i+1}"):
                     st.write(f"""
-                    **💰 예산**: 1,000,000원  
+                    **💰 예산**: 500,000원  
                     **🎯 특성**: 가성비 중시, 적당한 가격 선호  
-                    **📋 구매 조건**: 원가의 2.0배 이하면 구매  
-                    **💬 말투**: "가격이 적당하네요", "이 정도면 괜찮을 것 같아요"
+                    **📋 구매 조건**: **원가 ~ 원가의 2.0배** 가격이면 구매  
+                    **💬 말투**: "가격이 적당하네요", "이 정도면 괜찮을 것 같아요"  
+                    **🎪 행동**: 가격 물어보고 합리적이면 구매
                     """)
             
             # 짠물
-            st.markdown("### 🤏 짠물 구매자")
+            st.markdown("### 🤏 짠물 구매자 (하위 30%)")
             for i in range(frugal_count):
                 with st.expander(f"짠물 #{i+1}"):
                     st.write(f"""
-                    **💰 예산**: 1,000,000원  
+                    **💰 예산**: 200,000원  
                     **🎯 특성**: 저가 선호, 무조건 싼 것  
-                    **📋 구매 조건**: 원가의 1.5배 이하면 구매  
-                    **💬 말투**: "더 싼 거 없어요?", "너무 비싼데..."
+                    **📋 구매 조건**: **원가 ~ 원가의 1.5배** 가격이면 구매  
+                    **💬 말투**: "더 싼 거 없어요?", "너무 비싼데..."  
+                    **🎪 행동**: 매우 저렴한 것만 선택 구매
                     """)
     
     with tool_tab3:
@@ -1300,6 +1522,187 @@ with tab4:
                 st.write("- 창업에서 중요한 것은 매출보다 **순이익**입니다!")
                 
                 st.markdown("---")
+    
+    with tool_tab4:
+        st.subheader("⚙️ 유형 밸런스 조정")
+        st.caption("게임 중에도 실시간으로 밸런스 조정 가능 (관리자 전용)")
+        
+        if not st.session_state.is_admin:
+            st.warning("⚠️ 관리자 로그인이 필요합니다.")
+        else:
+            # 유형별 밸런스 편집
+            for business_name, business_data in BUSINESS_TYPES.items():
+                with st.expander(f"{business_name}", expanded=False):
+                    balance_col1, balance_col2, balance_col3 = st.columns(3)
+                    
+                    with balance_col1:
+                        new_cost = st.number_input(
+                            "💰 원가",
+                            min_value=10000,
+                            max_value=500000,
+                            value=business_data['cost'],
+                            step=10000,
+                            key=f"balance_cost_{business_name}"
+                        )
+                    
+                    with balance_col2:
+                        new_price = st.number_input(
+                            "💵 추천 판매가",
+                            min_value=10000,
+                            max_value=1000000,
+                            value=business_data['recommended_price'],
+                            step=10000,
+                            key=f"balance_price_{business_name}"
+                        )
+                    
+                    with balance_col3:
+                        if business_data['max_sales_per_10min']:
+                            new_limit = st.number_input(
+                                "⏱️ 10분 제한",
+                                min_value=1,
+                                max_value=50,
+                                value=business_data['max_sales_per_10min'],
+                                step=1,
+                                key=f"balance_limit_{business_name}"
+                            )
+                        else:
+                            st.write("⏱️ 10분 제한: 무제한")
+                            new_limit = None
+                    
+                    # 마진율 자동 계산
+                    if new_price > 0:
+                        calc_margin = ((new_price - new_cost) / new_price) * 100
+                        st.info(f"📊 계산된 마진율: {calc_margin:.1f}%")
+                    
+                    if st.button("✅ 이 유형 밸런스 적용", key=f"apply_balance_{business_name}"):
+                        BUSINESS_TYPES[business_name]['cost'] = new_cost
+                        BUSINESS_TYPES[business_name]['recommended_price'] = new_price
+                        BUSINESS_TYPES[business_name]['margin_rate'] = (new_price - new_cost) / new_price
+                        if business_data['max_sales_per_10min'] is not None:
+                            BUSINESS_TYPES[business_name]['max_sales_per_10min'] = new_limit
+                        
+                        st.success(f"✅ {business_name} 밸런스 적용됨!")
+                        st.balloons()
+            
+            st.markdown("---")
+            
+            # 전체 초기화
+            if st.button("🔄 모든 유형 기본값으로 초기화", type="secondary"):
+                st.warning("⚠️ 개발 중: 페이지 새로고침하면 기본값으로 돌아갑니다")
+    
+    with tool_tab5:
+        st.subheader("🗑️ 데이터 관리")
+        st.caption("게임 데이터 초기화 및 백업 (관리자 전용)")
+        
+        if not st.session_state.is_admin:
+            st.warning("⚠️ 관리자 로그인이 필요합니다.")
+        else:
+            st.markdown("### 📊 현재 데이터 현황")
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.metric("등록된 학생", f"{len(st.session_state.students)}명")
+            with col2:
+                st.metric("현재 라운드", f"{st.session_state.current_round}라운드")
+            with col3:
+                total_money = sum(s['final_capital'] for s in st.session_state.students.values())
+                st.metric("총 유통 자본", f"{total_money:,}원")
+            
+            st.markdown("---")
+            
+            # 개별 학생 삭제
+            st.markdown("### 🗑️ 개별 학생 삭제")
+            
+            if st.session_state.students:
+                student_to_delete = st.selectbox(
+                    "삭제할 학생 선택",
+                    ["선택하세요"] + list(st.session_state.students.keys()),
+                    key="student_to_delete"
+                )
+                
+                if student_to_delete != "선택하세요":
+                    if st.button(f"🗑️ {student_to_delete} 삭제", type="secondary"):
+                        del st.session_state.students[student_to_delete]
+                        
+                        if st.session_state.use_google_sheets and st.session_state.worksheet:
+                            # Google Sheets에서도 삭제 (전체 다시 저장)
+                            st.session_state.worksheet.clear()
+                            headers = ["학생이름", "사업유형", "원가", "추천판매가", "초기자본", 
+                                     "구매수량", "재고", "현재자본", "총매출", "총원가", "총순이익", 
+                                     "최종자본", "실물소지금", "라운드데이터"]
+                            st.session_state.worksheet.update('A1:N1', [headers])
+                            
+                            for name, data in st.session_state.students.items():
+                                save_student_to_sheets(st.session_state.worksheet, name, data)
+                        
+                        st.success(f"✅ {student_to_delete}님이 삭제되었습니다!")
+                        st.rerun()
+            else:
+                st.info("등록된 학생이 없습니다.")
+            
+            st.markdown("---")
+            
+            # 라운드 초기화
+            st.markdown("### 🔄 라운드 초기화")
+            st.caption("현재 라운드를 1라운드로 되돌립니다 (학생 데이터는 유지)")
+            
+            if st.button("🔄 라운드 초기화", type="secondary"):
+                st.session_state.current_round = 1
+                st.success("✅ 라운드가 1라운드로 초기화되었습니다!")
+                st.rerun()
+            
+            st.markdown("---")
+            
+            # 판매 기록 초기화
+            st.markdown("### 📊 판매 기록 초기화")
+            st.caption("모든 학생의 판매 기록, 재고, 자본을 초기 상태로 되돌립니다")
+            
+            if st.button("📊 판매 기록 초기화", type="secondary"):
+                if st.session_state.get('confirm_reset_sales'):
+                    for name in st.session_state.students:
+                        st.session_state.students[name]['purchased_quantity'] = 0
+                        st.session_state.students[name]['inventory'] = 0
+                        st.session_state.students[name]['final_capital'] = st.session_state.students[name]['initial_capital']
+                        st.session_state.students[name]['total_revenue'] = 0
+                        st.session_state.students[name]['total_cost'] = 0
+                        st.session_state.students[name]['total_profit'] = 0
+                        st.session_state.students[name]['rounds'] = {1: {}, 2: {}}
+                        st.session_state.students[name]['actual_money'] = 0
+                        
+                        if st.session_state.use_google_sheets and st.session_state.worksheet:
+                            save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                    
+                    st.session_state.current_round = 1
+                    st.session_state['confirm_reset_sales'] = False
+                    st.success("✅ 모든 판매 기록이 초기화되었습니다!")
+                    st.rerun()
+                else:
+                    st.session_state['confirm_reset_sales'] = True
+                    st.warning("⚠️ 한 번 더 클릭하여 초기화 확인")
+            
+            st.markdown("---")
+            
+            # 전체 데이터 초기화
+            st.markdown("### ⚠️ 전체 데이터 초기화")
+            st.caption("⚠️ 모든 학생 데이터와 기록을 삭제합니다 (복구 불가능)")
+            
+            if st.button("🗑️ 전체 데이터 삭제", type="secondary"):
+                if st.session_state.get('confirm_delete_all'):
+                    st.session_state.students = {}
+                    st.session_state.current_round = 1
+                    st.session_state.final_reveal = False
+                    
+                    if st.session_state.use_google_sheets and st.session_state.worksheet:
+                        delete_all_students_from_sheets(st.session_state.worksheet)
+                    
+                    st.session_state['confirm_delete_all'] = False
+                    st.success("✅ 모든 데이터가 삭제되었습니다!")
+                    st.balloons()
+                    st.rerun()
+                else:
+                    st.session_state['confirm_delete_all'] = True
+                    st.error("⚠️ 경고: 한 번 더 클릭하면 모든 데이터가 삭제됩니다!")
 
 st.markdown("---")
 st.caption("🏪 장사의 신 게임 관리 시스템 V2 - 실전 창업 시뮬레이션")
