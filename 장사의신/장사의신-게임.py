@@ -471,20 +471,29 @@ if 'students' not in st.session_state:
         # 로컬 모드
         st.session_state.students = {}
 
-# 시장 설정 로드
-if 'market_settings' not in st.session_state:
+# 시장 설정 로드 - 30초마다 Google Sheets에서 갱신 (API 호출 최소화)
+current_time = time.time()
+settings_reload_interval = 30  # 30초마다 갱신
+
+if 'market_settings' not in st.session_state or \
+   (st.session_state.use_google_sheets and 
+    ('last_settings_load' not in st.session_state or 
+     (current_time - st.session_state.get('last_settings_load', 0)) > settings_reload_interval)):
+    
     if st.session_state.use_google_sheets and hasattr(st.session_state, 'settings_sheet'):
         st.session_state.market_settings = load_market_settings(st.session_state.settings_sheet)
+        st.session_state.last_settings_load = current_time
     else:
-        # 기본값
-        st.session_state.market_settings = {
-            'total_money': 1000000,
-            'total_buyers': 30,
-            'game_mode': '전략 모드',
-            'big_spender_ratio': 20,
-            'normal_ratio': 50,
-            'frugal_ratio': 30
-        }
+        # 기본값 (로컬 모드)
+        if 'market_settings' not in st.session_state:
+            st.session_state.market_settings = {
+                'total_money': 1000000,
+                'total_buyers': 30,
+                'game_mode': '전략 모드',
+                'big_spender_ratio': 20,
+                'normal_ratio': 50,
+                'frugal_ratio': 30
+            }
 
 # 관리자 모드 상태
 if 'is_admin' not in st.session_state:
@@ -642,6 +651,8 @@ if st.session_state.is_admin:
         if st.session_state.use_google_sheets and hasattr(st.session_state, 'settings_sheet'):
             if save_market_settings(st.session_state.settings_sheet, new_settings):
                 st.sidebar.success("✅ 설정이 저장되었습니다!")
+                # 저장 성공 시 타임스탬프 업데이트 (다른 사용자도 30초 내 최신 데이터 반영)
+                st.session_state.last_settings_load = time.time()
             else:
                 st.sidebar.warning("⚠️ Google Sheets 저장 실패 (로컬에는 저장됨)")
         st.rerun()
