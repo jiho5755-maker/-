@@ -253,6 +253,38 @@ BUYER_TYPES = {
     "짠물": {"ratio": 0.30, "max_price_multiplier": 1.5, "description": "저가 선호, 싼 것만 구매"}
 }
 
+# ==================== 선택적 기능 (토글) ====================
+
+# 이벤트 카드 (관리자가 활성화 가능)
+EVENT_CARDS = {
+    "positive": [
+        {"name": "📱 SNS 입소문", "effect": "구매자 +2명", "impact": {"buyers": 2}},
+        {"name": "🎉 명절 특수", "effect": "큰손 구매 확률 +50%", "impact": {"big_spender_boost": 0.5}},
+        {"name": "🌟 언론 보도", "effect": "판매가 +20% 효과", "impact": {"price_boost": 0.2}},
+        {"name": "🎁 단골 고객", "effect": "무조건 구매 1건", "impact": {"guaranteed_sale": 1}},
+    ],
+    "negative": [
+        {"name": "⚠️ 경쟁자 등장", "effect": "시장 평균가 -10%", "impact": {"market_price_drop": 0.1}},
+        {"name": "📉 재료비 상승", "effect": "원가 +20%", "impact": {"cost_increase": 0.2}},
+        {"name": "🌧️ 악천후", "effect": "구매자 -1명", "impact": {"buyers": -1}},
+        {"name": "💸 임대료 인상", "effect": "고정비 +50,000원", "impact": {"fixed_cost": 50000}},
+    ]
+}
+
+# 마케팅 투자 옵션
+MARKETING_OPTIONS = [
+    {"name": "전단지 배포", "cost": 50000, "effect": "구매자 +1명", "buyers": 1},
+    {"name": "SNS 광고", "cost": 100000, "effect": "구매 확률 +20%", "conversion_boost": 0.2},
+    {"name": "샘플 나눠주기", "cost": 80000, "effect": "단골 고객 1명 확보", "guaranteed_customer": 1},
+]
+
+# 비용 세분화
+DETAILED_COSTS = {
+    "홍보비": {"min": 30000, "max": 100000, "default": 50000, "required": False},
+    "자리세": {"min": 20000, "max": 80000, "default": 30000, "required": True},
+    "포장재비": {"min": 10000, "max": 50000, "default": 20000, "required": False},
+}
+
 # ==================== Google Sheets 연결 ====================
 
 @st.cache_resource
@@ -659,14 +691,46 @@ if st.session_state.is_admin:
         step=1
     )
     
+    new_game_mode = st.sidebar.radio(
+        "🎮 게임 모드",
+        ["간단 모드", "전략 모드"],
+        index=0 if game_mode == "간단 모드" else 1,
+        help="간단 모드: 초등학생용 (재고 관리 없음) | 전략 모드: 고등학생용 (전체 시스템)"
+    )
+    
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("#### 🎲 선택적 기능 (다음 게임용)")
+    st.sidebar.caption("고급 기능을 켜고 끌 수 있습니다")
+    
+    enable_events = st.sidebar.checkbox(
+        "🎴 이벤트 카드",
+        value=st.session_state.market_settings.get('enable_events', False),
+        help="라운드 중 랜덤 이벤트 발생"
+    )
+    
+    enable_marketing = st.sidebar.checkbox(
+        "📢 마케팅 투자",
+        value=st.session_state.market_settings.get('enable_marketing', False),
+        help="자본으로 광고 투자 가능"
+    )
+    
+    enable_detailed_costs = st.sidebar.checkbox(
+        "💰 비용 세분화",
+        value=st.session_state.market_settings.get('enable_detailed_costs', False),
+        help="홍보비, 자리세 등 세부 비용 추가"
+    )
+    
     if st.sidebar.button("💾 설정 저장"):
         new_settings = {
             'total_money': new_total_money,
             'total_buyers': new_total_buyers,
-            'game_mode': game_mode,
+            'game_mode': new_game_mode,
             'big_spender_ratio': 20,
             'normal_ratio': 50,
-            'frugal_ratio': 30
+            'frugal_ratio': 30,
+            'enable_events': enable_events,
+            'enable_marketing': enable_marketing,
+            'enable_detailed_costs': enable_detailed_costs
         }
         st.session_state.market_settings = new_settings
         
@@ -699,6 +763,12 @@ tab1, tab2, tab3, tab4 = st.tabs([
 # ==================== TAB 1: 창업 컨설팅 ====================
 with tab1:
     st.header("👨‍🎓 창업 컨설팅")
+    
+    # 게임 모드 표시
+    if game_mode == "간단 모드":
+        st.info("🎮 **간단 모드** | 재고 걱정 없이 판매에만 집중! (초등학생 추천)")
+    else:
+        st.success("🎮 **전략 모드** | 자본, 재고, 원가를 모두 관리하는 실전 시뮬레이션! (고등학생 추천)")
     
     if not st.session_state.is_admin:
         st.warning("⚠️ 관리자 로그인이 필요합니다.")
@@ -1008,55 +1078,175 @@ with tab2:
                 
                 st.markdown("---")
                 
-                # STEP 1: 재고 구매
-                st.markdown("### 1️⃣ 재고 구매")
-                
-                if data['purchased_quantity'] == 0:
-                    max_can_buy = data['initial_capital'] // data['cost']
+                # STEP 1: 재고 구매 (전략 모드만)
+                if game_mode == "전략 모드":
+                    st.markdown("### 1️⃣ 재고 구매")
                     
-                    purchase_quantity = st.number_input(
-                        f"{name} - 구매할 수량",
-                        min_value=0,
-                        max_value=max_can_buy,
-                        value=0,
-                        step=1,
-                        key=f"purchase_{name}",
-                        help=f"최대 {max_can_buy}개 구매 가능"
+                    if data['purchased_quantity'] == 0:
+                        max_can_buy = data['initial_capital'] // data['cost']
+                        
+                        purchase_quantity = st.number_input(
+                            f"{name} - 구매할 수량",
+                            min_value=0,
+                            max_value=max_can_buy,
+                            value=0,
+                            step=1,
+                            key=f"purchase_{name}",
+                            help=f"최대 {max_can_buy}개 구매 가능"
+                        )
+                        
+                        if purchase_quantity > 0:
+                            total_cost = purchase_quantity * data['cost']
+                            remaining_capital = data['initial_capital'] - total_cost
+                            
+                            st.info(f"""
+                            💰 구매 비용: {total_cost:,}원  
+                            💳 남은 자본: {remaining_capital:,}원
+                            """)
+                            
+                            if st.button(f"✅ 구매 확정", key=f"confirm_purchase_{name}"):
+                                st.session_state.students[name]['purchased_quantity'] = purchase_quantity
+                                st.session_state.students[name]['inventory'] = purchase_quantity
+                                st.session_state.students[name]['final_capital'] = remaining_capital
+                                
+                                # Google Sheets에 저장
+                                if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                    save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                                
+                                st.success(f"✅ {purchase_quantity}개 구매 완료!")
+                                st.rerun()
+                        else:
+                            st.warning("⚠️ 구매 수량을 입력하세요")
+                    else:
+                        st.success(f"✅ 이미 구매 완료: {data['purchased_quantity']}개")
+                    
+                    st.markdown("---")
+                else:
+                    # 간단 모드: 재고 관리 없음
+                    st.info("🎮 **간단 모드**: 재고 걱정 없이 바로 판매하세요!")
+                    st.markdown("---")
+                
+                # 선택적 기능: 이벤트 카드
+                if st.session_state.market_settings.get('enable_events', False):
+                    st.markdown("### 🎴 이벤트 카드")
+                    
+                    if st.button("🎲 이벤트 뽑기", key=f"event_{name}"):
+                        import random
+                        event_type = random.choice(['positive', 'negative'])
+                        event = random.choice(EVENT_CARDS[event_type])
+                        
+                        if event_type == 'positive':
+                            st.success(f"🎉 {event['name']}: {event['effect']}")
+                        else:
+                            st.warning(f"⚠️ {event['name']}: {event['effect']}")
+                        
+                        st.info("💡 이 이벤트 효과를 게임에 반영하세요!")
+                    
+                    st.markdown("---")
+                
+                # 선택적 기능: 마케팅 투자
+                if st.session_state.market_settings.get('enable_marketing', False):
+                    st.markdown("### 📢 마케팅 투자")
+                    
+                    marketing_choice = st.selectbox(
+                        "마케팅 옵션 선택",
+                        ["선택 안 함"] + [f"{m['name']} ({m['cost']:,}원) - {m['effect']}" for m in MARKETING_OPTIONS],
+                        key=f"marketing_{name}"
                     )
                     
-                    if purchase_quantity > 0:
-                        total_cost = purchase_quantity * data['cost']
-                        remaining_capital = data['initial_capital'] - total_cost
+                    if marketing_choice != "선택 안 함":
+                        selected_marketing = MARKETING_OPTIONS[[f"{m['name']} ({m['cost']:,}원) - {m['effect']}" for m in MARKETING_OPTIONS].index(marketing_choice)]
                         
-                        st.info(f"""
-                        💰 구매 비용: {total_cost:,}원  
-                        💳 남은 자본: {remaining_capital:,}원
-                        """)
+                        if st.button("✅ 마케팅 투자", key=f"confirm_marketing_{name}"):
+                            if data['final_capital'] >= selected_marketing['cost']:
+                                st.session_state.students[name]['final_capital'] -= selected_marketing['cost']
+                                st.success(f"✅ {selected_marketing['name']} 투자 완료! {selected_marketing['effect']}")
+                                st.rerun()
+                            else:
+                                st.error("⚠️ 자본이 부족합니다")
+                    
+                    st.markdown("---")
+                
+                # 선택적 기능: 비용 세분화
+                if st.session_state.market_settings.get('enable_detailed_costs', False):
+                    st.markdown("### 💰 세부 비용")
+                    
+                    total_detailed_cost = 0
+                    
+                    for cost_name, cost_info in DETAILED_COSTS.items():
+                        required_text = "(필수)" if cost_info['required'] else "(선택)"
                         
-                        if st.button(f"✅ 구매 확정", key=f"confirm_purchase_{name}"):
-                            st.session_state.students[name]['purchased_quantity'] = purchase_quantity
-                            st.session_state.students[name]['inventory'] = purchase_quantity
-                            st.session_state.students[name]['final_capital'] = remaining_capital
-                            
-                            # Google Sheets에 저장
-                            if st.session_state.use_google_sheets and st.session_state.worksheet:
-                                save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
-                            
-                            st.success(f"✅ {purchase_quantity}개 구매 완료!")
+                        cost_value = st.number_input(
+                            f"{cost_name} {required_text}",
+                            min_value=cost_info['min'],
+                            max_value=cost_info['max'],
+                            value=cost_info['default'],
+                            step=10000,
+                            key=f"cost_{cost_name}_{name}"
+                        )
+                        total_detailed_cost += cost_value
+                    
+                    st.info(f"💸 총 운영비: {total_detailed_cost:,}원")
+                    
+                    if st.button("✅ 운영비 지불", key=f"pay_costs_{name}"):
+                        if data['final_capital'] >= total_detailed_cost:
+                            st.session_state.students[name]['final_capital'] -= total_detailed_cost
+                            st.success("✅ 운영비 지불 완료!")
                             st.rerun()
-                    else:
-                        st.warning("⚠️ 구매 수량을 입력하세요")
+                        else:
+                            st.error("⚠️ 자본이 부족합니다")
+                    
+                    st.markdown("---")
+                
+                # 실시간 경쟁 현황
+                st.markdown("### 📊 실시간 경쟁 현황")
+                
+                # 현재 라운드에 판매가 기록된 학생들의 가격 정보 수집
+                current_round_prices = []
+                for other_name, other_data in st.session_state.students.items():
+                    if other_name != name:  # 본인 제외
+                        round_data_other = other_data['rounds'].get(st.session_state.current_round, {})
+                        if 'selling_price' in round_data_other and round_data_other['selling_price'] > 0:
+                            current_round_prices.append({
+                                'name': other_name,
+                                'price': round_data_other['selling_price'],
+                                'type': other_data['business_type']
+                            })
+                
+                if current_round_prices:
+                    prices_only = [p['price'] for p in current_round_prices]
+                    min_price = min(prices_only)
+                    max_price = max(prices_only)
+                    avg_price = sum(prices_only) // len(prices_only)
+                    
+                    comp_col1, comp_col2, comp_col3 = st.columns(3)
+                    
+                    with comp_col1:
+                        st.metric("🔻 시장 최저가", f"{min_price:,}원")
+                    with comp_col2:
+                        st.metric("📊 시장 평균가", f"{avg_price:,}원")
+                    with comp_col3:
+                        st.metric("🔺 시장 최고가", f"{max_price:,}원")
+                    
+                    # 같은 업종 경쟁자 정보
+                    same_type_competitors = [p for p in current_round_prices if p['type'] == data['business_type']]
+                    if same_type_competitors:
+                        st.info(f"**{data['business_type']} 업종 경쟁자**: {len(same_type_competitors)}명이 판매 중")
                 else:
-                    st.success(f"✅ 이미 구매 완료: {data['purchased_quantity']}개")
+                    st.info("💡 아직 다른 학생이 판매를 시작하지 않았습니다")
                 
                 st.markdown("---")
                 
                 # STEP 2: 판매 입력
-                st.markdown(f"### 2️⃣ {st.session_state.current_round}라운드 판매")
+                step_num = "1️⃣" if game_mode == "간단 모드" else "2️⃣"
+                st.markdown(f"### {step_num} {st.session_state.current_round}라운드 판매")
                 
                 round_data = data['rounds'][st.session_state.current_round]
                 
-                if data['inventory'] == 0:
+                # 간단 모드: 재고 체크 없음, 전략 모드: 재고 체크
+                can_sell = True if game_mode == "간단 모드" else data['inventory'] > 0
+                
+                if not can_sell:
                     st.warning("⚠️ 재고가 없습니다. 먼저 재고를 구매하세요.")
                 else:
                     sell_col1, sell_col2 = st.columns(2)
@@ -1073,9 +1263,16 @@ with tab2:
                         )
                     
                     with sell_col2:
-                        max_sellable = data['inventory']
-                        if business_info['max_sales_per_10min']:
-                            max_sellable = min(max_sellable, business_info['max_sales_per_10min'])
+                        # 간단 모드: 재고 무제한, 전략 모드: 재고 제한
+                        if game_mode == "간단 모드":
+                            # 간단 모드는 최대 판매 제한만 적용
+                            max_sellable = business_info['max_sales_per_10min'] if business_info['max_sales_per_10min'] else 50
+                            help_text = f"간단 모드: 재고 무제한" + (f", 10분 제한 {max_sellable}개" if business_info['max_sales_per_10min'] else "")
+                        else:
+                            max_sellable = data['inventory']
+                            if business_info['max_sales_per_10min']:
+                                max_sellable = min(max_sellable, business_info['max_sales_per_10min'])
+                            help_text = f"재고 {data['inventory']}개" + (f", 10분 제한 {business_info['max_sales_per_10min']}개" if business_info['max_sales_per_10min'] else "")
                         
                         quantity_sold = st.number_input(
                             f"판매 수량 (최대 {max_sellable}개)",
@@ -1083,6 +1280,7 @@ with tab2:
                             max_value=max_sellable,
                             value=0,
                             step=1,
+                            help=help_text,
                             key=f"sold_{name}_r{st.session_state.current_round}"
                         )
                     
@@ -1117,8 +1315,9 @@ with tab2:
                                 "profit": profit
                             }
                             
-                            # 재고 차감
-                            st.session_state.students[name]['inventory'] -= quantity_sold
+                            # 재고 차감 (전략 모드만)
+                            if game_mode == "전략 모드":
+                                st.session_state.students[name]['inventory'] -= quantity_sold
                             
                             # 자본 업데이트 (판매 수입 추가)
                             st.session_state.students[name]['final_capital'] += revenue
@@ -1369,6 +1568,90 @@ with tab3:
         if df_data:
             df = pd.DataFrame(df_data)
             st.dataframe(df, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # 📈 데이터 시각화
+        st.subheader("📈 데이터 시각화")
+        
+        if st.session_state.students:
+            viz_tab1, viz_tab2, viz_tab3 = st.tabs(["📊 학생별 비교", "📉 라운드별 추이", "💰 가격 분포"])
+            
+            with viz_tab1:
+                st.markdown("#### 학생별 매출 vs 순이익")
+                
+                # 데이터 준비
+                students_names = list(st.session_state.students.keys())
+                revenues = [st.session_state.students[name]['total_revenue'] for name in students_names]
+                profits = [st.session_state.students[name]['total_profit'] for name in students_names]
+                
+                # 차트 데이터프레임
+                chart_df = pd.DataFrame({
+                    '학생': students_names,
+                    '매출': revenues,
+                    '순이익': profits
+                })
+                
+                # 막대 차트
+                st.bar_chart(chart_df.set_index('학생'))
+                
+                # 통계 요약
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("평균 매출", f"{sum(revenues)//len(revenues):,}원")
+                with col2:
+                    st.metric("평균 순이익", f"{sum(profits)//len(profits):,}원")
+                with col3:
+                    avg_margin = (sum(profits) / sum(revenues) * 100) if sum(revenues) > 0 else 0
+                    st.metric("전체 평균 마진율", f"{avg_margin:.1f}%")
+            
+            with viz_tab2:
+                st.markdown("#### 라운드별 실적 추이")
+                
+                # 라운드별 데이터 수집
+                round_data = {name: [] for name in students_names}
+                
+                for round_num in [1, 2]:
+                    for name in students_names:
+                        round_info = st.session_state.students[name]['rounds'].get(round_num, {})
+                        round_data[name].append(round_info.get('profit', 0))
+                
+                # 라운드별 차트 데이터
+                round_df = pd.DataFrame(round_data, index=['1라운드', '2라운드'])
+                
+                st.line_chart(round_df)
+                
+                st.info("💡 라운드별 순이익 변화를 확인하세요. 전략 수정이 효과가 있었나요?")
+            
+            with viz_tab3:
+                st.markdown("#### 판매가 분포")
+                
+                # 각 학생의 평균 판매가 계산
+                avg_prices = []
+                for name in students_names:
+                    prices = []
+                    for round_num in [1, 2]:
+                        round_info = st.session_state.students[name]['rounds'].get(round_num, {})
+                        if 'selling_price' in round_info and round_info['selling_price'] > 0:
+                            prices.append(round_info['selling_price'])
+                    
+                    if prices:
+                        avg_prices.append({
+                            '학생': name,
+                            '평균 판매가': sum(prices) // len(prices),
+                            '원가': st.session_state.students[name]['cost']
+                        })
+                
+                if avg_prices:
+                    price_df = pd.DataFrame(avg_prices)
+                    
+                    # 판매가와 원가 비교
+                    chart_data = price_df.set_index('학생')[['평균 판매가', '원가']]
+                    st.bar_chart(chart_data)
+                    
+                    st.success("💡 판매가가 원가보다 높을수록 마진이 높습니다!")
+                else:
+                    st.info("아직 판매 데이터가 없습니다")
         
         st.markdown("---")
         
