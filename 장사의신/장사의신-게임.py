@@ -2619,6 +2619,8 @@ with tab4:
                     st.error("💔 가격이 너무 높아 구매가 어렵습니다")
                 
                 st.caption(f"예상 구매 고객: {buyer_count}명 / {st.session_state.market_settings.get('total_buyers', 10)}명")
+        else:
+            st.info("ℹ️ 아직 등록된 학생이 없습니다. '창업 컨설팅' 탭에서 먼저 학생을 등록하세요.")
     
     with tool_tab2:
         st.subheader("📋 구매자 가이드 생성")
@@ -2643,7 +2645,9 @@ with tab4:
             st.markdown("---")
             
             # 전체 구매자 가격표 (한눈에 보기)
-            if st.session_state.students:
+            if not st.session_state.students:
+                st.warning("⚠️ 아직 등록된 학생이 없습니다. 먼저 '창업 컨설팅' 탭에서 학생을 등록하세요.")
+            else:
                 st.markdown("### 📊 전체 구매자 가격표 (한눈에 보기)")
                 st.caption("학생별 구매자별 구매 가능 가격 범위")
                 
@@ -2844,7 +2848,7 @@ with tab4:
                     
                     # 마진 이해도
                     high_margin_count = sum(1 for s in st.session_state.students.values() 
-                                           if (s['total_profit'] / s['total_revenue'] * 100) > 50 if s['total_revenue'] > 0)
+                                           if s['total_revenue'] > 0 and (s['total_profit'] / s['total_revenue'] * 100) > 50)
                     
                     st.progress(high_margin_count / total_students if total_students > 0 else 0)
                     st.write(f"**마진 개념 이해**: {high_margin_count}/{total_students}명 (50% 이상 마진 달성)")
@@ -2930,47 +2934,50 @@ with tab4:
         
         else:  # 개별 학생 상세
             if st.button("📄 개별 리포트 생성", type="primary"):
-                st.markdown("---")
-                
-                for name, data in st.session_state.students.items():
-                    st.markdown(f"## 🎓 {name}님 학습 리포트")
-                    
-                    report_col1, report_col2 = st.columns(2)
-                    
-                    with report_col1:
-                        st.markdown("### 📋 기본 정보")
-                        st.write(f"**유형**: {data['business_type']}")
-                        st.write(f"**원가**: {data['cost']:,}원")
-                        st.write(f"**초기 자본**: {data['initial_capital']:,}원")
-                    
-                    with report_col2:
-                        st.markdown("### 💰 최종 성과")
-                        st.write(f"**총 매출**: {data['total_revenue']:,}원")
-                        st.write(f"**총 순이익**: {data['total_profit']:,}원")
-                        st.write(f"**최종 자본**: {data['final_capital']:,}원")
-                    
-                    # 평가
-                    st.markdown("### 📊 평가")
-                    
-                    if data['total_profit'] > 800000:
-                        st.success("🌟 탁월함! 전략과 실행 모두 완벽했습니다.")
-                    elif data['total_profit'] > 500000:
-                        st.success("✅ 우수! 좋은 전략으로 안정적인 수익을 냈습니다.")
-                    elif data['total_profit'] > 200000:
-                        st.info("💙 양호. 기본은 잘 이해했습니다.")
-                    else:
-                        st.warning("💪 다음엔 더 잘할 수 있어요! 마진 관리에 주목하세요.")
-                    
-                    # 배운 점
-                    st.markdown("### 🎓 배운 점")
-                    
-                    margin_rate = (data['total_profit'] / data['total_revenue'] * 100) if data['total_revenue'] > 0 else 0
-                    
-                    st.write(f"- 마진율: {margin_rate:.1f}% ({'높음' if margin_rate > 60 else '중간' if margin_rate > 40 else '낮음'})")
-                    st.write(f"- 재고 관리: {'우수' if data['inventory'] <= 2 else '개선 필요'}")
-                    st.write("- 창업에서 중요한 것은 매출보다 **순이익**입니다!")
-                    
+                if not st.session_state.students:
+                    st.warning("⚠️ 아직 등록된 학생이 없습니다. '창업 컨설팅' 탭에서 먼저 학생을 등록하세요.")
+                else:
                     st.markdown("---")
+                    
+                    for name, data in st.session_state.students.items():
+                        st.markdown(f"## 🎓 {name}님 학습 리포트")
+                        
+                        report_col1, report_col2 = st.columns(2)
+                        
+                        with report_col1:
+                            st.markdown("### 📋 기본 정보")
+                            st.write(f"**유형**: {data['business_type']}")
+                            st.write(f"**원가**: {data['cost']:,}원")
+                            st.write(f"**초기 자본**: {data['initial_capital']:,}원")
+                        
+                        with report_col2:
+                            st.markdown("### 💰 최종 성과")
+                            st.write(f"**총 매출**: {data['total_revenue']:,}원")
+                            st.write(f"**총 순이익**: {data['total_profit']:,}원")
+                            st.write(f"**최종 자본**: {data['final_capital']:,}원")
+                        
+                        # 평가
+                        st.markdown("### 📊 평가")
+                        
+                        if data['total_profit'] > 800000:
+                            st.success("🌟 탁월함! 전략과 실행 모두 완벽했습니다.")
+                        elif data['total_profit'] > 500000:
+                            st.success("✅ 우수! 좋은 전략으로 안정적인 수익을 냈습니다.")
+                        elif data['total_profit'] > 200000:
+                            st.info("💙 양호. 기본은 잘 이해했습니다.")
+                        else:
+                            st.warning("💪 다음엔 더 잘할 수 있어요! 마진 관리에 주목하세요.")
+                        
+                        # 배운 점
+                        st.markdown("### 🎓 배운 점")
+                        
+                        margin_rate = (data['total_profit'] / data['total_revenue'] * 100) if data['total_revenue'] > 0 else 0
+                        
+                        st.write(f"- 마진율: {margin_rate:.1f}% ({'높음' if margin_rate > 60 else '중간' if margin_rate > 40 else '낮음'})")
+                        st.write(f"- 재고 관리: {'우수' if data['inventory'] <= 2 else '개선 필요'}")
+                        st.write("- 창업에서 중요한 것은 매출보다 **순이익**입니다!")
+                        
+                        st.markdown("---")
     
     with tool_tab4:
         st.subheader("⚙️ 유형 밸런스 조정")
