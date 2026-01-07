@@ -21,14 +21,16 @@ st.set_page_config(
 # 초기 자본금
 INITIAL_CAPITAL = 500000
 
-# 구매자 캐릭터 프로필 (랜덤 배정용)
+# 구매자 캐릭터 프로필 V2 (현실적인 가격 범위 포함)
 BUYER_CHARACTERS = {
-    "big_spender": [
+    "big_spender": [  # 14명으로 확장
         {
             "name": "사업가 김사장",
             "emoji": "💼",
-            "budget": "1,000,000원",
+            "budget": "1,500,000원",
             "personality": "투자 가치 중시, 사업 확장성 평가",
+            "price_multiplier": {"min": 1.8, "max": 3.0, "sweet": 2.3},
+            "category_bonus": {"서비스": 1.3, "제조": 1.2, "유통": 0.9, "대여": 1.0, "지식": 1.1},
             "speech": ["이거 사업성 있어 보이네요", "투자 가치가 있으면 비싸도 괜찮아요", "품질이 중요하죠"],
             "behavior": "사업 아이템을 평가하듯 질문하고, 확장 가능성을 물어봄"
         },
@@ -284,6 +286,368 @@ DETAILED_COSTS = {
     "자리세": {"min": 20000, "max": 80000, "default": 30000, "required": True},
     "포장재비": {"min": 10000, "max": 50000, "default": 20000, "required": False},
 }
+
+# ==================== 경제 시스템 V2 ====================
+
+class MarketEconomyEngine:
+    """
+    게임 밸런스를 유지하면서 실제 경제 원리를 반영하는 시스템
+    """
+    
+    def __init__(self, market_settings, initial_capital):
+        self.market_money = max(market_settings.get('total_money', 10000000), 1000000)
+        self.buyer_count = max(market_settings.get('total_buyers', 10), 3)
+        self.initial_capital = initial_capital
+        self.game_mode = market_settings.get('game_mode', '전략 모드')
+        
+        # 게임 밸런스 기준선
+        self.BALANCE_CONSTANTS = {
+            'TARGET_MARGIN_MIN': 1.5,
+            'TARGET_MARGIN_MAX': 2.5,
+            'MIN_PURCHASE_QUANTITY': 5,
+            'COST_TO_CAPITAL_RATIO_MIN': 0.15,
+            'COST_TO_CAPITAL_RATIO_MAX': 0.35,
+            'EXPECTED_STUDENTS_MIN': 5,
+            'EXPECTED_STUDENTS_MAX': 10,
+            'SATURATION_HEALTHY_MAX': 0.8,
+            'COMPETITION_BALANCED': 1.0,
+        }
+    
+    def calculate_safe_economics(self, current_students_count=0):
+        """안전장치가 포함된 경제 지표 계산"""
+        
+        # 예상 학생 수
+        expected_total_students = self._estimate_total_students(current_students_count)
+        
+        # 1인당 평균 구매력
+        avg_buying_power = self.market_money / self.buyer_count
+        
+        # 총 예상 공급 자본
+        total_supply = self.initial_capital * expected_total_students
+        
+        # 시장 포화도 (안전 범위: 0.2 ~ 1.5)
+        raw_saturation = total_supply / self.market_money
+        market_saturation = max(0.2, min(raw_saturation, 1.5))
+        
+        # 경쟁 강도 (안전 범위: 0.3 ~ 2.0)
+        raw_competition = expected_total_students / self.buyer_count
+        competition_intensity = max(0.3, min(raw_competition, 2.0))
+        
+        # 기준 가격 레벨
+        base_price_level = avg_buying_power / 1000000
+        
+        # 포화도 보정
+        saturation_factor = 1.0 if market_saturation <= 0.8 else (0.8 / market_saturation)
+        price_level = base_price_level * saturation_factor
+        
+        # 원가 범위 계산
+        cost_by_capital_min = self.initial_capital * self.BALANCE_CONSTANTS['COST_TO_CAPITAL_RATIO_MIN']
+        cost_by_capital_max = self.initial_capital * self.BALANCE_CONSTANTS['COST_TO_CAPITAL_RATIO_MAX']
+        
+        cost_by_market_min = avg_buying_power * 0.05
+        cost_by_market_max = avg_buying_power * 0.20
+        
+        ABSOLUTE_MIN_COST = 10000
+        ABSOLUTE_MAX_COST = 200000
+        
+        optimal_min_cost = max(cost_by_capital_min, cost_by_market_min * 0.8, ABSOLUTE_MIN_COST)
+        optimal_max_cost = min(cost_by_capital_max, cost_by_market_max * 1.2, ABSOLUTE_MAX_COST)
+        
+        if optimal_min_cost >= optimal_max_cost:
+            mid_cost = (cost_by_capital_min + cost_by_market_max) / 2
+            optimal_min_cost = mid_cost * 0.8
+            optimal_max_cost = mid_cost * 1.2
+        
+        optimal_min_cost = self._round_to_10k(optimal_min_cost)
+        optimal_max_cost = self._round_to_10k(optimal_max_cost)
+        
+        # 마진율 계산
+        if competition_intensity >= 1.5:
+            markup_range = (1.3, 1.7)
+            strategy = "저마진 고회전"
+            risk_level = "높음"
+        elif competition_intensity >= 1.0:
+            markup_range = (1.5, 2.0)
+            strategy = "균형 전략"
+            risk_level = "보통"
+        elif competition_intensity >= 0.6:
+            markup_range = (1.8, 2.3)
+            strategy = "적정 마진"
+            risk_level = "낮음"
+        else:
+            markup_range = (2.0, 2.5)
+            strategy = "고마진 전략"
+            risk_level = "매우 낮음"
+        
+        market_health = self._diagnose_market_health(market_saturation, competition_intensity, price_level)
+        recommendations = self._generate_recommendations(market_saturation, competition_intensity, current_students_count)
+        
+        return {
+            'market_money': self.market_money,
+            'buyer_count': self.buyer_count,
+            'expected_students': expected_total_students,
+            'initial_capital': self.initial_capital,
+            'avg_buying_power': int(avg_buying_power),
+            'market_saturation': round(market_saturation, 2),
+            'competition_intensity': round(competition_intensity, 2),
+            'price_level': round(price_level, 2),
+            'optimal_min_cost': int(optimal_min_cost),
+            'optimal_max_cost': int(optimal_max_cost),
+            'markup_min': markup_range[0],
+            'markup_max': markup_range[1],
+            'strategy': strategy,
+            'risk_level': risk_level,
+            'market_health': market_health,
+            'recommendations': recommendations,
+            'warnings': self._generate_warnings(market_saturation, competition_intensity),
+            'educational_insight': self._generate_educational_insight(avg_buying_power, market_saturation, competition_intensity)
+        }
+    
+    def _estimate_total_students(self, current_count):
+        """예상 총 학생 수 추정"""
+        if current_count == 0:
+            return 7
+        elif current_count <= 3:
+            return 8
+        elif current_count <= 6:
+            return current_count + 2
+        else:
+            return current_count
+    
+    def _round_to_10k(self, value):
+        """10,000원 단위로 반올림"""
+        return int(round(value / 10000) * 10000)
+    
+    def _diagnose_market_health(self, saturation, competition, price_level):
+        """시장 건강도 진단"""
+        if saturation > 1.2 and competition > 1.5:
+            return {'status': '🔥 과열', 'description': '공급 과잉, 치열한 경쟁', 'color': 'error'}
+        elif saturation > 0.9 and competition > 1.2:
+            return {'status': '⚠️ 포화', 'description': '경쟁 심화, 차별화 필요', 'color': 'warning'}
+        elif saturation < 0.5 and competition < 0.7:
+            return {'status': '💎 블루오션', 'description': '기회의 시장, 높은 마진 가능', 'color': 'success'}
+        elif saturation < 0.8 and competition < 1.0:
+            return {'status': '✅ 건강', 'description': '균형 잡힌 시장', 'color': 'info'}
+        else:
+            return {'status': '📊 보통', 'description': '표준적인 시장 환경', 'color': 'info'}
+    
+    def _generate_recommendations(self, saturation, competition, current_students):
+        """상황별 권장사항"""
+        recs = []
+        if saturation > 1.0:
+            recs.append("💡 공급이 많습니다. 가격을 낮추거나 차별화하세요.")
+        if competition > 1.3:
+            recs.append("💡 경쟁이 치열합니다. 독특한 아이템이나 서비스로 차별화하세요.")
+        if current_students >= 8:
+            recs.append("💡 학생이 많습니다. 틈새 시장을 공략하세요.")
+        if saturation < 0.5:
+            recs.append("💡 수요가 풍부합니다. 품질을 높이고 프리미엄 가격을 책정하세요.")
+        return recs if recs else ["✅ 좋은 시장 환경입니다. 표준 전략을 사용하세요."]
+    
+    def _generate_warnings(self, saturation, competition):
+        """경고 메시지"""
+        warnings = []
+        if saturation > 1.3:
+            warnings.append("⚠️ 심각한 공급 과잉! 판매가 어려울 수 있습니다.")
+        if competition > 1.8:
+            warnings.append("⚠️ 과도한 경쟁! 가격 경쟁에 빠질 위험이 있습니다.")
+        return warnings
+    
+    def _generate_educational_insight(self, buying_power, saturation, competition):
+        """교육적 인사이트"""
+        if self.game_mode == "간단 모드":
+            return f"1인당 구매력은 {buying_power:,}원입니다. 이 정도 가격이면 살 수 있을까요?"
+        else:
+            supply_demand = "공급 > 수요" if saturation > 0.8 else "수요 > 공급"
+            competition_desc = "학생이 많아 경쟁 치열" if competition > 1.0 else "독점 기회 있음"
+            return f"""**경제 원리 이해하기:**
+- 1인당 구매력: {buying_power:,}원 → 이것이 가격 기준선입니다
+- 시장 포화도: {saturation:.2f} → {supply_demand}
+- 경쟁 강도: {competition:.2f} → {competition_desc}
+
+실제 시장에서도 이런 요소들이 가격을 결정합니다!"""
+
+def calculate_buyer_price_range(buyer, item_cost, business_type):
+    """
+    구매자별 실제 구매 가능 가격 범위 계산
+    """
+    # 기본 배수 (기존 시스템과 호환)
+    if "price_multiplier" in buyer:
+        min_mult = buyer["price_multiplier"]["min"]
+        max_mult = buyer["price_multiplier"]["max"]
+        sweet_mult = buyer["price_multiplier"]["sweet"]
+    else:
+        # fallback: 기존 시스템
+        if "1,000,000" in buyer.get("budget", ""):
+            min_mult, max_mult, sweet_mult = 1.8, 3.0, 2.3
+        elif "500,000" in buyer.get("budget", ""):
+            min_mult, max_mult, sweet_mult = 1.3, 2.0, 1.6
+        else:
+            min_mult, max_mult, sweet_mult = 1.0, 1.5, 1.2
+    
+    # 카테고리 보너스
+    category_key = "유통" if "골라오기" in business_type else \
+                  "제조" if "뚝딱뚝딱" in business_type else \
+                  "서비스" if "대신하기" in business_type else \
+                  "대여" if "빌려주기" in business_type else \
+                  "지식" if "알려주기" in business_type else "유통"
+    
+    if "category_bonus" in buyer:
+        bonus = buyer["category_bonus"].get(category_key, 1.0)
+    else:
+        bonus = 1.0
+    
+    # 최종 가격 범위
+    price_min = int(item_cost * min_mult * bonus)
+    price_max = int(item_cost * max_mult * bonus)
+    price_sweet = int(item_cost * sweet_mult * bonus)
+    
+    # 10,000원 단위 반올림
+    price_min = int(round(price_min / 10000) * 10000)
+    price_max = int(round(price_max / 10000) * 10000)
+    price_sweet = int(round(price_sweet / 10000) * 10000)
+    
+    return {
+        "min": price_min,
+        "max": price_max,
+        "sweet_spot": price_sweet
+    }
+
+def get_ai_recommendation_with_economics(idea, market_settings, students):
+    """
+    경제 시스템을 반영한 AI 추천
+    """
+    try:
+        # 경제 지표 계산
+        economy = MarketEconomyEngine(market_settings, INITIAL_CAPITAL)
+        economics = economy.calculate_safe_economics(len(students))
+        
+        # OpenAI 키 확인
+        openai_api_key = st.secrets.get("OPENAI_API_KEY", "")
+        if not openai_api_key:
+            return _generate_rule_based_recommendation(idea, economics)
+        
+        from openai import OpenAI
+        client = OpenAI(api_key=openai_api_key)
+        
+        # AI 프롬프트 생성
+        prompt = f"""
+다음 학생의 창업 아이디어를 분석하고, 현재 경제 환경에 최적화된 설정을 추천해주세요.
+
+📝 학생 아이디어: {idea}
+
+🏦 경제 환경:
+- 1인당 구매력: {economics['avg_buying_power']:,}원 (가격 기준선)
+- 시장 포화도: {economics['market_saturation']} ({economics['market_health']['description']})
+- 경쟁 강도: {economics['competition_intensity']} ({economics['strategy']})
+- 적정 원가 범위: {economics['optimal_min_cost']:,}원 ~ {economics['optimal_max_cost']:,}원
+- 적정 마진율: {economics['markup_min']:.1f}배 ~ {economics['markup_max']:.1f}배
+
+📋 비즈니스 유형: {', '.join(BUSINESS_TYPES.keys())}
+
+다음을 JSON 형식으로 답변:
+{{
+    "recommended_type": "추천 유형 (위 목록 중 1개)",
+    "cost": "원가 ({economics['optimal_min_cost']} ~ {economics['optimal_max_cost']} 범위 내)",
+    "price_range_min": "최저 판매가 (원가 × {economics['markup_min']:.1f} 이상)",
+    "price_range_max": "최고 판매가 (원가 × {economics['markup_max']:.1f} 이하)",
+    "max_sales_per_10min": "10분 제한 (숫자 또는 null)",
+    "reason": "이 경제 환경에 적합한 이유",
+    "strategy": "가격 전략"
+}}
+
+**필수:** 모든 금액은 10,000원 단위로 반올림
+"""
+        
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "당신은 창업 교육 전문가이자 게임 경제 디자이너입니다. 반드시 JSON 형식으로만 답변하세요."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=800,
+            response_format={"type": "json_object"}
+        )
+        
+        ai_result = json.loads(response.choices[0].message.content)
+        
+        # 유효성 검증 및 보정
+        validated = _validate_ai_response(ai_result, economics)
+        validated['economics'] = economics
+        validated['source'] = 'ai'
+        
+        return validated
+        
+    except Exception as e:
+        # AI 실패 시 규칙 기반 fallback
+        economy = MarketEconomyEngine(market_settings, INITIAL_CAPITAL)
+        economics = economy.calculate_safe_economics(len(students))
+        result = _generate_rule_based_recommendation(idea, economics)
+        result['source'] = 'fallback'
+        result['error'] = str(e)
+        return result
+
+def _validate_ai_response(ai_data, economics):
+    """AI 응답 검증 및 보정"""
+    validated = {}
+    
+    # 유형
+    validated['recommended_type'] = ai_data.get('recommended_type', '🛒 골라오기 (유통)')
+    
+    # 원가
+    cost = int(ai_data.get('cost', economics['optimal_min_cost']))
+    cost = max(economics['optimal_min_cost'], min(cost, economics['optimal_max_cost']))
+    cost = int(round(cost / 10000) * 10000)
+    validated['cost'] = cost
+    
+    # 판매가 범위
+    price_min = int(ai_data.get('price_range_min', cost * economics['markup_min']))
+    price_max = int(ai_data.get('price_range_max', cost * economics['markup_max']))
+    
+    # 마진율 검증
+    if price_min < cost * economics['markup_min'] * 0.9:
+        price_min = int(cost * economics['markup_min'])
+    if price_max > cost * economics['markup_max'] * 1.1:
+        price_max = int(cost * economics['markup_max'])
+    
+    validated['price_range_min'] = int(round(price_min / 10000) * 10000)
+    validated['price_range_max'] = int(round(price_max / 10000) * 10000)
+    validated['max_sales_per_10min'] = ai_data.get('max_sales_per_10min')
+    validated['reason'] = ai_data.get('reason', '시장 환경을 고려한 추천입니다.')
+    validated['strategy'] = ai_data.get('strategy', economics['strategy'])
+    
+    return validated
+
+def _generate_rule_based_recommendation(idea, economics):
+    """규칙 기반 추천 (AI 실패 시)"""
+    idea_lower = idea.lower()
+    
+    if any(word in idea_lower for word in ['만들', '제작', '손수', '직접']):
+        recommended_type = "🔨 뚝딱뚝딱 (제조)"
+    elif any(word in idea_lower for word in ['대신', '서비스', '도와']):
+        recommended_type = "🏃 대신하기 (서비스)"
+    elif any(word in idea_lower for word in ['빌려', '대여', '렌탈']):
+        recommended_type = "🎪 빌려주기 (대여)"
+    else:
+        recommended_type = "🛒 골라오기 (유통)"
+    
+    cost = (economics['optimal_min_cost'] + economics['optimal_max_cost']) // 2
+    cost = int(round(cost / 10000) * 10000)
+    
+    price_min = int(cost * economics['markup_min'])
+    price_max = int(cost * economics['markup_max'])
+    
+    return {
+        'recommended_type': recommended_type,
+        'cost': cost,
+        'price_range_min': price_min,
+        'price_range_max': price_max,
+        'max_sales_per_10min': 8,
+        'reason': f"시장 환경을 고려한 추천입니다. ({economics['strategy']})",
+        'strategy': economics['strategy'],
+        'economics': economics
+    }
 
 # ==================== Google Sheets 연결 ====================
 
@@ -799,58 +1163,65 @@ with tab1:
         )
         
         if student_idea and st.button("🤖 AI 분석 시작", key="analyze_idea"):
-            with st.spinner("AI가 아이디어를 분석 중입니다..."):
-                try:
-                    openai_api_key = st.secrets.get("OPENAI_API_KEY", "")
-                    
-                    if not openai_api_key:
-                        st.error("⚠️ OpenAI API 키가 설정되지 않았습니다.")
-                    else:
-                        from openai import OpenAI
-                        client = OpenAI(api_key=openai_api_key)
-                        
-                        # AI에게 분석 요청
-                        prompt = f"""
-다음 학생의 창업 아이디어를 분석하고, 가장 적합한 비즈니스 유형을 추천해주세요.
-
-학생 아이디어: {student_idea}
-
-비즈니스 유형 목록:
-{', '.join(BUSINESS_TYPES.keys())}
-
-다음 정보를 포함해서 답변해주세요:
-1. 추천 유형 (위 목록 중 1개)
-2. 추천 이유 (2-3문장)
-3. 성공을 위한 조언 (2-3문장)
-
-형식:
-추천유형: [유형명]
-이유: [설명]
-조언: [설명]
-"""
-                        
-                        response = client.chat.completions.create(
-                            model="gpt-4o-mini",
-                            messages=[
-                                {"role": "system", "content": "당신은 초등학생부터 고등학생까지를 대상으로 하는 창업 교육 전문가입니다."},
-                                {"role": "user", "content": prompt}
-                            ],
-                            temperature=0.7,
-                            max_tokens=500
-                        )
-                        
-                        ai_response = response.choices[0].message.content
-                        st.session_state['ai_analysis'] = ai_response
-                        st.success("✅ AI 분석 완료!")
-                        st.markdown(ai_response)
+            with st.spinner("AI가 시장 환경을 분석하고 최적 전략을 제안하고 있습니다..."):
+                # 새로운 경제 기반 AI 추천
+                recommendation = get_ai_recommendation_with_economics(
+                    student_idea, 
+                    st.session_state.market_settings,
+                    st.session_state.students
+                )
                 
-                except Exception as e:
-                    st.error(f"⚠️ AI 분석 오류: {str(e)}")
+                st.session_state['ai_recommendation'] = recommendation
+                st.success("✅ AI 분석 완료!")
+                
+                # 경제 환경 표시
+                if 'economics' in recommendation:
+                    eco = recommendation['economics']
+                    
+                    st.markdown("### 📊 현재 경제 환경")
+                    eco_col1, eco_col2, eco_col3 = st.columns(3)
+                    
+                    with eco_col1:
+                        st.metric("1인당 구매력", f"{eco['avg_buying_power']:,}원", "가격 기준선")
+                    with eco_col2:
+                        st.metric("시장 상태", eco['market_health']['status'])
+                    with eco_col3:
+                        st.metric("추천 전략", eco['strategy'])
+                    
+                    if eco.get('warnings'):
+                        for warning in eco['warnings']:
+                            st.warning(warning)
+                
+                # AI 추천 결과
+                st.markdown("### 💡 AI 추천")
+                
+                rec_col1, rec_col2 = st.columns(2)
+                
+                with rec_col1:
+                    st.info(f"""
+                    **🏪 추천 유형**: {recommendation['recommended_type']}  
+                    **💰 추천 원가**: {recommendation['cost']:,}원  
+                    **💵 추천 판매가 범위**: {recommendation['price_range_min']:,}원 ~ {recommendation['price_range_max']:,}원  
+                    **⏱️ 10분 제한**: {recommendation['max_sales_per_10min'] if recommendation['max_sales_per_10min'] else '무제한'}
+                    """)
+                
+                with rec_col2:
+                    st.markdown(f"""
+                    **이유**: {recommendation['reason']}
+                    
+                    **전략**: {recommendation['strategy']}
+                    """)
+                
+                # 자동 적용 버튼
+                if st.button("✨ AI 추천 자동 적용", key="apply_ai"):
+                    st.session_state['auto_apply_ai'] = True
+                    st.rerun()
         
-        # AI 분석 결과 표시
-        if 'ai_analysis' in st.session_state and st.session_state['ai_analysis']:
-            with st.expander("📊 AI 분석 결과 보기", expanded=True):
-                st.markdown(st.session_state['ai_analysis'])
+        # AI 분석 결과 표시 (축소 가능)
+        if 'ai_recommendation' in st.session_state and st.session_state['ai_recommendation']:
+            with st.expander("📊 AI 분석 결과 다시 보기"):
+                rec = st.session_state['ai_recommendation']
+                st.json(rec)
         
         st.markdown("---")
         
@@ -887,27 +1258,57 @@ with tab1:
         
         st.subheader("4️⃣ 원가 조정 (관리자)")
         
+        # AI 추천 자동 적용
+        if st.session_state.get('auto_apply_ai') and st.session_state.get('ai_recommendation'):
+            ai_rec = st.session_state['ai_recommendation']
+            default_cost = ai_rec['cost']
+            recommended_min = ai_rec['price_range_min']
+            recommended_max = ai_rec['price_range_max']
+            st.session_state['auto_apply_ai'] = False
+            st.success("✨ AI 추천이 자동 적용되었습니다!")
+        else:
+            default_cost = business_info['cost']
+            recommended_min = business_info['recommended_price']
+            recommended_max = int(business_info['recommended_price'] * 1.3)
+        
         col1, col2 = st.columns(2)
         
         with col1:
-            st.write(f"**AI 추천 원가**: {business_info['cost']:,}원")
+            st.write(f"**기본 원가**: {business_info['cost']:,}원")
         
         with col2:
             adjusted_cost = st.number_input(
                 "최종 원가 설정 (1만원 단위)",
                 min_value=10000,
                 max_value=500000,
-                value=business_info['cost'],
+                value=default_cost,
                 step=10000,
-                help="실제 화폐: 10만원권, 5만원권, 1만원권",
+                help="AI 추천 원가 또는 수동 조정 (10만/5만/1만원권)",
                 key="cost_adjustment"
             )
         
         if adjusted_cost != business_info['cost']:
-            st.warning(f"⚠️ 원가 조정: {business_info['cost']:,}원 → {adjusted_cost:,}원")
+            st.info(f"📝 원가 조정: {business_info['cost']:,}원 → {adjusted_cost:,}원")
         
-        # 추천 판매가 자동 계산
-        recommended_selling_price = int(adjusted_cost * 2.0)
+        # 추천 판매가 범위 표시
+        st.markdown("---")
+        st.subheader("💵 추천 판매가 범위")
+        
+        range_col1, range_col2, range_col3 = st.columns(3)
+        
+        with range_col1:
+            st.metric("최저가", f"{recommended_min:,}원")
+        with range_col2:
+            recommended_mid = (recommended_min + recommended_max) // 2
+            recommended_mid = int(round(recommended_mid / 10000) * 10000)
+            st.metric("중간가 (참고)", f"{recommended_mid:,}원", "학생이 고민할 범위")
+        with range_col3:
+            st.metric("최고가", f"{recommended_max:,}원")
+        
+        st.success(f"💡 학생에게: **{recommended_min:,}원 ~ {recommended_max:,}원** 사이에서 가격을 정해보세요!")
+        
+        # 추천 판매가 (기록용)
+        recommended_selling_price = recommended_mid
         
         # 구매자 조건 자동 표시
         st.markdown("---")
@@ -1856,40 +2257,56 @@ with tab4:
             
             # 학생별 구매 가격대 정보
             if st.session_state.students:
-                st.markdown("### 📊 학생별 구매 가격 범위")
-                st.caption("각 학생의 아이템에 대한 구매 조건")
+                st.markdown("### 📊 학생별 구매 가격 범위 (업종 반영)")
+                st.caption("각 학생의 아이템 특성에 따른 구매자별 실제 구매 가능 가격")
                 
                 for name, data in st.session_state.students.items():
                     cost = data['cost']
+                    business_type = data['business_type']
                     
-                    # 각 구매자 유형별 가격대
-                    big_spender_range = f"{cost:,}원 ~ {int(cost * 2.5):,}원"
-                    normal_range = f"{cost:,}원 ~ {int(cost * 2.0):,}원"
-                    frugal_range = f"{cost:,}원 ~ {int(cost * 1.5):,}원"
-                    
-                    with st.expander(f"**{name}** - {data['business_type']}"):
-                        guide_col1, guide_col2, guide_col3 = st.columns(3)
+                    with st.expander(f"**{name}** - {business_type} (원가: {cost:,}원)"):
+                        # 모든 캐릭터의 예상 가격대 계산
+                        st.markdown("#### 💎 큰손 구매자들")
+                        big_df_data = []
+                        for buyer in BUYER_CHARACTERS["big_spender"]:
+                            price_range = calculate_buyer_price_range(buyer, cost, business_type)
+                            big_df_data.append({
+                                "구매자": f"{buyer['emoji']} {buyer['name']}",
+                                "최저가": f"{price_range['min']:,}원",
+                                "적정가": f"{price_range['sweet_spot']:,}원",
+                                "최고가": f"{price_range['max']:,}원"
+                            })
                         
-                        with guide_col1:
-                            st.markdown(f"""
-                            **💎 큰손**  
-                            {big_spender_range}  
-                            (원가의 ~2.5배)
-                            """)
+                        if big_df_data:
+                            st.dataframe(pd.DataFrame(big_df_data), use_container_width=True, hide_index=True)
                         
-                        with guide_col2:
-                            st.markdown(f"""
-                            **😊 일반**  
-                            {normal_range}  
-                            (원가의 ~2.0배)
-                            """)
+                        st.markdown("#### 😊 일반 구매자들")
+                        normal_df_data = []
+                        for buyer in BUYER_CHARACTERS["normal"]:
+                            price_range = calculate_buyer_price_range(buyer, cost, business_type)
+                            normal_df_data.append({
+                                "구매자": f"{buyer['emoji']} {buyer['name']}",
+                                "최저가": f"{price_range['min']:,}원",
+                                "적정가": f"{price_range['sweet_spot']:,}원",
+                                "최고가": f"{price_range['max']:,}원"
+                            })
                         
-                        with guide_col3:
-                            st.markdown(f"""
-                            **💰 짠물**  
-                            {frugal_range}  
-                            (원가의 ~1.5배)
-                            """)
+                        if normal_df_data:
+                            st.dataframe(pd.DataFrame(normal_df_data), use_container_width=True, hide_index=True)
+                        
+                        st.markdown("#### 💰 짠물 구매자들")
+                        frugal_df_data = []
+                        for buyer in BUYER_CHARACTERS["frugal"]:
+                            price_range = calculate_buyer_price_range(buyer, cost, business_type)
+                            frugal_df_data.append({
+                                "구매자": f"{buyer['emoji']} {buyer['name']}",
+                                "최저가": f"{price_range['min']:,}원",
+                                "적정가": f"{price_range['sweet_spot']:,}원",
+                                "최고가": f"{price_range['max']:,}원"
+                            })
+                        
+                        if frugal_df_data:
+                            st.dataframe(pd.DataFrame(frugal_df_data), use_container_width=True, hide_index=True)
                 
                 st.markdown("---")
             
