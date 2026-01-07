@@ -1540,50 +1540,63 @@ with tab1:
         st.subheader("💵 추천 판매가 범위 (시장 상황 반영)")
         
         # MarketEconomyEngine으로 동적 범위 계산
-        market_engine = MarketEconomyEngine(
-            st.session_state.market_settings,
-            INITIAL_CAPITAL
-        )
+        try:
+            market_engine = MarketEconomyEngine(
+                st.session_state.market_settings,
+                INITIAL_CAPITAL
+            )
+            
+            # 현재 등록된 학생 수 전달
+            current_students = len(st.session_state.students) if hasattr(st.session_state, 'students') else 0
+            economics = market_engine.calculate_safe_economics(current_students)
+            
+            # 동적 마진율 적용
+            dynamic_markup_min = economics['markup_min']
+            dynamic_markup_max = economics['markup_max']
+            
+            calculated_min = int(adjusted_cost * dynamic_markup_min)
+            calculated_max = int(adjusted_cost * dynamic_markup_max)
+            
+            # 1만원 단위로 반올림
+            recommended_min = int(round(calculated_min / 10000) * 10000)
+            recommended_max = int(round(calculated_max / 10000) * 10000)
+            
+            # 시장 상황 표시
+            market_status = economics['market_health']['status']
+            
+            st.info(f"""
+            {market_status}  
+            {economics['market_health']['description']}  
+            
+            💡 **추천 전략**: {economics['strategy']}
+            """)
+            
+            range_col1, range_col2, range_col3 = st.columns(3)
+            
+            with range_col1:
+                st.metric("최저가", f"{recommended_min:,}원", f"원가 x {dynamic_markup_min:.1f}")
+            with range_col2:
+                recommended_mid = (recommended_min + recommended_max) // 2
+                recommended_mid = int(round(recommended_mid / 10000) * 10000)
+                st.metric("중간가 (참고)", f"{recommended_mid:,}원", "균형잡힌 선택")
+            with range_col3:
+                st.metric("최고가", f"{recommended_max:,}원", f"원가 x {dynamic_markup_max:.1f}")
         
-        economics = market_engine.calculate_market_economics()
-        
-        # 동적 마진율 적용
-        dynamic_markup_min = economics['optimal_markup_range']['min']
-        dynamic_markup_max = economics['optimal_markup_range']['max']
-        
-        calculated_min = int(adjusted_cost * dynamic_markup_min)
-        calculated_max = int(adjusted_cost * dynamic_markup_max)
-        
-        # 1만원 단위로 반올림
-        recommended_min = int(round(calculated_min / 10000) * 10000)
-        recommended_max = int(round(calculated_max / 10000) * 10000)
-        
-        # 시장 상황 표시
-        market_status = economics['market_health']['status']
-        if market_status == "건강함":
-            status_color = "🟢"
-        elif market_status == "경고":
-            status_color = "🟡"
-        else:
-            status_color = "🔴"
-        
-        st.info(f"""
-        {status_color} **시장 상태**: {market_status}  
-        {economics['market_health']['description']}  
-        
-        💡 **추천 전략**: {economics['strategy']}
-        """)
-        
-        range_col1, range_col2, range_col3 = st.columns(3)
-        
-        with range_col1:
-            st.metric("최저가", f"{recommended_min:,}원", f"원가 x {dynamic_markup_min:.1f}")
-        with range_col2:
+        except Exception as e:
+            # 에러 발생 시 기본값 사용
+            st.warning(f"⚠️ 동적 가격 계산 중 문제가 발생했습니다. 기본 범위를 사용합니다.")
+            recommended_min = business_info['recommended_price']
+            recommended_max = int(business_info['recommended_price'] * 1.3)
             recommended_mid = (recommended_min + recommended_max) // 2
-            recommended_mid = int(round(recommended_mid / 10000) * 10000)
-            st.metric("중간가 (참고)", f"{recommended_mid:,}원", "균형잡힌 선택")
-        with range_col3:
-            st.metric("최고가", f"{recommended_max:,}원", f"원가 x {dynamic_markup_max:.1f}")
+            
+            range_col1, range_col2, range_col3 = st.columns(3)
+            
+            with range_col1:
+                st.metric("최저가", f"{recommended_min:,}원")
+            with range_col2:
+                st.metric("중간가 (참고)", f"{recommended_mid:,}원")
+            with range_col3:
+                st.metric("최고가", f"{recommended_max:,}원")
         
         st.success(f"💡 학생에게: **{recommended_min:,}원 ~ {recommended_max:,}원** 사이에서 가격을 정해보세요!")
         
