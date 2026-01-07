@@ -272,8 +272,7 @@ def get_or_create_market_settings_sheet(_spreadsheet):
         st.error(f"시장설정 시트 오류: {str(e)}")
         return None
 
-@st.cache_data(ttl=300)  # 5분간 캐시
-def load_market_settings(_settings_sheet):
+def load_market_settings(settings_sheet):
     """시장 설정을 불러옵니다."""
     # 기본값 정의
     default_settings = {
@@ -285,11 +284,11 @@ def load_market_settings(_settings_sheet):
         'frugal_ratio': 30
     }
     
-    if not _settings_sheet:
+    if not settings_sheet:
         return default_settings
     
     try:
-        all_values = _settings_sheet.get_all_values()
+        all_values = settings_sheet.get_all_values()
         settings = {}
         
         for row in all_values[1:]:  # 헤더 제외
@@ -334,8 +333,6 @@ def save_market_settings(settings_sheet, settings):
             [str(settings['frugal_ratio'])]
         ])
         time.sleep(1.0)  # API 제한 방지
-        # 캐시 클리어
-        load_market_settings.clear()
         return True
     except Exception as e:
         st.error(f"설정 저장 오류: {str(e)}")
