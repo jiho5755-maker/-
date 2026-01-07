@@ -21,6 +21,176 @@ st.set_page_config(
 # 초기 자본금
 INITIAL_CAPITAL = 500000
 
+# 구매자 캐릭터 프로필 (랜덤 배정용)
+BUYER_CHARACTERS = {
+    "big_spender": [
+        {
+            "name": "사업가 김사장",
+            "emoji": "💼",
+            "budget": "1,000,000원",
+            "personality": "투자 가치 중시, 사업 확장성 평가",
+            "speech": ["이거 사업성 있어 보이네요", "투자 가치가 있으면 비싸도 괜찮아요", "품질이 중요하죠"],
+            "behavior": "사업 아이템을 평가하듯 질문하고, 확장 가능성을 물어봄"
+        },
+        {
+            "name": "연예인 박스타",
+            "emoji": "⭐",
+            "budget": "1,000,000원",
+            "personality": "트렌디하고 유명한 것 선호, SNS 감성",
+            "speech": ["인스타에 올리면 좋겠어요", "요즘 유행하는 거예요?", "이거 힙하네요!"],
+            "behavior": "SNS 찍기 좋은지 확인하고, 트렌드에 민감함"
+        },
+        {
+            "name": "의사 이원장",
+            "emoji": "⚕️",
+            "budget": "1,000,000원",
+            "personality": "건강과 품질 최우선, 전문가적 안목",
+            "speech": ["건강에 좋은가요?", "품질 보증이 되나요?", "성분이 뭐예요?"],
+            "behavior": "꼼꼼하게 따져보지만, 마음에 들면 확실하게 구매"
+        },
+        {
+            "name": "변호사 최법사",
+            "emoji": "⚖️",
+            "budget": "1,000,000원",
+            "personality": "논리적이고 분석적, 계약 조건 중시",
+            "speech": ["근거가 뭐죠?", "이 가격이 합리적인 이유가?", "보증은 되나요?"],
+            "behavior": "논리적으로 설득되면 구매, 근거 있는 설명 선호"
+        },
+        {
+            "name": "건물주 박건물",
+            "emoji": "🏢",
+            "budget": "1,000,000원",
+            "personality": "여유롭고 느긋함, 마음에 들면 즉시 구매",
+            "speech": ["그래요? 재밌네요", "좋아 보이면 사죠", "얼마예요? 아 괜찮네요"],
+            "behavior": "친절하고 여유있게 대화, 느낌으로 판단"
+        },
+        {
+            "name": "재벌 3세 윤도련",
+            "emoji": "💎",
+            "budget": "1,000,000원",
+            "personality": "명품 선호, 독특하고 희귀한 것 좋아함",
+            "speech": ["이거 한정판이에요?", "특별한 게 뭐예요?", "다른 데는 없죠?"],
+            "behavior": "독특함과 희소성에 끌림, 프리미엄 선호"
+        }
+    ],
+    "normal": [
+        {
+            "name": "직장인 김대리",
+            "emoji": "💼",
+            "budget": "500,000원",
+            "personality": "실용적이고 가성비 중시, 급여날 여유",
+            "speech": ["가성비 괜찮은가요?", "이 가격이면 적당하네요", "실용적인가요?"],
+            "behavior": "꼼꼼하게 비교하고, 합리적이면 구매"
+        },
+        {
+            "name": "대학생 이학생",
+            "emoji": "🎓",
+            "budget": "500,000원",
+            "personality": "알바비 받은 날, 자기 보상 원함",
+            "speech": ["알바비 받았는데", "나한테 선물하려고요", "이거 힙한 거 맞죠?"],
+            "behavior": "트렌디하고 자기만족 되는 것 선호"
+        },
+        {
+            "name": "신혼부부 박신혼",
+            "emoji": "💑",
+            "budget": "500,000원",
+            "personality": "신혼집 꾸미기, 실용적이면서 예쁜 것",
+            "speech": ["신혼집에 어울릴까요?", "배우자가 좋아할까요?", "실용적이에요?"],
+            "behavior": "파트너와 상의하는 듯한 제스처, 신중하게 선택"
+        },
+        {
+            "name": "프리랜서 최자유",
+            "emoji": "💻",
+            "budget": "500,000원",
+            "personality": "자유로운 영혼, 창의적인 것 선호",
+            "speech": ["독특하네요", "창의적이에요", "이거 재밌겠다"],
+            "behavior": "독창성과 재미를 중시, 감성적 구매"
+        },
+        {
+            "name": "교사 강선생",
+            "emoji": "📚",
+            "budget": "500,000원",
+            "personality": "교육적 가치 중시, 의미있는 구매",
+            "speech": ["교육적으로 좋네요", "학생들한테 보여줄까?", "의미있는 것 같아요"],
+            "behavior": "스토리와 가치를 중시, 설명을 잘 들음"
+        },
+        {
+            "name": "간호사 윤간호",
+            "emoji": "💉",
+            "budget": "500,000원",
+            "personality": "실용성과 편리성 중시, 야근 많아 간편한 것",
+            "speech": ["편리한가요?", "관리하기 쉬워요?", "바빠도 괜찮을까요?"],
+            "behavior": "실용적이고 편리한 것 우선, 빠른 결정"
+        },
+        {
+            "name": "공무원 정안정",
+            "emoji": "🏛️",
+            "budget": "500,000원",
+            "personality": "안정적이고 검증된 것 선호",
+            "speech": ["믿을 만한가요?", "많이 팔렸어요?", "후기 어때요?"],
+            "behavior": "검증되고 안전한 선택 선호, 신중함"
+        }
+    ],
+    "frugal": [
+        {
+            "name": "주부 김알뜰",
+            "emoji": "🏠",
+            "budget": "200,000원",
+            "personality": "집안 살림 책임, 한 푼이 아까움",
+            "speech": ["너무 비싼데...", "좀 깎아주세요", "집에 돈 쓸 데가 많아서"],
+            "behavior": "가격 흥정 시도, 할인 여부 확인"
+        },
+        {
+            "name": "은퇴자 박은퇴",
+            "emoji": "👴",
+            "budget": "200,000원",
+            "personality": "연금 생활, 아껴서 써야 함",
+            "speech": ["연금으로 살아서...", "꼭 필요한 것만", "더 싼 거 없어요?"],
+            "behavior": "필요성을 따져봄, 매우 신중함"
+        },
+        {
+            "name": "취준생 이준비",
+            "emoji": "📝",
+            "budget": "200,000원",
+            "personality": "취업 준비 중, 돈이 너무 없음",
+            "speech": ["취업하면 사야지...", "지금은 너무 비싸요", "할인 안 되나요?"],
+            "behavior": "사고 싶지만 참는 모습, 가격에 매우 민감"
+        },
+        {
+            "name": "알바생 최최저",
+            "emoji": "🍔",
+            "budget": "200,000원",
+            "personality": "최저시급, 아껴서 모으는 중",
+            "speech": ["한 시간 일해야 버는 돈인데", "너무 비싸요", "반값 안 되나요?"],
+            "behavior": "시간당 임금으로 환산해서 생각, 아까워함"
+        },
+        {
+            "name": "대학원생 박논문",
+            "emoji": "📖",
+            "budget": "200,000원",
+            "personality": "등록금 내고 남은 돈, 라면으로 연명",
+            "speech": ["대학원생이라...", "이거 꼭 필요한가요?", "더 싼 거요?"],
+            "behavior": "필요성 따지고, 가격 협상 시도"
+        },
+        {
+            "name": "신입사원 이막내",
+            "emoji": "👔",
+            "budget": "200,000원",
+            "personality": "첫 월급인데 쓸 데가 많음, 빚도 있음",
+            "speech": ["첫 월급인데 빠듯해서", "할부 되나요?", "조금만 깎아주세요"],
+            "behavior": "사고 싶지만 가격 부담, 망설임"
+        },
+        {
+            "name": "자영업자 정힘듦",
+            "emoji": "🏪",
+            "budget": "200,000원",
+            "personality": "장사 안 돼서 힘듦, 절약 모드",
+            "speech": ["요즘 장사가 안 돼서", "딱 필요한 것만", "에이 너무 비싸"],
+            "behavior": "필요하면 살지만, 가격 흥정 많이 함"
+        }
+    ]
+}
+
 # 유형별 밸런스 설정 (최종 고도화 버전)
 BUSINESS_TYPES = {
     "🛒 골라오기 (유통)": {
@@ -1442,38 +1612,62 @@ with tab4:
             
             # 큰손
             st.markdown("### 💎 큰손 구매자 (상위 20%)")
-            for i in range(big_spender_count):
-                with st.expander(f"큰손 #{i+1}"):
+            
+            # 랜덤하게 캐릭터 선택
+            selected_big_spenders = random.sample(BUYER_CHARACTERS["big_spender"], min(big_spender_count, len(BUYER_CHARACTERS["big_spender"])))
+            
+            for i, character in enumerate(selected_big_spenders, 1):
+                with st.expander(f"{character['emoji']} 큰손 #{i}: {character['name']}"):
                     st.write(f"""
-                    **💰 예산**: 1,000,000원  
-                    **🎯 특성**: 품질 중시, 비싸도 괜찮음  
+                    **👤 캐릭터**: {character['name']}  
+                    **💰 예산**: {character['budget']}  
+                    **🎯 특성**: {character['personality']}  
                     **📋 구매 조건**: **원가 ~ 원가의 2.5배** 가격이면 구매  
-                    **💬 말투**: "이거 품질 좋아 보이네요!", "조금 비싸도 괜찮아요"  
-                    **🎪 행동**: 학생들 설명 듣고 마음에 들면 적극 구매
+                    **💬 말투 예시**:  
+                    - "{character['speech'][0]}"  
+                    - "{character['speech'][1]}"  
+                    - "{character['speech'][2]}"  
+                    **🎪 행동 특징**: {character['behavior']}
                     """)
             
             # 일반
             st.markdown("### 😊 일반 구매자 (중간 50%)")
-            for i in range(normal_count):
-                with st.expander(f"일반 #{i+1}"):
+            
+            # 랜덤하게 캐릭터 선택
+            selected_normal = random.sample(BUYER_CHARACTERS["normal"], min(normal_count, len(BUYER_CHARACTERS["normal"])))
+            
+            for i, character in enumerate(selected_normal, 1):
+                with st.expander(f"{character['emoji']} 일반 #{i}: {character['name']}"):
                     st.write(f"""
-                    **💰 예산**: 500,000원  
-                    **🎯 특성**: 가성비 중시, 적당한 가격 선호  
+                    **👤 캐릭터**: {character['name']}  
+                    **💰 예산**: {character['budget']}  
+                    **🎯 특성**: {character['personality']}  
                     **📋 구매 조건**: **원가 ~ 원가의 2.0배** 가격이면 구매  
-                    **💬 말투**: "가격이 적당하네요", "이 정도면 괜찮을 것 같아요"  
-                    **🎪 행동**: 가격 물어보고 합리적이면 구매
+                    **💬 말투 예시**:  
+                    - "{character['speech'][0]}"  
+                    - "{character['speech'][1]}"  
+                    - "{character['speech'][2]}"  
+                    **🎪 행동 특징**: {character['behavior']}
                     """)
             
             # 짠물
             st.markdown("### 🤏 짠물 구매자 (하위 30%)")
-            for i in range(frugal_count):
-                with st.expander(f"짠물 #{i+1}"):
+            
+            # 랜덤하게 캐릭터 선택
+            selected_frugal = random.sample(BUYER_CHARACTERS["frugal"], min(frugal_count, len(BUYER_CHARACTERS["frugal"])))
+            
+            for i, character in enumerate(selected_frugal, 1):
+                with st.expander(f"{character['emoji']} 짠물 #{i}: {character['name']}"):
                     st.write(f"""
-                    **💰 예산**: 200,000원  
-                    **🎯 특성**: 저가 선호, 무조건 싼 것  
+                    **👤 캐릭터**: {character['name']}  
+                    **💰 예산**: {character['budget']}  
+                    **🎯 특성**: {character['personality']}  
                     **📋 구매 조건**: **원가 ~ 원가의 1.5배** 가격이면 구매  
-                    **💬 말투**: "더 싼 거 없어요?", "너무 비싼데..."  
-                    **🎪 행동**: 매우 저렴한 것만 선택 구매
+                    **💬 말투 예시**:  
+                    - "{character['speech'][0]}"  
+                    - "{character['speech'][1]}"  
+                    - "{character['speech'][2]}"  
+                    **🎪 행동 특징**: {character['behavior']}
                     """)
     
     with tool_tab3:
