@@ -74,6 +74,7 @@ def get_google_sheets_client():
         st.error(f"Google Sheets 연결 오류: {str(e)}")
         return None
 
+@st.cache_resource(ttl=600)  # 10분간 캐시
 def get_or_create_spreadsheet():
     """스프레드시트를 가져오거나 생성합니다."""
     client = get_google_sheets_client()
@@ -112,14 +113,15 @@ def get_or_create_spreadsheet():
         st.error(f"스프레드시트 접근 오류: {str(e)}")
         return None, None
 
-def load_students_from_sheets(worksheet):
+@st.cache_data(ttl=300)  # 5분간 캐시
+def load_students_from_sheets(_worksheet):
     """Google Sheets에서 학생 데이터를 불러옵니다."""
-    if not worksheet:
+    if not _worksheet:
         return {}
     
     try:
         # 모든 데이터 가져오기
-        all_values = worksheet.get_all_values()
+        all_values = _worksheet.get_all_values()
         
         if len(all_values) <= 1:  # 헤더만 있는 경우
             return {}
@@ -218,7 +220,9 @@ def save_student_to_sheets(worksheet, name, student_data):
             # 새 행 추가
             worksheet.append_row(new_row)
         
-        time.sleep(0.5)  # API 제한 방지
+        time.sleep(1.0)  # API 제한 방지
+        # 캐시 클리어
+        load_students_from_sheets.clear()
         return True
         
     except Exception as e:
@@ -241,6 +245,7 @@ def delete_all_students_from_sheets(worksheet):
         return False
 
 # 시장 설정 관리 함수들
+@st.cache_resource(ttl=600)  # 10분간 캐시
 def get_or_create_market_settings_sheet(spreadsheet):
     """시장 설정 시트를 가져오거나 생성합니다."""
     if not spreadsheet:
@@ -267,9 +272,10 @@ def get_or_create_market_settings_sheet(spreadsheet):
         st.error(f"시장설정 시트 오류: {str(e)}")
         return None
 
-def load_market_settings(settings_sheet):
+@st.cache_data(ttl=300)  # 5분간 캐시
+def load_market_settings(_settings_sheet):
     """시장 설정을 불러옵니다."""
-    if not settings_sheet:
+    if not _settings_sheet:
         # 기본값 반환
         return {
             'total_money': 1000000,
@@ -281,7 +287,7 @@ def load_market_settings(settings_sheet):
         }
     
     try:
-        all_values = settings_sheet.get_all_values()
+        all_values = _settings_sheet.get_all_values()
         settings = {}
         
         for row in all_values[1:]:  # 헤더 제외
@@ -328,7 +334,9 @@ def save_market_settings(settings_sheet, settings):
             [str(settings['normal_ratio'])],
             [str(settings['frugal_ratio'])]
         ])
-        time.sleep(0.5)  # API 제한 방지
+        time.sleep(1.0)  # API 제한 방지
+        # 캐시 클리어
+        load_market_settings.clear()
         return True
     except Exception as e:
         st.error(f"설정 저장 오류: {str(e)}")
