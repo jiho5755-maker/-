@@ -1102,6 +1102,16 @@ if st.session_state.is_admin:
         help="간단 모드: 초등학생용 (재고 관리 없음) | 전략 모드: 고등학생용 (전체 시스템)"
     )
     
+    # 초기 자본금 설정 추가
+    new_initial_capital = st.sidebar.number_input(
+        "💵 초기 자본금",
+        min_value=100000,
+        max_value=10000000,
+        value=st.session_state.market_settings.get('initial_capital', INITIAL_CAPITAL),
+        step=10000,
+        help="모든 학생에게 동일하게 지급되는 시작 자본금 (1만원 단위)"
+    )
+    
     st.sidebar.markdown("---")
     st.sidebar.markdown("#### 🎲 선택적 기능 (다음 게임용)")
     st.sidebar.caption("고급 기능을 켜고 끌 수 있습니다")
@@ -1129,6 +1139,7 @@ if st.session_state.is_admin:
             'total_money': new_total_money,
             'total_buyers': new_total_buyers,
             'game_mode': new_game_mode,
+            'initial_capital': new_initial_capital,
             'big_spender_ratio': 20,
             'normal_ratio': 50,
             'frugal_ratio': 30,
@@ -1147,13 +1158,15 @@ else:
     st.sidebar.info(f"""
     **💰 시장 총 화폐량**: {total_money:,}원  
     **👥 전체 구매자 수**: {total_buyers}명  
-    **🎮 게임 모드**: {game_mode}
+    **🎮 게임 모드**: {game_mode}  
+    **💵 초기 자본금**: {st.session_state.market_settings.get('initial_capital', INITIAL_CAPITAL):,}원
     """)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 💵 초기 자본금")
-st.sidebar.success(f"**{INITIAL_CAPITAL:,}원**")
-st.sidebar.caption("모든 학생 동일")
+# 초기 자본금은 이제 시장 설정에서 조정 가능하므로 제거
+# st.sidebar.markdown("### 💵 초기 자본금")
+# st.sidebar.success(f"**{INITIAL_CAPITAL:,}원**")
+# st.sidebar.caption("모든 학생 동일")
 
 # 구매자 캐릭터 자동 할당
 if st.session_state.is_admin:
@@ -1692,7 +1705,10 @@ with tab1:
                     "total_cost": 0,
                     "total_profit": 0,
                     "final_capital": custom_capital,  # 초기 자본금
-                    "actual_money": 0  # 실물 소지금 (나중에 입력)
+                    "actual_money": 0,  # 실물 소지금 (나중에 입력)
+                    "inventory_loss": 0,  # 재고 손실 (전략 모드)
+                    "actual_profit": 0,  # 실제 순이익 (재고 손실 반영)
+                    "inventory_efficiency": 0  # 재고 효율 (%)
                 }
                 
                 # Google Sheets에 저장
@@ -1776,43 +1792,57 @@ with tab2:
                 if game_mode == "전략 모드":
                     st.markdown("### 1️⃣ 재고 구매")
                     
-                    if data['purchased_quantity'] == 0:
-                        max_can_buy = data['initial_capital'] // data['cost']
-                        
+                    # 현재 자본으로 추가 구매 가능한 수량 계산
+                    max_can_buy = data['final_capital'] // data['cost']
+                    
+                    if max_can_buy > 0:
                         purchase_quantity = st.number_input(
-                            f"{name} - 구매할 수량",
+                            f"{name} - 구매할 수량 (추가 구매 가능)",
                             min_value=0,
                             max_value=max_can_buy,
                             value=0,
                             step=1,
                             key=f"purchase_{name}",
-                            help=f"최대 {max_can_buy}개 구매 가능"
+                            help=f"현재 자본으로 최대 {max_can_buy}개 구매 가능"
                         )
                         
                         if purchase_quantity > 0:
                             total_cost = purchase_quantity * data['cost']
-                            remaining_capital = data['initial_capital'] - total_cost
+                            remaining_capital = data['final_capital'] - total_cost
                             
                             st.info(f"""
                             💰 구매 비용: {total_cost:,}원  
-                            💳 남은 자본: {remaining_capital:,}원
+                            💳 남은 자본: {remaining_capital:,}원  
+                            📦 구매 후 재고: {data['inventory'] + purchase_quantity}개
                             """)
                             
                             if st.button(f"✅ 구매 확정", key=f"confirm_purchase_{name}"):
-                                st.session_state.students[name]['purchased_quantity'] = purchase_quantity
-                                st.session_state.students[name]['inventory'] = purchase_quantity
+                                # 기존 구매량에 추가
+                                st.session_state.students[name]['purchased_quantity'] += purchase_quantity
+                                st.session_state.students[name]['inventory'] += purchase_quantity
                                 st.session_state.students[name]['final_capital'] = remaining_capital
                                 
                                 # Google Sheets에 저장
                                 if st.session_state.use_google_sheets and st.session_state.worksheet:
                                     save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
                                 
-                                st.success(f"✅ {purchase_quantity}개 구매 완료!")
+                                st.success(f"✅ {purchase_quantity}개 추가 구매 완료!")
                                 st.rerun()
                         else:
-                            st.warning("⚠️ 구매 수량을 입력하세요")
+                            if data['purchased_quantity'] > 0:
+                                st.success(f"✅ 현재 재고: {data['inventory']}개 (총 구매: {data['purchased_quantity']}개)")
+                            else:
+                                st.warning("⚠️ 구매 수량을 입력하세요")
                     else:
-                        st.success(f"✅ 이미 구매 완료: {data['purchased_quantity']}개")
+                        if data['inventory'] > 0:
+                            st.info(f"""
+                            📦 현재 재고: {data['inventory']}개  
+                            💳 현재 자본: {data['final_capital']:,}원  
+                            
+                            ⚠️ 자본이 부족하여 추가 구매 불가
+                            """)
+                        else:
+                            st.error("⚠️ 자본이 부족합니다. 재고를 구매할 수 없습니다.")
                     
                     st.markdown("---")
                 else:
@@ -2030,6 +2060,28 @@ with tab2:
                                 for r in [1, 2]
                             )
                             
+                            # 전략 모드: 재고 손실 및 실제 순이익 계산
+                            if game_mode == "전략 모드":
+                                inventory_loss = st.session_state.students[name]['inventory'] * st.session_state.students[name]['cost']
+                                st.session_state.students[name]['inventory_loss'] = inventory_loss
+                                st.session_state.students[name]['actual_profit'] = (
+                                    st.session_state.students[name]['final_capital'] - 
+                                    st.session_state.students[name]['initial_capital']
+                                )
+                                
+                                # 재고 효율 계산
+                                purchased = st.session_state.students[name]['purchased_quantity']
+                                if purchased > 0:
+                                    sold = purchased - st.session_state.students[name]['inventory']
+                                    st.session_state.students[name]['inventory_efficiency'] = (sold / purchased * 100)
+                                else:
+                                    st.session_state.students[name]['inventory_efficiency'] = 0
+                            else:
+                                # 간단 모드: 재고 개념 없음, total_profit이 곧 actual_profit
+                                st.session_state.students[name]['inventory_loss'] = 0
+                                st.session_state.students[name]['actual_profit'] = st.session_state.students[name]['total_profit']
+                                st.session_state.students[name]['inventory_efficiency'] = 100
+                            
                             # Google Sheets에 저장
                             if st.session_state.use_google_sheets and st.session_state.worksheet:
                                 save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
@@ -2043,16 +2095,68 @@ with tab2:
                 # 현재 상태
                 st.markdown("### 📊 현재 상태")
                 
-                status_col1, status_col2, status_col3, status_col4 = st.columns(4)
+                # 전략 모드: 재고 포함
+                if game_mode == "전략 모드":
+                    status_col1, status_col2, status_col3, status_col4 = st.columns(4)
+                    
+                    with status_col1:
+                        st.info(f"**남은 재고**\n\n{data['inventory']}개")
+                    with status_col2:
+                        st.info(f"**총 매출**\n\n{data['total_revenue']:,}원")
+                    with status_col3:
+                        st.info(f"**기록 순이익**\n\n{data['total_profit']:,}원")
+                    with status_col4:
+                        st.info(f"**현재 자본**\n\n{data['final_capital']:,}원")
+                    
+                    # 재고 손실 경고 (2라운드 이후)
+                    if st.session_state.current_round >= 2 and data['inventory'] > 0:
+                        st.warning(f"""
+                        ### 📦 재고 손실 분석
+                        
+                        **남은 재고**: {data['inventory']}개  
+                        **재고 손실**: {data['inventory_loss']:,}원 ({data['inventory']}개 × {data['cost']:,}원)
+                        
+                        ---
+                        
+                        **기록된 순이익**: {data['total_profit']:,}원  
+                        **재고 손실**: -{data['inventory_loss']:,}원  
+                        **💰 실제 순이익**: **{data['actual_profit']:,}원**
+                        
+                        ---
+                        
+                        **재고 효율**: {data['inventory_efficiency']:.1f}% (판매율)
+                        """)
+                        
+                        # 재고 효율 평가
+                        if data['inventory_efficiency'] >= 90:
+                            st.success("🌟 **재고 관리 탁월!** 구매한 재고의 90% 이상을 판매했습니다!")
+                        elif data['inventory_efficiency'] >= 70:
+                            st.info("✅ **재고 관리 양호** 구매한 재고의 70% 이상을 판매했습니다.")
+                        elif data['inventory_efficiency'] >= 50:
+                            st.warning("⚠️ **재고 관리 개선 필요** 판매율이 50~70%입니다.")
+                        else:
+                            st.error("❌ **과다 재고 경고** 판매율이 50% 미만입니다. 재고 손실이 큽니다!")
+                    
+                    elif st.session_state.current_round >= 2 and data['inventory'] == 0:
+                        st.success(f"""
+                        ### 🎉 완벽한 재고 관리!
+                        
+                        **재고 효율**: 100% (재고 소진 완료)  
+                        **실제 순이익**: {data['actual_profit']:,}원
+                        
+                        모든 재고를 판매하여 재고 손실이 없습니다! 
+                        """)
                 
-                with status_col1:
-                    st.info(f"**남은 재고**\n\n{data['inventory']}개")
-                with status_col2:
-                    st.info(f"**총 매출**\n\n{data['total_revenue']:,}원")
-                with status_col3:
-                    st.info(f"**총 순이익**\n\n{data['total_profit']:,}원")
-                with status_col4:
-                    st.info(f"**현재 자본**\n\n{data['final_capital']:,}원")
+                else:
+                    # 간단 모드: 재고 없음
+                    status_col1, status_col2, status_col3 = st.columns(3)
+                    
+                    with status_col1:
+                        st.info(f"**총 매출**\n\n{data['total_revenue']:,}원")
+                    with status_col2:
+                        st.info(f"**총 원가**\n\n{data['total_cost']:,}원")
+                    with status_col3:
+                        st.info(f"**순이익**\n\n{data['total_profit']:,}원")
                 
                 # 관리자 전용: 데이터 수정/삭제
                 if st.session_state.is_admin:
@@ -2204,11 +2308,19 @@ with tab3:
                         st.rerun()
             
             if st.session_state.final_reveal:
-                profit_ranking = sorted(
-                    st.session_state.students.items(),
-                    key=lambda x: x[1]['total_profit'],
-                    reverse=True
-                )
+                # 전략 모드: 실제 순이익 사용, 간단 모드: total_profit 사용
+                if game_mode == "전략 모드":
+                    profit_ranking = sorted(
+                        st.session_state.students.items(),
+                        key=lambda x: x[1].get('actual_profit', x[1]['total_profit']),
+                        reverse=True
+                    )
+                else:
+                    profit_ranking = sorted(
+                        st.session_state.students.items(),
+                        key=lambda x: x[1]['total_profit'],
+                        reverse=True
+                    )
                 
                 for rank, (name, data) in enumerate(profit_ranking, 1):
                     medal = ["🥇", "🥈", "🥉"][rank-1] if rank <= 3 else f"{rank}위"
@@ -2225,7 +2337,11 @@ with tab3:
                         trend = f"➡️ {rank}위 유지"
                         color = "info"
                     
-                    col1, col2, col3, col4 = st.columns([1, 2, 2, 2])
+                    # 전략 모드: 재고 손실 표시, 간단 모드: 간단하게
+                    if game_mode == "전략 모드":
+                        col1, col2, col3, col4, col5 = st.columns([1, 2, 2, 2, 1])
+                    else:
+                        col1, col2, col3, col4 = st.columns([1, 2, 2, 2])
                     
                     with col1:
                         st.markdown(f"## {medal}")
@@ -2233,7 +2349,14 @@ with tab3:
                         st.markdown(f"### {name}")
                         st.caption(data['business_type'])
                     with col3:
-                        st.metric("순이익", f"{data['total_profit']:,}원")
+                        if game_mode == "전략 모드":
+                            actual_profit = data.get('actual_profit', data['total_profit'])
+                            inventory_loss = data.get('inventory_loss', 0)
+                            st.metric("실제 순이익", f"{actual_profit:,}원")
+                            if inventory_loss > 0:
+                                st.caption(f"재고 손실: -{inventory_loss:,}원")
+                        else:
+                            st.metric("순이익", f"{data['total_profit']:,}원")
                     with col4:
                         if color == "success":
                             st.success(trend)
@@ -2241,6 +2364,18 @@ with tab3:
                             st.error(trend)
                         else:
                             st.info(trend)
+                    
+                    if game_mode == "전략 모드":
+                        with col5:
+                            efficiency = data.get('inventory_efficiency', 0)
+                            if efficiency >= 90:
+                                st.success(f"📦 {efficiency:.0f}%")
+                            elif efficiency >= 70:
+                                st.info(f"📦 {efficiency:.0f}%")
+                            else:
+                                st.warning(f"📦 {efficiency:.0f}%")
+                    
+                    st.markdown("---")
         
         st.markdown("---")
         
@@ -2249,15 +2384,25 @@ with tab3:
         
         df_data = []
         for name, data in st.session_state.students.items():
-            df_data.append({
+            row = {
                 "이름": name,
                 "유형": data['business_type'],
                 "원가": f"{data['cost']:,}원",
-                "재고": f"{data['inventory']}개",
                 "총매출": f"{data['total_revenue']:,}원",
-                "총순이익": f"{data['total_profit']:,}원",
-                "현재자본": f"{data['final_capital']:,}원"
-            })
+            }
+            
+            # 전략 모드: 재고 정보 추가
+            if game_mode == "전략 모드":
+                row["재고"] = f"{data['inventory']}개"
+                row["재고손실"] = f"{data.get('inventory_loss', 0):,}원"
+                row["기록순이익"] = f"{data['total_profit']:,}원"
+                row["실제순이익"] = f"{data.get('actual_profit', data['total_profit']):,}원"
+                row["재고효율"] = f"{data.get('inventory_efficiency', 0):.0f}%"
+                row["현재자본"] = f"{data['final_capital']:,}원"
+            else:
+                row["순이익"] = f"{data['total_profit']:,}원"
+            
+            df_data.append(row)
         
         if df_data:
             df = pd.DataFrame(df_data)
@@ -2442,6 +2587,45 @@ with tab3:
                     st.info("아직 판매 데이터가 없습니다")
         
         st.markdown("---")
+        
+        # 게임 종료 및 최종 정산 (관리자 전용)
+        if st.session_state.is_admin and st.session_state.current_round >= 2:
+            st.subheader("🏁 게임 종료 & 최종 정산")
+            st.caption("2라운드가 종료되었습니다. 최종 정산을 진행하세요.")
+            
+            if st.button("🔒 게임 종료 & 재고 손실 최종 반영", type="primary"):
+                for name, data in st.session_state.students.items():
+                    # 전략 모드: 재고 손실 최종 계산
+                    if game_mode == "전략 모드":
+                        inventory_loss = data['inventory'] * data['cost']
+                        actual_profit = data['final_capital'] - data['initial_capital']
+                        
+                        # 재고 효율 계산
+                        purchased = data['purchased_quantity']
+                        if purchased > 0:
+                            sold = purchased - data['inventory']
+                            inventory_efficiency = (sold / purchased * 100)
+                        else:
+                            inventory_efficiency = 100
+                        
+                        st.session_state.students[name]['inventory_loss'] = inventory_loss
+                        st.session_state.students[name]['actual_profit'] = actual_profit
+                        st.session_state.students[name]['inventory_efficiency'] = inventory_efficiency
+                    else:
+                        # 간단 모드: 재고 개념 없음
+                        st.session_state.students[name]['inventory_loss'] = 0
+                        st.session_state.students[name]['actual_profit'] = data['total_profit']
+                        st.session_state.students[name]['inventory_efficiency'] = 100
+                    
+                    # Google Sheets에 저장
+                    if st.session_state.use_google_sheets and st.session_state.worksheet:
+                        save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                
+                st.success("✅ 게임 종료 및 최종 정산 완료!")
+                st.balloons()
+                st.rerun()
+            
+            st.markdown("---")
         
         # 최종 정산 (실물 화폐 검증)
         if st.session_state.is_admin:
