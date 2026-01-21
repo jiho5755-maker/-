@@ -1283,8 +1283,8 @@ if st.session_state.is_admin:
     
     with st.sidebar.expander("➕ 새 사업 유형 추가", expanded=False):
         new_business_name = st.text_input("사업 유형 이름 (예: 🎨 그림그리기 (창작))", key="new_business_name")
-        new_business_cost = st.number_input("원가 (원)", min_value=1000, max_value=1000000, value=30000, step=1000, key="new_business_cost")
-        new_business_price = st.number_input("추천 판매가 (원)", min_value=1000, max_value=10000000, value=60000, step=1000, key="new_business_price")
+        new_business_cost = st.number_input("원가 (원)", min_value=1000, max_value=1000000, value=30000, step=1000, key="new_business_cost", help="💡 1,000원 단위")
+        new_business_price = st.number_input("추천 판매가 (원)", min_value=10000, max_value=10000000, value=60000, step=10000, key="new_business_price", help="💰 10,000원 단위")
         new_business_limit = st.number_input("10분당 판매 제한 (무제한은 0)", min_value=0, max_value=50, value=0, step=1, key="new_business_limit")
         new_business_desc = st.text_area("설명", value="새로운 사업 유형입니다", key="new_business_desc")
         new_business_target = st.text_input("타겟 고객", value="일반", key="new_business_target")
@@ -1318,8 +1318,8 @@ if st.session_state.is_admin:
             st.caption(f"💸 추천가: {current_data['recommended_price']:,}원")
             st.caption(f"🎯 제한: {current_data['max_sales_per_10min'] if current_data['max_sales_per_10min'] else '무제한'}")
             
-            edit_cost = st.number_input("새 원가 (원)", value=current_data['cost'], key="edit_cost")
-            edit_price = st.number_input("새 추천가 (원)", value=current_data['recommended_price'], key="edit_price")
+            edit_cost = st.number_input("새 원가 (원)", min_value=1000, value=max(1000, current_data['cost']), step=1000, key="edit_cost", help="💡 1,000원 단위")
+            edit_price = st.number_input("새 추천가 (원)", min_value=10000, value=current_data['recommended_price'], step=10000, key="edit_price", help="💰 10,000원 단위")
             edit_limit = st.number_input("새 제한 (0=무제한)", value=current_data['max_sales_per_10min'] if current_data['max_sales_per_10min'] else 0, key="edit_limit")
             
             col1, col2 = st.columns(2)
@@ -1710,12 +1710,12 @@ with tab1:
         
         with col2:
             adjusted_cost = st.number_input(
-                "최종 원가 설정 (1만원 단위)",
-                min_value=10000,
+                "최종 원가 설정 (1,000원 단위)",
+                min_value=1000,
                 max_value=500000,
-                value=default_cost,
-                step=10000,
-                help="AI 추천 원가 또는 수동 조정 (10만/5만/1만원권)",
+                value=max(1000, default_cost),
+                step=1000,
+                help="💡 1,000원 단위로 세밀하게 설정",
                 key="cost_adjustment"
             )
         
@@ -1890,11 +1890,12 @@ with tab1:
                     with prod_col3:
                         prod_price = st.number_input(
                             "판매가 (원)",
-                            min_value=prod_cost,
+                            min_value=10000,
                             max_value=10000000,
-                            value=int(prod_cost * 2),
-                            step=1000,
-                            key=f"prod_price_{i}"
+                            value=max(10000, int(prod_cost * 2)),
+                            step=10000,
+                            key=f"prod_price_{i}",
+                            help="💰 10,000원 단위"
                         )
                     
                     prod_margin = ((prod_price - prod_cost) / prod_price * 100) if prod_price > 0 else 0
