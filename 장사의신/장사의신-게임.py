@@ -25,11 +25,12 @@ INITIAL_CAPITAL = 500000
 
 # 구매자 캐릭터 프로필 V2 (현실적인 가격 범위 포함)
 BUYER_CHARACTERS = {
-    "big_spender": [  # 14명으로 확장
+    "big_spender": [  # 최상위 6명 (큰손)
         {
             "name": "사업가 김사장",
             "emoji": "💼",
-            "budget": "1,500,000원",
+            "budget": "2,000,000원",
+            "numeric_budget": 2000000,
             "personality": "투자 가치 중시, 사업 확장성 평가",
             "price_multiplier": {"min": 1.8, "max": 3.0, "sweet": 2.3},
             "category_bonus": {"서비스": 1.3, "제조": 1.2, "유통": 0.9, "대여": 1.0, "지식": 1.1},
@@ -39,7 +40,8 @@ BUYER_CHARACTERS = {
         {
             "name": "연예인 박스타",
             "emoji": "⭐",
-            "budget": "1,000,000원",
+            "budget": "1,500,000원",
+            "numeric_budget": 1500000,
             "personality": "트렌디하고 유명한 것 선호, SNS 감성",
             "price_multiplier": {"min": 2.0, "max": 3.5, "sweet": 2.6},
             "category_bonus": {"서비스": 1.0, "제조": 1.5, "유통": 1.3, "대여": 0.8, "지식": 0.9},
@@ -49,7 +51,8 @@ BUYER_CHARACTERS = {
         {
             "name": "의사 이원장",
             "emoji": "⚕️",
-            "budget": "1,000,000원",
+            "budget": "1,200,000원",
+            "numeric_budget": 1200000,
             "personality": "건강과 품질 최우선, 전문가적 안목",
             "price_multiplier": {"min": 1.9, "max": 3.2, "sweet": 2.5},
             "category_bonus": {"서비스": 1.4, "제조": 1.3, "유통": 0.8, "대여": 0.7, "지식": 1.2},
@@ -60,6 +63,7 @@ BUYER_CHARACTERS = {
             "name": "변호사 최법사",
             "emoji": "⚖️",
             "budget": "1,000,000원",
+            "numeric_budget": 1000000,
             "personality": "논리적이고 분석적, 계약 조건 중시",
             "price_multiplier": {"min": 1.7, "max": 2.8, "sweet": 2.2},
             "category_bonus": {"서비스": 1.2, "제조": 1.0, "유통": 0.9, "대여": 1.0, "지식": 1.4},
@@ -70,6 +74,7 @@ BUYER_CHARACTERS = {
             "name": "건물주 박건물",
             "emoji": "🏢",
             "budget": "1,000,000원",
+            "numeric_budget": 1000000,
             "personality": "여유롭고 느긋함, 마음에 들면 즉시 구매",
             "price_multiplier": {"min": 1.6, "max": 3.0, "sweet": 2.3},
             "category_bonus": {"서비스": 1.1, "제조": 1.1, "유통": 1.0, "대여": 1.2, "지식": 0.9},
@@ -79,7 +84,8 @@ BUYER_CHARACTERS = {
         {
             "name": "재벌 3세 윤도련",
             "emoji": "💎",
-            "budget": "1,000,000원",
+            "budget": "1,800,000원",
+            "numeric_budget": 1800000,
             "personality": "명품 선호, 독특하고 희귀한 것 좋아함",
             "price_multiplier": {"min": 2.2, "max": 4.0, "sweet": 3.0},
             "category_bonus": {"서비스": 1.2, "제조": 1.6, "유통": 0.7, "대여": 1.0, "지식": 0.8},
@@ -87,11 +93,12 @@ BUYER_CHARACTERS = {
             "behavior": "독특함과 희소성에 끌림, 프리미엄 선호"
         }
     ],
-    "normal": [
+    "normal": [  # 중간층 6명
         {
             "name": "직장인 김대리",
             "emoji": "💼",
-            "budget": "500,000원",
+            "budget": "600,000원",
+            "numeric_budget": 600000,
             "personality": "실용적이고 가성비 중시, 급여날 여유",
             "price_multiplier": {"min": 1.3, "max": 2.0, "sweet": 1.6},
             "category_bonus": {"서비스": 0.9, "제조": 1.0, "유통": 1.2, "대여": 1.0, "지식": 1.3},
@@ -101,7 +108,8 @@ BUYER_CHARACTERS = {
         {
             "name": "대학생 이학생",
             "emoji": "🎓",
-            "budget": "500,000원",
+            "budget": "400,000원",
+            "numeric_budget": 400000,
             "personality": "알바비 받은 날, 자기 보상 원함",
             "price_multiplier": {"min": 1.2, "max": 1.9, "sweet": 1.5},
             "category_bonus": {"서비스": 0.8, "제조": 1.2, "유통": 1.1, "대여": 0.9, "지식": 1.0},
@@ -111,7 +119,8 @@ BUYER_CHARACTERS = {
         {
             "name": "신혼부부 박신혼",
             "emoji": "💑",
-            "budget": "500,000원",
+            "budget": "700,000원",
+            "numeric_budget": 700000,
             "personality": "신혼집 꾸미기, 실용적이면서 예쁜 것",
             "price_multiplier": {"min": 1.4, "max": 2.1, "sweet": 1.7},
             "category_bonus": {"서비스": 1.3, "제조": 1.2, "유통": 1.0, "대여": 1.1, "지식": 0.9},
@@ -122,6 +131,7 @@ BUYER_CHARACTERS = {
             "name": "프리랜서 최자유",
             "emoji": "💻",
             "budget": "500,000원",
+            "numeric_budget": 500000,
             "personality": "자유로운 영혼, 창의적인 것 선호",
             "price_multiplier": {"min": 1.3, "max": 2.2, "sweet": 1.7},
             "category_bonus": {"서비스": 1.0, "제조": 1.4, "유통": 0.9, "대여": 1.0, "지식": 1.2},
@@ -131,7 +141,8 @@ BUYER_CHARACTERS = {
         {
             "name": "교사 강선생",
             "emoji": "📚",
-            "budget": "500,000원",
+            "budget": "550,000원",
+            "numeric_budget": 550000,
             "personality": "교육적 가치 중시, 의미있는 구매",
             "price_multiplier": {"min": 1.3, "max": 2.0, "sweet": 1.6},
             "category_bonus": {"서비스": 0.9, "제조": 1.1, "유통": 1.0, "대여": 1.0, "지식": 1.5},
@@ -142,28 +153,20 @@ BUYER_CHARACTERS = {
             "name": "간호사 윤간호",
             "emoji": "💉",
             "budget": "500,000원",
+            "numeric_budget": 500000,
             "personality": "실용성과 편리성 중시, 야근 많아 간편한 것",
             "price_multiplier": {"min": 1.2, "max": 1.8, "sweet": 1.5},
             "category_bonus": {"서비스": 1.4, "제조": 0.9, "유통": 1.0, "대여": 1.1, "지식": 1.0},
             "speech": ["편리한가요?", "관리하기 쉬워요?", "바빠도 괜찮을까요?"],
             "behavior": "실용적이고 편리한 것 우선, 빠른 결정"
-        },
-        {
-            "name": "공무원 정안정",
-            "emoji": "🏛️",
-            "budget": "500,000원",
-            "personality": "안정적이고 검증된 것 선호",
-            "price_multiplier": {"min": 1.2, "max": 1.9, "sweet": 1.5},
-            "category_bonus": {"서비스": 0.9, "제조": 1.0, "유통": 1.1, "대여": 1.0, "지식": 1.0},
-            "speech": ["믿을 만한가요?", "많이 팔렸어요?", "후기 어때요?"],
-            "behavior": "검증되고 안전한 선택 선호, 신중함"
         }
     ],
-    "frugal": [
+    "frugal": [  # 짠물파 6명
         {
             "name": "주부 김알뜰",
             "emoji": "🏠",
-            "budget": "200,000원",
+            "budget": "250,000원",
+            "numeric_budget": 250000,
             "personality": "집안 살림 책임, 한 푼이 아까움",
             "price_multiplier": {"min": 1.0, "max": 1.5, "sweet": 1.2},
             "category_bonus": {"서비스": 0.7, "제조": 0.9, "유통": 1.2, "대여": 1.0, "지식": 0.8},
@@ -174,6 +177,7 @@ BUYER_CHARACTERS = {
             "name": "은퇴자 박은퇴",
             "emoji": "👴",
             "budget": "200,000원",
+            "numeric_budget": 200000,
             "personality": "연금 생활, 아껴서 써야 함",
             "price_multiplier": {"min": 1.0, "max": 1.4, "sweet": 1.1},
             "category_bonus": {"서비스": 0.8, "제조": 0.9, "유통": 1.1, "대여": 0.9, "지식": 0.9},
@@ -183,7 +187,8 @@ BUYER_CHARACTERS = {
         {
             "name": "취준생 이준비",
             "emoji": "📝",
-            "budget": "200,000원",
+            "budget": "180,000원",
+            "numeric_budget": 180000,
             "personality": "취업 준비 중, 돈이 너무 없음",
             "price_multiplier": {"min": 1.0, "max": 1.5, "sweet": 1.2},
             "category_bonus": {"서비스": 0.7, "제조": 0.9, "유통": 1.1, "대여": 0.8, "지식": 1.2},
@@ -193,7 +198,8 @@ BUYER_CHARACTERS = {
         {
             "name": "알바생 최최저",
             "emoji": "🍔",
-            "budget": "200,000원",
+            "budget": "150,000원",
+            "numeric_budget": 150000,
             "personality": "최저시급, 아껴서 모으는 중",
             "price_multiplier": {"min": 1.0, "max": 1.4, "sweet": 1.1},
             "category_bonus": {"서비스": 0.7, "제조": 0.8, "유통": 1.2, "대여": 0.9, "지식": 0.9},
@@ -203,7 +209,8 @@ BUYER_CHARACTERS = {
         {
             "name": "대학원생 박논문",
             "emoji": "📖",
-            "budget": "200,000원",
+            "budget": "220,000원",
+            "numeric_budget": 220000,
             "personality": "등록금 내고 남은 돈, 라면으로 연명",
             "price_multiplier": {"min": 1.0, "max": 1.5, "sweet": 1.2},
             "category_bonus": {"서비스": 0.7, "제조": 0.8, "유통": 1.1, "대여": 0.9, "지식": 1.3},
@@ -213,80 +220,73 @@ BUYER_CHARACTERS = {
         {
             "name": "신입사원 이막내",
             "emoji": "👔",
-            "budget": "200,000원",
+            "budget": "300,000원",
+            "numeric_budget": 300000,
             "personality": "첫 월급인데 쓸 데가 많음, 빚도 있음",
             "price_multiplier": {"min": 1.0, "max": 1.5, "sweet": 1.2},
             "category_bonus": {"서비스": 0.8, "제조": 0.9, "유통": 1.1, "대여": 1.0, "지식": 1.1},
             "speech": ["첫 월급인데 빠듯해서", "할부 되나요?", "조금만 깎아주세요"],
             "behavior": "사고 싶지만 가격 부담, 망설임"
-        },
-        {
-            "name": "자영업자 정힘듦",
-            "emoji": "🏪",
-            "budget": "200,000원",
-            "personality": "장사 안 돼서 힘듦, 절약 모드",
-            "price_multiplier": {"min": 1.0, "max": 1.4, "sweet": 1.1},
-            "category_bonus": {"서비스": 0.9, "제조": 0.9, "유통": 1.1, "대여": 1.0, "지식": 1.0},
-            "speech": ["요즘 장사가 안 돼서", "딱 필요한 것만", "에이 너무 비싸"],
-            "behavior": "필요하면 살지만, 가격 흥정 많이 함"
         }
     ]
 }
 
-# 유형별 밸런스 설정 (최종 고도화 버전)
-BUSINESS_TYPES = {
-    "🛒 골라오기 (유통)": {
-        "cost": 20000,  # 원가
-        "recommended_price": 40000,  # 추천 판매가
-        "margin_rate": 0.50,  # 마진율 50%
-        "max_sales_per_10min": None,  # 무제한
-        "description": "물건을 사서 되파는 사업 (재고 부담, 회전율 승부)",
-        "target": "짠물 + 일반",
-        "strategy": "많이 팔아서 회전율로 승부. 재고 관리가 핵심!",
-        "key": "distribution"
-    },
-    "🔨 뚝딱뚝딱 (제조)": {
-        "cost": 60000,
-        "recommended_price": 120000,
-        "margin_rate": 0.50,
-        "max_sales_per_10min": 8,  # 시간 제약
-        "description": "직접 만들어서 파는 사업 (시간 제약, 장인정신)",
-        "target": "일반 + 큰손",
-        "strategy": "만들 수 있는 만큼만 재료 구매. 고품질 프리미엄!",
-        "key": "manufacturing"
-    },
-    "🏃 대신하기 (서비스)": {
-        "cost": 30000,
-        "recommended_price": 150000,
-        "margin_rate": 0.80,  # 고마진
-        "max_sales_per_10min": 5,  # 시간 제약 큼
-        "description": "대신 해주는 서비스 (고마진, 수량 제한)",
-        "target": "큰손",
-        "strategy": "적게 팔아도 마진이 높다. 큰손 타겟!",
-        "key": "service"
-    },
-    "📚 알려주기 (지식)": {
-        "cost": 20000,
-        "recommended_price": 80000,
-        "margin_rate": 0.75,
-        "max_sales_per_10min": 10,
-        "description": "지식/정보를 알려주는 사업 (저원가, 균형형)",
-        "target": "일반",
-        "strategy": "원가 부담 없고 마진 높음. 수요 예측이 관건!",
-        "key": "knowledge"
-    },
-    "🎪 빌려주기 (대여)": {
-        "cost": 70000,
-        "recommended_price": 120000,
-        "margin_rate": 0.43,  # 1라운드 / 2라운드는 100%
-        "max_sales_per_10min": 6,  # 보유 물건 개수 제한
-        "description": "물건을 빌려주는 사업 (장기 투자, 2라운드 대박)",
-        "target": "일반 + 큰손",
-        "strategy": "1라운드 원금 회수, 2라운드 원가 0원으로 대박!",
-        "key": "rental",
-        "special": "2라운드 재사용 가능"
+# ==================== 사업 유형 초기화 함수 ====================
+def init_default_business_types():
+    """기본 사업 유형 반환"""
+    return {
+        "🛒 골라오기 (유통)": {
+            "cost": 20000,
+            "recommended_price": 40000,
+            "margin_rate": 0.50,
+            "max_sales_per_10min": None,
+            "description": "물건을 사서 되파는 사업 (재고 부담, 회전율 승부)",
+            "target": "짠물 + 일반",
+            "strategy": "많이 팔아서 회전율로 승부. 재고 관리가 핵심!",
+            "key": "distribution"
+        },
+        "🔨 뚝딱뚝딱 (제조)": {
+            "cost": 60000,
+            "recommended_price": 120000,
+            "margin_rate": 0.50,
+            "max_sales_per_10min": 8,
+            "description": "직접 만들어서 파는 사업 (시간 제약, 장인정신)",
+            "target": "일반 + 큰손",
+            "strategy": "만들 수 있는 만큼만 재료 구매. 고품질 프리미엄!",
+            "key": "manufacturing"
+        },
+        "🏃 대신하기 (서비스)": {
+            "cost": 30000,
+            "recommended_price": 150000,
+            "margin_rate": 0.80,
+            "max_sales_per_10min": 5,
+            "description": "대신 해주는 서비스 (고마진, 수량 제한)",
+            "target": "큰손",
+            "strategy": "적게 팔아도 마진이 높다. 큰손 타겟!",
+            "key": "service"
+        },
+        "📚 알려주기 (지식)": {
+            "cost": 20000,
+            "recommended_price": 80000,
+            "margin_rate": 0.75,
+            "max_sales_per_10min": 10,
+            "description": "지식/정보를 알려주는 사업 (저원가, 균형형)",
+            "target": "일반",
+            "strategy": "원가 부담 없고 마진 높음. 수요 예측이 관건!",
+            "key": "knowledge"
+        },
+        "🎪 빌려주기 (대여)": {
+            "cost": 70000,
+            "recommended_price": 120000,
+            "margin_rate": 0.43,
+            "max_sales_per_10min": 6,
+            "description": "물건을 빌려주는 사업 (장기 투자, 2라운드 대박)",
+            "target": "일반 + 큰손",
+            "strategy": "1라운드 원금 회수, 2라운드 원가 0원으로 대박!",
+            "key": "rental",
+            "special": "2라운드 재사용 가능"
+        }
     }
-}
 
 # 구매자 타입별 구매 조건 (원가 배수 기준)
 BUYER_TYPES = {
@@ -300,16 +300,28 @@ BUYER_TYPES = {
 # 이벤트 카드 (관리자가 활성화 가능)
 EVENT_CARDS = {
     "positive": [
-        {"name": "📱 SNS 입소문", "effect": "구매자 +2명", "impact": {"buyers": 2}},
-        {"name": "🎉 명절 특수", "effect": "큰손 구매 확률 +50%", "impact": {"big_spender_boost": 0.5}},
-        {"name": "🌟 언론 보도", "effect": "판매가 +20% 효과", "impact": {"price_boost": 0.2}},
-        {"name": "🎁 단골 고객", "effect": "무조건 구매 1건", "impact": {"guaranteed_sale": 1}},
+        {"name": "📱 SNS 입소문", "effect": "다음 판매량 +30%", "impact": {"sales_boost": 0.3}, "duration": 1},
+        {"name": "🎉 명절 특수", "effect": "판매가 +20% 적용", "impact": {"price_boost": 0.2}, "duration": 1},
+        {"name": "🌟 언론 보도", "effect": "이번 라운드 판매 +2개", "impact": {"guaranteed_sales": 2}, "duration": 1},
+        {"name": "🎁 단골 고객", "effect": "무조건 판매 1건 성공", "impact": {"guaranteed_sales": 1}, "duration": 1},
+        {"name": "💎 VIP 고객 방문", "effect": "판매가 2배 받기", "impact": {"price_multiplier": 2.0}, "duration": 1},
+        {"name": "🎊 대박 이벤트", "effect": "수익 +50%", "impact": {"profit_boost": 0.5}, "duration": 1},
+        {"name": "📸 인플루언서 방문", "effect": "다음 라운드 판매량 2배", "impact": {"sales_multiplier": 2.0}, "duration": 2},
+        {"name": "🏆 우수 매장 선정", "effect": "고객 신뢰도 UP, 가격 +15%", "impact": {"price_boost": 0.15}, "duration": 2},
     ],
     "negative": [
-        {"name": "⚠️ 경쟁자 등장", "effect": "시장 평균가 -10%", "impact": {"market_price_drop": 0.1}},
-        {"name": "📉 재료비 상승", "effect": "원가 +20%", "impact": {"cost_increase": 0.2}},
-        {"name": "🌧️ 악천후", "effect": "구매자 -1명", "impact": {"buyers": -1}},
-        {"name": "💸 임대료 인상", "effect": "고정비 +50,000원", "impact": {"fixed_cost": 50000}},
+        {"name": "⚠️ 경쟁자 등장", "effect": "판매가 -15% 강제", "impact": {"price_penalty": 0.15}, "duration": 1},
+        {"name": "📉 재료비 상승", "effect": "원가 +30% 증가", "impact": {"cost_increase": 0.3}, "duration": 2},
+        {"name": "🌧️ 악천후", "effect": "판매량 -50%", "impact": {"sales_penalty": 0.5}, "duration": 1},
+        {"name": "💸 임대료 인상", "effect": "고정비 50,000원 추가", "impact": {"fixed_cost": 50000}, "duration": 1},
+        {"name": "🚨 제품 하자", "effect": "판매 중단 & 환불 -30,000원", "impact": {"refund": 30000, "sales_stop": True}, "duration": 1},
+        {"name": "😷 직원 결근", "effect": "운영 비용 +20,000원", "impact": {"operating_cost": 20000}, "duration": 1},
+        {"name": "⚡ 정전 사고", "effect": "이번 라운드 판매량 -3개", "impact": {"sales_reduction": 3}, "duration": 1},
+    ],
+    "neutral": [
+        {"name": "🎲 행운의 주사위", "effect": "랜덤 효과 (좋을수도, 나쁠수도)", "impact": {"random": True}, "duration": 1},
+        {"name": "📰 시장 조사", "effect": "경쟁자 정보 공개", "impact": {"info_reveal": True}, "duration": 1},
+        {"name": "🔄 재고 교환권", "effect": "재고 일부 현금화 가능", "impact": {"inventory_cash": 0.7}, "duration": 1},
     ]
 }
 
@@ -506,6 +518,69 @@ class MarketEconomyEngine:
 - 경쟁 강도: {competition:.2f} → {competition_desc}
 
 실제 시장에서도 이런 요소들이 가격을 결정합니다!"""
+    
+    def calculate_optimal_price_by_buyer_segments(self, cost, business_type, buyer_characters):
+        """구매자 세그먼트별 최적 가격 계산"""
+        all_budgets = []
+        all_sweet_spots = []
+        
+        # 모든 구매자 타입의 예산과 선호 가격 수집
+        for buyer_type in ["big_spender", "normal", "frugal"]:
+            for buyer in buyer_characters.get(buyer_type, []):
+                if "numeric_budget" in buyer:
+                    all_budgets.append(buyer["numeric_budget"])
+                
+                # 각 구매자의 스윗스팟 계산
+                price_range = calculate_buyer_price_range(buyer, cost, business_type)
+                all_sweet_spots.append(price_range["sweet_spot"])
+        
+        if not all_budgets or not all_sweet_spots:
+            # Fallback: 기본 마진율 적용
+            return {
+                "recommended_price": int(cost * 2.0),
+                "price_min": int(cost * 1.5),
+                "price_max": int(cost * 2.5),
+                "target_segment": "전체"
+            }
+        
+        # 통계 분석
+        avg_budget = sum(all_budgets) / len(all_budgets)
+        median_sweet = sorted(all_sweet_spots)[len(all_sweet_spots) // 2]
+        
+        # 예산 세그먼트 분석
+        high_budget = [b for b in all_budgets if b >= 1000000]
+        mid_budget = [b for b in all_budgets if 400000 <= b < 1000000]
+        low_budget = [b for b in all_budgets if b < 400000]
+        
+        # 타겟 세그먼트 결정
+        if cost * 2.5 <= sum(low_budget) / max(len(low_budget), 1):
+            target_segment = "짠물파 (가성비)"
+            recommended_price = int(cost * 1.3)
+            price_range = (int(cost * 1.2), int(cost * 1.5))
+        elif cost * 2.0 <= sum(mid_budget) / max(len(mid_budget), 1):
+            target_segment = "일반 고객 (균형)"
+            recommended_price = int(cost * 1.7)
+            price_range = (int(cost * 1.4), int(cost * 2.0))
+        else:
+            target_segment = "큰손 (프리미엄)"
+            recommended_price = int(cost * 2.3)
+            price_range = (int(cost * 1.8), int(cost * 3.0))
+        
+        # 10,000원 단위 반올림
+        recommended_price = int(round(recommended_price / 10000) * 10000)
+        price_range = (
+            int(round(price_range[0] / 10000) * 10000),
+            int(round(price_range[1] / 10000) * 10000)
+        )
+        
+        return {
+            "recommended_price": recommended_price,
+            "price_min": price_range[0],
+            "price_max": price_range[1],
+            "target_segment": target_segment,
+            "median_sweet_spot": median_sweet,
+            "avg_buyer_budget": int(avg_budget)
+        }
 
 def calculate_buyer_price_range(buyer, item_cost, business_type):
     """
@@ -583,7 +658,7 @@ def get_ai_recommendation_with_economics(idea, market_settings, students):
 - 적정 원가 범위: {economics['optimal_min_cost']:,}원 ~ {economics['optimal_max_cost']:,}원
 - 적정 마진율: {economics['markup_min']:.1f}배 ~ {economics['markup_max']:.1f}배
 
-📋 비즈니스 유형: {', '.join(BUSINESS_TYPES.keys())}
+📋 비즈니스 유형: {', '.join(st.session_state.business_types.keys())}
 
 다음을 JSON 형식으로 답변:
 {{
@@ -891,6 +966,30 @@ def save_student_to_sheets(worksheet, name, student_data):
         st.error(f"데이터 저장 오류: {str(e)}")
         return False
 
+def delete_student_from_sheets(worksheet, name):
+    """Google Sheets에서 학생 데이터를 삭제합니다."""
+    if not worksheet:
+        return False
+    
+    try:
+        all_values = worksheet.get_all_values()
+        row_index = None
+        
+        for idx, row in enumerate(all_values[1:], start=2):
+            if row[0] == name:
+                row_index = idx
+                break
+        
+        if row_index:
+            worksheet.delete_rows(row_index)
+            time.sleep(1.0)
+            return True
+        else:
+            return False
+    except Exception as e:
+        st.error(f"데이터 삭제 오류: {str(e)}")
+        return False
+
 def load_students_from_sheets(worksheet):
     """Google Sheets에서 학생 데이터를 불러옵니다."""
     if not worksheet:
@@ -1025,6 +1124,10 @@ if 'students' not in st.session_state:
         st.session_state.students = load_students_from_sheets(st.session_state.worksheet)
     else:
         st.session_state.students = {}
+
+# 사업 유형 초기화 (동적 관리 가능)
+if 'business_types' not in st.session_state:
+    st.session_state.business_types = init_default_business_types()
 
 # 관리자 모드
 if 'is_admin' not in st.session_state:
@@ -1168,6 +1271,76 @@ st.sidebar.markdown("---")
 # st.sidebar.success(f"**{INITIAL_CAPITAL:,}원**")
 # st.sidebar.caption("모든 학생 동일")
 
+# ==================== 사업 유형 관리 (관리자 전용) ====================
+if st.session_state.is_admin:
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 🏭 사업 유형 관리")
+    
+    with st.sidebar.expander("📋 사업 유형 목록", expanded=False):
+        for business_name, business_data in st.session_state.business_types.items():
+            st.caption(f"**{business_name}**")
+            st.caption(f"💰 원가: {business_data['cost']:,}원 | 💸 추천가: {business_data['recommended_price']:,}원")
+    
+    with st.sidebar.expander("➕ 새 사업 유형 추가", expanded=False):
+        new_business_name = st.text_input("사업 유형 이름 (예: 🎨 그림그리기 (창작))", key="new_business_name")
+        new_business_cost = st.number_input("원가 (원)", min_value=1000, max_value=1000000, value=30000, step=1000, key="new_business_cost")
+        new_business_price = st.number_input("추천 판매가 (원)", min_value=1000, max_value=10000000, value=60000, step=1000, key="new_business_price")
+        new_business_limit = st.number_input("10분당 판매 제한 (무제한은 0)", min_value=0, max_value=50, value=0, step=1, key="new_business_limit")
+        new_business_desc = st.text_area("설명", value="새로운 사업 유형입니다", key="new_business_desc")
+        new_business_target = st.text_input("타겟 고객", value="일반", key="new_business_target")
+        new_business_strategy = st.text_area("전략 팁", value="고객 니즈 파악이 핵심!", key="new_business_strategy")
+        
+        if st.button("✅ 추가", key="add_business_type"):
+            if new_business_name and new_business_name not in st.session_state.business_types:
+                st.session_state.business_types[new_business_name] = {
+                    "cost": new_business_cost,
+                    "recommended_price": new_business_price,
+                    "margin_rate": (new_business_price - new_business_cost) / new_business_price if new_business_price > 0 else 0,
+                    "max_sales_per_10min": new_business_limit if new_business_limit > 0 else None,
+                    "description": new_business_desc,
+                    "target": new_business_target,
+                    "strategy": new_business_strategy,
+                    "key": f"custom_{len(st.session_state.business_types)}"
+                }
+                st.sidebar.success(f"✅ {new_business_name} 추가됨!")
+                st.rerun()
+            else:
+                st.sidebar.error("❌ 이름을 입력하거나 중복되지 않게 해주세요")
+    
+    with st.sidebar.expander("✏️ 사업 유형 수정/삭제", expanded=False):
+        selected_to_edit = st.selectbox("수정할 사업 유형", list(st.session_state.business_types.keys()), key="edit_business_select")
+        
+        if selected_to_edit:
+            current_data = st.session_state.business_types[selected_to_edit]
+            
+            st.caption("**현재 설정:**")
+            st.caption(f"💰 원가: {current_data['cost']:,}원")
+            st.caption(f"💸 추천가: {current_data['recommended_price']:,}원")
+            st.caption(f"🎯 제한: {current_data['max_sales_per_10min'] if current_data['max_sales_per_10min'] else '무제한'}")
+            
+            edit_cost = st.number_input("새 원가 (원)", value=current_data['cost'], key="edit_cost")
+            edit_price = st.number_input("새 추천가 (원)", value=current_data['recommended_price'], key="edit_price")
+            edit_limit = st.number_input("새 제한 (0=무제한)", value=current_data['max_sales_per_10min'] if current_data['max_sales_per_10min'] else 0, key="edit_limit")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("💾 수정 저장", key="save_edit"):
+                    st.session_state.business_types[selected_to_edit]['cost'] = edit_cost
+                    st.session_state.business_types[selected_to_edit]['recommended_price'] = edit_price
+                    st.session_state.business_types[selected_to_edit]['margin_rate'] = (edit_price - edit_cost) / edit_price if edit_price > 0 else 0
+                    st.session_state.business_types[selected_to_edit]['max_sales_per_10min'] = edit_limit if edit_limit > 0 else None
+                    st.sidebar.success("✅ 수정됨!")
+                    st.rerun()
+            
+            with col2:
+                if st.button("🗑️ 삭제", key="delete_business"):
+                    if len(st.session_state.business_types) > 1:
+                        del st.session_state.business_types[selected_to_edit]
+                        st.sidebar.success("✅ 삭제됨!")
+                        st.rerun()
+                    else:
+                        st.sidebar.error("❌ 최소 1개는 유지해야 합니다")
+
 # 구매자 캐릭터 자동 할당
 if st.session_state.is_admin:
     st.sidebar.markdown("---")
@@ -1207,11 +1380,12 @@ if st.session_state.is_admin:
 
 # ==================== 메인 탭 ====================
 
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📝 창업 컨설팅", 
     "💼 판매 관리", 
     "📊 대시보드",
-    "🎯 도구"
+    "🎯 도구",
+    "🏆 실시간 경쟁 현황"
 ])
 
 # ==================== TAB 1: 창업 컨설팅 ====================
@@ -1481,17 +1655,17 @@ with tab1:
         
         # AI 추천 적용 시 자동 선택
         default_index = 0
-        if st.session_state.get('applied_ai_type') and st.session_state['applied_ai_type'] in BUSINESS_TYPES.keys():
-            default_index = list(BUSINESS_TYPES.keys()).index(st.session_state['applied_ai_type'])
+        if st.session_state.get('applied_ai_type') and st.session_state['applied_ai_type'] in st.session_state.business_types.keys():
+            default_index = list(st.session_state.business_types.keys()).index(st.session_state['applied_ai_type'])
         
         selected_business = st.selectbox(
             "사업 유형",
-            options=list(BUSINESS_TYPES.keys()),
+            options=list(st.session_state.business_types.keys()),
             index=default_index,
             help="학생의 아이디어에 맞는 유형 선택 (AI 추천 참고 또는 수동 선택)"
         )
         
-        business_info = BUSINESS_TYPES[selected_business]
+        business_info = st.session_state.business_types.get(selected_business, {})
         
         # 유형 정보 표시
         col1, col2, col3, col4 = st.columns(4)
@@ -1671,6 +1845,91 @@ with tab1:
         
         st.markdown("---")
         
+        # 특수 설정: 대출금 / 합동팀
+        st.subheader("5️⃣ 특수 설정 (선택사항)")
+        
+        special_col1, special_col2 = st.columns(2)
+        
+        with special_col1:
+            st.markdown("#### 💰 대출금 설정")
+            st.caption("플랫폼 사업 등 초기 투자가 큰 경우")
+            
+            has_loan = st.checkbox("대출금 지급", value=False, key="has_loan")
+            loan_amount = 0
+            loan_interest = 0
+            
+            if has_loan:
+                loan_amount = st.number_input(
+                    "대출 금액 (원)",
+                    min_value=0,
+                    max_value=5000000,
+                    value=300000,
+                    step=10000,
+                    key="loan_amount"
+                )
+                loan_interest = st.number_input(
+                    "이자율 (%)",
+                    min_value=0.0,
+                    max_value=50.0,
+                    value=10.0,
+                    step=1.0,
+                    key="loan_interest",
+                    help="정산 시 원금 + 이자 상환"
+                )
+                
+                repayment = loan_amount * (1 + loan_interest / 100)
+                st.info(f"💳 상환 금액: {repayment:,.0f}원 (원금 {loan_amount:,}원 + 이자 {loan_amount * loan_interest / 100:,.0f}원)")
+        
+        with special_col2:
+            st.markdown("#### 👥 합동 팀 설정")
+            st.caption("서비스 사업 등 팀 프로젝트")
+            
+            is_team = st.checkbox("팀 프로젝트", value=False, key="is_team")
+            team_members = []
+            profit_share = {}
+            
+            if is_team:
+                team_size = st.number_input(
+                    "팀원 수 (본인 포함)",
+                    min_value=2,
+                    max_value=10,
+                    value=4,
+                    step=1,
+                    key="team_size"
+                )
+                
+                st.caption("**팀원 이름 및 분배율 입력**")
+                
+                total_share = 0
+                for i in range(team_size):
+                    member_col1, member_col2 = st.columns([3, 2])
+                    with member_col1:
+                        member_name = st.text_input(
+                            f"팀원 {i+1}",
+                            value=student_name if i == 0 else f"팀원{i+1}",
+                            key=f"team_member_{i}"
+                        )
+                    with member_col2:
+                        member_share = st.number_input(
+                            f"분배율 (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=100 // team_size,
+                            step=5,
+                            key=f"team_share_{i}"
+                        )
+                    
+                    team_members.append(member_name)
+                    profit_share[member_name] = member_share
+                    total_share += member_share
+                
+                if total_share != 100:
+                    st.warning(f"⚠️ 분배율 합계: {total_share}% (100%가 되어야 합니다)")
+                else:
+                    st.success("✅ 분배율 합계: 100%")
+        
+        st.markdown("---")
+        
         st.subheader("6️⃣ 학생 등록")
         
         if st.button("✅ 학생 등록하기", type="primary", key="register_student"):
@@ -1683,7 +1942,7 @@ with tab1:
                     "cost": adjusted_cost,
                     "recommended_price": recommended_selling_price,
                     "initial_capital": custom_capital,
-                    "purchased_quantity": 0,  # 아직 구매 안 함
+                    "purchased_quantity": 0,
                     "inventory": 0,
                     "rounds": {
                         1: {
@@ -1704,11 +1963,20 @@ with tab1:
                     "total_revenue": 0,
                     "total_cost": 0,
                     "total_profit": 0,
-                    "final_capital": custom_capital,  # 초기 자본금
-                    "actual_money": 0,  # 실물 소지금 (나중에 입력)
-                    "inventory_loss": 0,  # 재고 손실 (전략 모드)
-                    "actual_profit": 0,  # 실제 순이익 (재고 손실 반영)
-                    "inventory_efficiency": 0  # 재고 효율 (%)
+                    "final_capital": custom_capital,
+                    "actual_money": 0,
+                    "inventory_loss": 0,
+                    "actual_profit": 0,
+                    "inventory_efficiency": 0,
+                    # 특수 설정
+                    "has_loan": has_loan,
+                    "loan_amount": loan_amount,
+                    "loan_interest": loan_interest,
+                    "loan_repaid": False,
+                    "is_team": is_team,
+                    "team_members": team_members,
+                    "profit_share": profit_share,
+                    "team_settlement": {}
                 }
                 
                 # Google Sheets에 저장
@@ -1771,7 +2039,7 @@ with tab2:
             with st.expander(f"**{idx}. {name}** - {data['business_type']}", expanded=True):
                 
                 business_type_key = data['business_type']
-                business_info = BUSINESS_TYPES.get(business_type_key, BUSINESS_TYPES.get("🛒 골라오기 (유통)", {}))
+                business_info = st.session_state.business_types.get(business_type_key, st.session_state.business_types.get("🛒 골라오기 (유통)", {}))
                 
                 # 학생 정보 요약
                 summary_col1, summary_col2, summary_col3, summary_col4 = st.columns(4)
@@ -1785,6 +2053,113 @@ with tab2:
                 with summary_col4:
                     current_capital = data['final_capital']
                     st.metric("💳 현재 자본", f"{current_capital:,}원")
+                
+                # 관리자 전용: 데이터 관리
+                if st.session_state.is_admin:
+                    with st.expander("⚙️ 관리자 설정 (데이터 관리)", expanded=False):
+                        st.markdown("#### 💰 자본금 조정")
+                        adjust_col1, adjust_col2 = st.columns(2)
+                        
+                        with adjust_col1:
+                            new_initial_capital = st.number_input(
+                                "초기 자본금 재설정",
+                                min_value=0,
+                                max_value=10000000,
+                                value=data['initial_capital'],
+                                step=10000,
+                                key=f"adjust_initial_{name}",
+                                help="대출금 지급이나 개별 조정용"
+                            )
+                        
+                        with adjust_col2:
+                            new_current_capital = st.number_input(
+                                "현재 자본금 재설정",
+                                min_value=0,
+                                max_value=10000000,
+                                value=data['final_capital'],
+                                step=10000,
+                                key=f"adjust_current_{name}",
+                                help="긴급 조정용 (오입력 수정 등)"
+                            )
+                        
+                        if st.button("💾 자본금 조정 저장", key=f"save_capital_{name}"):
+                            st.session_state.students[name]['initial_capital'] = new_initial_capital
+                            st.session_state.students[name]['final_capital'] = new_current_capital
+                            
+                            # Google Sheets에 저장
+                            if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                            
+                            st.success(f"✅ {name}님의 자본금이 조정되었습니다!")
+                            st.rerun()
+                        
+                        st.markdown("---")
+                        st.markdown("#### 📝 사업 정보 수정")
+                        
+                        edit_col1, edit_col2 = st.columns(2)
+                        
+                        with edit_col1:
+                            new_business_type = st.selectbox(
+                                "사업 유형",
+                                list(st.session_state.business_types.keys()),
+                                index=list(st.session_state.business_types.keys()).index(data['business_type']) if data['business_type'] in st.session_state.business_types.keys() else 0,
+                                key=f"edit_business_{name}"
+                            )
+                            
+                            new_cost = st.number_input(
+                                "원가 (원)",
+                                min_value=0,
+                                max_value=10000000,
+                                value=data['cost'],
+                                step=1000,
+                                key=f"edit_cost_{name}"
+                            )
+                        
+                        with edit_col2:
+                            new_recommended_price = st.number_input(
+                                "추천 판매가 (원)",
+                                min_value=0,
+                                max_value=10000000,
+                                value=data['recommended_price'],
+                                step=1000,
+                                key=f"edit_price_{name}"
+                            )
+                            
+                            new_inventory = st.number_input(
+                                "재고 (개)",
+                                min_value=0,
+                                max_value=10000,
+                                value=data['inventory'],
+                                step=1,
+                                key=f"edit_inventory_{name}"
+                            )
+                        
+                        if st.button("💾 사업 정보 저장", key=f"save_business_{name}"):
+                            st.session_state.students[name]['business_type'] = new_business_type
+                            st.session_state.students[name]['cost'] = new_cost
+                            st.session_state.students[name]['recommended_price'] = new_recommended_price
+                            st.session_state.students[name]['inventory'] = new_inventory
+                            
+                            # Google Sheets에 저장
+                            if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                            
+                            st.success(f"✅ {name}님의 사업 정보가 수정되었습니다!")
+                            st.rerun()
+                        
+                        st.markdown("---")
+                        st.markdown("#### 🗑️ 학생 삭제")
+                        st.warning("⚠️ 삭제하면 모든 데이터가 영구적으로 사라집니다!")
+                        
+                        if st.button(f"🗑️ {name} 삭제", key=f"delete_{name}", type="secondary"):
+                            del st.session_state.students[name]
+                            
+                            # Google Sheets에서 삭제
+                            if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                delete_student_from_sheets(st.session_state.worksheet, name)
+                            
+                            st.success(f"✅ {name}님이 삭제되었습니다!")
+                            st.rerun()
                 
                 st.markdown("---")
                 
@@ -1854,17 +2229,53 @@ with tab2:
                 if st.session_state.market_settings.get('enable_events', False):
                     st.markdown("### 🎴 이벤트 카드")
                     
-                    if st.button("🎲 이벤트 뽑기", key=f"event_{name}"):
-                        import random
-                        event_type = random.choice(['positive', 'negative'])
-                        event = random.choice(EVENT_CARDS[event_type])
-                        
-                        if event_type == 'positive':
-                            st.success(f"🎉 {event['name']}: {event['effect']}")
-                        else:
-                            st.warning(f"⚠️ {event['name']}: {event['effect']}")
-                        
-                        st.info("💡 이 이벤트 효과를 게임에 반영하세요!")
+                    # 현재 활성 이벤트 표시
+                    active_events = data.get('active_events', [])
+                    if active_events:
+                        st.info("📌 **활성 이벤트:**")
+                        for evt in active_events:
+                            remaining = evt.get('remaining_duration', 0)
+                            st.caption(f"• {evt['name']}: {evt['effect']} (남은 라운드: {remaining})")
+                    
+                    event_col1, event_col2 = st.columns(2)
+                    
+                    with event_col1:
+                        if st.button("🎲 이벤트 뽑기", key=f"event_{name}"):
+                            import random
+                            event_type = random.choice(['positive', 'negative', 'neutral'])
+                            event = random.choice(EVENT_CARDS[event_type]).copy()
+                            event['remaining_duration'] = event.get('duration', 1)
+                            event['type'] = event_type
+                            
+                            # 학생 데이터에 이벤트 추가
+                            if 'active_events' not in st.session_state.students[name]:
+                                st.session_state.students[name]['active_events'] = []
+                            
+                            st.session_state.students[name]['active_events'].append(event)
+                            
+                            # Google Sheets에 저장
+                            if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                            
+                            if event_type == 'positive':
+                                st.success(f"🎉 {event['name']}: {event['effect']}")
+                            elif event_type == 'negative':
+                                st.error(f"⚠️ {event['name']}: {event['effect']}")
+                            else:
+                                st.info(f"📰 {event['name']}: {event['effect']}")
+                            
+                            st.rerun()
+                    
+                    with event_col2:
+                        if active_events and st.button("🗑️ 이벤트 초기화", key=f"clear_events_{name}"):
+                            st.session_state.students[name]['active_events'] = []
+                            
+                            # Google Sheets에 저장
+                            if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                            
+                            st.success("✅ 이벤트가 초기화되었습니다!")
+                            st.rerun()
                     
                     st.markdown("---")
                 
@@ -3171,7 +3582,7 @@ with tab4:
             st.warning("⚠️ 관리자 로그인이 필요합니다.")
         else:
             # 유형별 밸런스 편집
-            for business_name, business_data in BUSINESS_TYPES.items():
+            for business_name, business_data in st.session_state.business_types.items():
                 with st.expander(f"{business_name}", expanded=False):
                     balance_col1, balance_col2, balance_col3 = st.columns(3)
                     
@@ -3215,11 +3626,11 @@ with tab4:
                         st.info(f"📊 계산된 마진율: {calc_margin:.1f}%")
                     
                     if st.button("✅ 이 유형 밸런스 적용", key=f"apply_balance_{business_name}"):
-                        BUSINESS_TYPES[business_name]['cost'] = new_cost
-                        BUSINESS_TYPES[business_name]['recommended_price'] = new_price
-                        BUSINESS_TYPES[business_name]['margin_rate'] = (new_price - new_cost) / new_price
+                        st.session_state.business_types[business_name]['cost'] = new_cost
+                        st.session_state.business_types[business_name]['recommended_price'] = new_price
+                        st.session_state.business_types[business_name]['margin_rate'] = (new_price - new_cost) / new_price
                         if business_data['max_sales_per_10min'] is not None:
-                            BUSINESS_TYPES[business_name]['max_sales_per_10min'] = new_limit
+                            st.session_state.business_types[business_name]['max_sales_per_10min'] = new_limit
                         
                         st.success(f"✅ {business_name} 밸런스 적용됨!")
                         st.balloons()
@@ -3343,6 +3754,169 @@ with tab4:
                 else:
                     st.session_state['confirm_delete_all'] = True
                     st.error("⚠️ 경고: 한 번 더 클릭하면 모든 데이터가 삭제됩니다!")
+
+# ==================== TAB 5: 실시간 경쟁 현황 ====================
+with tab5:
+    st.header("🏆 실시간 경쟁 현황")
+    
+    if not st.session_state.is_admin:
+        st.warning("⚠️ 관리자 로그인이 필요합니다.")
+    else:
+        if not st.session_state.students:
+            st.info("등록된 학생이 없습니다.")
+        else:
+            st.markdown("### 📊 경쟁 상황 한눈에 보기")
+            
+            # 자동 새로고침 옵션
+            auto_refresh = st.checkbox("⚡ 5초마다 자동 새로고침", value=False)
+            if auto_refresh:
+                import time
+                time.sleep(5)
+                st.rerun()
+            
+            # 전체 통계
+            total_students = len(st.session_state.students)
+            total_revenue = sum([s.get('total_revenue', 0) for s in st.session_state.students.values()])
+            total_profit = sum([s.get('total_profit', 0) for s in st.session_state.students.values()])
+            avg_price = sum([s.get('recommended_price', 0) for s in st.session_state.students.values()]) / total_students if total_students > 0 else 0
+            
+            metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+            with metric_col1:
+                st.metric("👥 참가자 수", f"{total_students}명")
+            with metric_col2:
+                st.metric("💰 총 매출", f"{total_revenue:,}원")
+            with metric_col3:
+                st.metric("💎 총 순이익", f"{total_profit:,}원")
+            with metric_col4:
+                st.metric("💵 평균 판매가", f"{avg_price:,.0f}원")
+            
+            st.markdown("---")
+            
+            # 실시간 리더보드
+            leaderboard_tab1, leaderboard_tab2, leaderboard_tab3 = st.tabs([
+                "💰 매출 순위", 
+                "💎 순이익 순위", 
+                "📈 효율성 순위"
+            ])
+            
+            with leaderboard_tab1:
+                st.markdown("#### 💰 매출 순위")
+                revenue_sorted = sorted(
+                    st.session_state.students.items(), 
+                    key=lambda x: x[1].get('total_revenue', 0), 
+                    reverse=True
+                )
+                
+                for rank, (name, data) in enumerate(revenue_sorted, 1):
+                    medal = "🥇" if rank == 1 else "🥈" if rank == 2 else "🥉" if rank == 3 else f"{rank}위"
+                    
+                    with st.expander(f"{medal} {name} - {data.get('total_revenue', 0):,}원", expanded=(rank <= 3)):
+                        info_col1, info_col2, info_col3 = st.columns(3)
+                        with info_col1:
+                            st.metric("💰 매출", f"{data.get('total_revenue', 0):,}원")
+                        with info_col2:
+                            st.metric("💵 판매가", f"{data.get('recommended_price', 0):,}원")
+                        with info_col3:
+                            sold_1 = data.get('rounds', {}).get(1, {}).get('quantity_sold', 0)
+                            sold_2 = data.get('rounds', {}).get(2, {}).get('quantity_sold', 0)
+                            st.metric("📦 판매량", f"{sold_1 + sold_2}개")
+                        
+                        st.caption(f"🏪 사업: {data.get('business_type', '-')}")
+                        st.caption(f"💰 원가: {data.get('cost', 0):,}원 | 💳 현재 자본: {data.get('final_capital', 0):,}원")
+            
+            with leaderboard_tab2:
+                st.markdown("#### 💎 순이익 순위")
+                profit_sorted = sorted(
+                    st.session_state.students.items(), 
+                    key=lambda x: x[1].get('total_profit', 0), 
+                    reverse=True
+                )
+                
+                for rank, (name, data) in enumerate(profit_sorted, 1):
+                    medal = "🥇" if rank == 1 else "🥈" if rank == 2 else "🥉" if rank == 3 else f"{rank}위"
+                    profit = data.get('total_profit', 0)
+                    profit_color = "🟢" if profit > 0 else "🔴" if profit < 0 else "⚪"
+                    
+                    with st.expander(f"{medal} {name} - {profit_color} {profit:,}원", expanded=(rank <= 3)):
+                        info_col1, info_col2, info_col3 = st.columns(3)
+                        with info_col1:
+                            st.metric("💎 순이익", f"{profit:,}원")
+                        with info_col2:
+                            margin = (profit / data.get('total_revenue', 1)) * 100 if data.get('total_revenue', 0) > 0 else 0
+                            st.metric("📊 이익률", f"{margin:.1f}%")
+                        with info_col3:
+                            roi = (profit / data.get('initial_capital', 1)) * 100 if data.get('initial_capital', 0) > 0 else 0
+                            st.metric("📈 ROI", f"{roi:.1f}%")
+                        
+                        st.caption(f"🏪 사업: {data.get('business_type', '-')}")
+                        st.caption(f"💰 총 원가: {data.get('total_cost', 0):,}원 | 💵 총 매출: {data.get('total_revenue', 0):,}원")
+            
+            with leaderboard_tab3:
+                st.markdown("#### 📈 효율성 순위 (ROI)")
+                roi_sorted = sorted(
+                    st.session_state.students.items(), 
+                    key=lambda x: (x[1].get('total_profit', 0) / x[1].get('initial_capital', 1)) if x[1].get('initial_capital', 0) > 0 else 0, 
+                    reverse=True
+                )
+                
+                for rank, (name, data) in enumerate(roi_sorted, 1):
+                    medal = "🥇" if rank == 1 else "🥈" if rank == 2 else "🥉" if rank == 3 else f"{rank}위"
+                    roi = (data.get('total_profit', 0) / data.get('initial_capital', 1)) * 100 if data.get('initial_capital', 0) > 0 else 0
+                    
+                    with st.expander(f"{medal} {name} - ROI {roi:.1f}%", expanded=(rank <= 3)):
+                        info_col1, info_col2, info_col3 = st.columns(3)
+                        with info_col1:
+                            st.metric("📈 ROI", f"{roi:.1f}%")
+                        with info_col2:
+                            st.metric("💵 초기자본", f"{data.get('initial_capital', 0):,}원")
+                        with info_col3:
+                            st.metric("💎 순이익", f"{data.get('total_profit', 0):,}원")
+                        
+                        # 자본 회전율
+                        turnover = data.get('total_revenue', 0) / data.get('initial_capital', 1) if data.get('initial_capital', 0) > 0 else 0
+                        st.caption(f"🔄 자본 회전율: {turnover:.2f}회")
+                        st.caption(f"🏪 사업: {data.get('business_type', '-')}")
+            
+            st.markdown("---")
+            
+            # 가격 전쟁 분석
+            st.markdown("### 💰 가격 경쟁 분석")
+            
+            # 사업 유형별 그룹화
+            business_groups = {}
+            for name, data in st.session_state.students.items():
+                biz_type = data.get('business_type', '기타')
+                if biz_type not in business_groups:
+                    business_groups[biz_type] = []
+                business_groups[biz_type].append({
+                    'name': name,
+                    'price': data.get('recommended_price', 0),
+                    'cost': data.get('cost', 0),
+                    'revenue': data.get('total_revenue', 0),
+                    'profit': data.get('total_profit', 0)
+                })
+            
+            for biz_type, students in business_groups.items():
+                with st.expander(f"🏪 {biz_type} - {len(students)}명", expanded=len(business_groups) == 1):
+                    if len(students) > 1:
+                        st.info(f"⚔️ 같은 업종에 {len(students)}명이 경쟁 중입니다!")
+                    
+                    # 가격대별 정렬
+                    students_sorted = sorted(students, key=lambda x: x['price'])
+                    
+                    for student in students_sorted:
+                        price_col1, price_col2, price_col3, price_col4 = st.columns([2, 2, 2, 2])
+                        
+                        with price_col1:
+                            st.caption(f"**{student['name']}**")
+                        with price_col2:
+                            margin = ((student['price'] - student['cost']) / student['price'] * 100) if student['price'] > 0 else 0
+                            st.caption(f"💵 {student['price']:,}원 (마진 {margin:.0f}%)")
+                        with price_col3:
+                            st.caption(f"💰 매출: {student['revenue']:,}원")
+                        with price_col4:
+                            profit_icon = "🟢" if student['profit'] > 0 else "🔴" if student['profit'] < 0 else "⚪"
+                            st.caption(f"{profit_icon} 순이익: {student['profit']:,}원")
 
 st.markdown("---")
 st.caption("🏪 장사의 신 게임 관리 시스템 V2 - 실전 창업 시뮬레이션")
