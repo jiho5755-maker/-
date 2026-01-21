@@ -2789,9 +2789,9 @@ with tab2:
                         with edit_form_col1:
                             new_cost = st.number_input(
                                 "원가 수정",
-                                min_value=10000,
+                                min_value=1000,
                                 max_value=500000,
-                                value=data['cost'],
+                                value=max(1000, data['cost']),
                                 step=10000,
                                 key=f"edit_cost_form_{name}"
                             )
@@ -3765,11 +3765,12 @@ with tab4:
                     with balance_col1:
                         new_cost = st.number_input(
                             "💰 원가",
-                            min_value=10000,
+                            min_value=1000,
                             max_value=500000,
-                            value=business_data['cost'],
-                            step=10000,
-                            key=f"balance_cost_{business_name}"
+                            value=max(1000, business_data['cost']),
+                            step=1000,
+                            key=f"balance_cost_{business_name}",
+                            help="💡 1,000원 단위"
                         )
                     
                     with balance_col2:
