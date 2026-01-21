@@ -1845,8 +1845,74 @@ with tab1:
         
         st.markdown("---")
         
+        # 여러 상품 판매 설정
+        st.subheader("5️⃣ 상품 라인업 구성 (선택사항)")
+        st.caption("💡 기본 상품 외에 추가 상품을 등록하여 여러 상품을 판매할 수 있습니다")
+        
+        enable_multi_products = st.checkbox("📦 여러 상품 판매", value=False, key="enable_multi_products")
+        
+        additional_products = []
+        
+        if enable_multi_products:
+            st.info("🛍️ **다품목 판매 모드**: 메인 상품 외에 추가 상품을 등록하세요")
+            
+            num_products = st.number_input(
+                "추가 상품 개수",
+                min_value=1,
+                max_value=5,
+                value=2,
+                step=1,
+                key="num_additional_products",
+                help="메인 상품 + 추가 상품 최대 6개"
+            )
+            
+            for i in range(num_products):
+                with st.expander(f"📦 추가 상품 {i+1}", expanded=True):
+                    prod_col1, prod_col2, prod_col3 = st.columns(3)
+                    
+                    with prod_col1:
+                        prod_name = st.text_input(
+                            "상품명",
+                            value=f"상품 {i+1}",
+                            key=f"prod_name_{i}"
+                        )
+                    
+                    with prod_col2:
+                        prod_cost = st.number_input(
+                            "원가 (원)",
+                            min_value=1000,
+                            max_value=500000,
+                            value=adjusted_cost,
+                            step=1000,
+                            key=f"prod_cost_{i}"
+                        )
+                    
+                    with prod_col3:
+                        prod_price = st.number_input(
+                            "판매가 (원)",
+                            min_value=prod_cost,
+                            max_value=10000000,
+                            value=int(prod_cost * 2),
+                            step=1000,
+                            key=f"prod_price_{i}"
+                        )
+                    
+                    prod_margin = ((prod_price - prod_cost) / prod_price * 100) if prod_price > 0 else 0
+                    st.caption(f"💰 마진: {prod_margin:.1f}% | 이익: {prod_price - prod_cost:,}원/개")
+                    
+                    additional_products.append({
+                        "name": prod_name,
+                        "cost": prod_cost,
+                        "price": prod_price,
+                        "initial_inventory": 0
+                    })
+            
+            st.success(f"✅ 총 {num_products + 1}개 상품 (메인 1개 + 추가 {num_products}개)")
+        
+        st.markdown("---")
+        
         # 특수 설정: 대출금 / 합동팀
-        st.subheader("5️⃣ 특수 설정 (선택사항)")
+        st.subheader("6️⃣ 특수 설정 (선택사항)")
         
         special_col1, special_col2 = st.columns(2)
         
@@ -1930,7 +1996,7 @@ with tab1:
         
         st.markdown("---")
         
-        st.subheader("6️⃣ 학생 등록")
+        st.subheader("7️⃣ 학생 등록")
         
         if st.button("✅ 학생 등록하기", type="primary", key="register_student"):
             if not student_name:
@@ -1976,7 +2042,27 @@ with tab1:
                     "is_team": is_team,
                     "team_members": team_members,
                     "profit_share": profit_share,
-                    "team_settlement": {}
+                    "team_settlement": {},
+                    # 여러 상품 판매
+                    "enable_multi_products": enable_multi_products,
+                    "products": [
+                        {
+                            "name": "메인 상품",
+                            "cost": adjusted_cost,
+                            "price": recommended_selling_price,
+                            "inventory": 0,
+                            "sales": {"round_1": 0, "round_2": 0}
+                        }
+                    ] + [
+                        {
+                            "name": prod["name"],
+                            "cost": prod["cost"],
+                            "price": prod["price"],
+                            "inventory": prod["initial_inventory"],
+                            "sales": {"round_1": 0, "round_2": 0}
+                        }
+                        for prod in additional_products
+                    ]
                 }
                 
                 # Google Sheets에 저장
@@ -2053,6 +2139,58 @@ with tab2:
                 with summary_col4:
                     current_capital = data['final_capital']
                     st.metric("💳 현재 자본", f"{current_capital:,}원")
+                
+                # 여러 상품 판매 모드
+                if data.get('enable_multi_products', False):
+                    st.markdown("---")
+                    st.markdown("### 🛍️ 상품 라인업 관리")
+                    
+                    products = data.get('products', [])
+                    
+                    # 상품별 정보 표시
+                    for prod_idx, product in enumerate(products):
+                        with st.expander(f"📦 {product['name']} - {product['price']:,}원", expanded=False):
+                            prod_info_col1, prod_info_col2, prod_info_col3, prod_info_col4 = st.columns(4)
+                            
+                            with prod_info_col1:
+                                st.metric("💰 원가", f"{product['cost']:,}원")
+                            with prod_info_col2:
+                                st.metric("💵 판매가", f"{product['price']:,}원")
+                            with prod_info_col3:
+                                margin = ((product['price'] - product['cost']) / product['price'] * 100) if product['price'] > 0 else 0
+                                st.metric("📊 마진율", f"{margin:.1f}%")
+                            with prod_info_col4:
+                                st.metric("📦 재고", f"{product.get('inventory', 0)}개")
+                            
+                            # 재고 구매
+                            if game_mode == "전략 모드" and st.session_state.is_admin:
+                                max_can_buy = data['final_capital'] // product['cost']
+                                
+                                if max_can_buy > 0:
+                                    buy_qty = st.number_input(
+                                        f"구매 수량",
+                                        min_value=0,
+                                        max_value=max_can_buy,
+                                        value=0,
+                                        step=1,
+                                        key=f"buy_prod_{name}_{prod_idx}"
+                                    )
+                                    
+                                    if buy_qty > 0:
+                                        buy_cost = buy_qty * product['cost']
+                                        st.info(f"💰 비용: {buy_cost:,}원 | 💳 남은 자본: {data['final_capital'] - buy_cost:,}원")
+                                        
+                                        if st.button("✅ 구매", key=f"confirm_buy_prod_{name}_{prod_idx}"):
+                                            st.session_state.students[name]['products'][prod_idx]['inventory'] += buy_qty
+                                            st.session_state.students[name]['final_capital'] -= buy_cost
+                                            
+                                            if st.session_state.use_google_sheets and st.session_state.worksheet:
+                                                save_student_to_sheets(st.session_state.worksheet, name, st.session_state.students[name])
+                                            
+                                            st.success(f"✅ {product['name']} {buy_qty}개 구매 완료!")
+                                            st.rerun()
+                    
+                    st.markdown("---")
                 
                 # 관리자 전용: 데이터 관리
                 if st.session_state.is_admin:
@@ -2384,6 +2522,35 @@ with tab2:
                 if not can_sell:
                     st.warning("⚠️ 재고가 없습니다. 먼저 재고를 구매하세요.")
                 else:
+                    # 여러 상품 판매 모드 처리
+                    if data.get('enable_multi_products', False):
+                        st.info("🛍️ **다품목 판매 모드**: 판매할 상품을 선택하세요")
+                        
+                        products = data.get('products', [])
+                        product_names = [f"{p['name']} (재고: {p.get('inventory', 0)}개, 판매가: {p['price']:,}원)" for p in products]
+                        
+                        selected_product_idx = st.selectbox(
+                            "판매할 상품 선택",
+                            range(len(products)),
+                            format_func=lambda x: product_names[x],
+                            key=f"select_product_{name}_r{st.session_state.current_round}"
+                        )
+                        
+                        selected_product = products[selected_product_idx]
+                        
+                        st.caption(f"📦 **선택된 상품**: {selected_product['name']} | 💰 원가: {selected_product['cost']:,}원 | 💵 권장가: {selected_product['price']:,}원")
+                        
+                        # 선택된 상품의 정보 사용
+                        default_price = selected_product['price']
+                        product_cost = selected_product['cost']
+                        product_inventory = selected_product.get('inventory', 0)
+                    else:
+                        # 단일 상품 모드 (기존 방식)
+                        selected_product_idx = 0
+                        default_price = data['recommended_price']
+                        product_cost = data['cost']
+                        product_inventory = data['inventory']
+                    
                     sell_col1, sell_col2 = st.columns(2)
                     
                     with sell_col1:
@@ -2391,7 +2558,7 @@ with tab2:
                             "판매가 (1만원 단위)",
                             min_value=0,
                             max_value=1000000,
-                            value=data['recommended_price'],
+                            value=default_price,
                             step=10000,
                             help="10만원권, 5만원권, 1만원권으로 거래",
                             key=f"price_{name}_r{st.session_state.current_round}"
@@ -2404,10 +2571,10 @@ with tab2:
                             max_sellable = business_info['max_sales_per_10min'] if business_info['max_sales_per_10min'] else 50
                             help_text = f"간단 모드: 재고 무제한" + (f", 10분 제한 {max_sellable}개" if business_info['max_sales_per_10min'] else "")
                         else:
-                            max_sellable = data['inventory']
+                            max_sellable = product_inventory
                             if business_info['max_sales_per_10min']:
                                 max_sellable = min(max_sellable, business_info['max_sales_per_10min'])
-                            help_text = f"재고 {data['inventory']}개" + (f", 10분 제한 {business_info['max_sales_per_10min']}개" if business_info['max_sales_per_10min'] else "")
+                            help_text = f"재고 {product_inventory}개" + (f", 10분 제한 {business_info['max_sales_per_10min']}개" if business_info['max_sales_per_10min'] else "")
                         
                         quantity_sold = st.number_input(
                             f"판매 수량 (최대 {max_sellable}개)",
@@ -2427,7 +2594,7 @@ with tab2:
                             cost_total = 0
                             st.info("🎪 대여업 2라운드: 원가 0원! (물건 재사용)")
                         else:
-                            cost_total = data['cost'] * quantity_sold
+                            cost_total = product_cost * quantity_sold
                         
                         profit = revenue - cost_total
                         
@@ -2452,7 +2619,15 @@ with tab2:
                             
                             # 재고 차감 (전략 모드만)
                             if game_mode == "전략 모드":
-                                st.session_state.students[name]['inventory'] -= quantity_sold
+                                if data.get('enable_multi_products', False):
+                                    # 여러 상품: 선택된 상품의 재고 차감
+                                    st.session_state.students[name]['products'][selected_product_idx]['inventory'] -= quantity_sold
+                                    # 해당 상품 판매 기록
+                                    round_key = f"round_{st.session_state.current_round}"
+                                    st.session_state.students[name]['products'][selected_product_idx]['sales'][round_key] = quantity_sold
+                                else:
+                                    # 단일 상품: 기존 방식
+                                    st.session_state.students[name]['inventory'] -= quantity_sold
                             
                             # 자본 업데이트 (판매 수입 추가)
                             st.session_state.students[name]['final_capital'] += revenue
