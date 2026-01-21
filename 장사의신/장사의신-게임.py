@@ -1771,7 +1771,7 @@ with tab2:
             with st.expander(f"**{idx}. {name}** - {data['business_type']}", expanded=True):
                 
                 business_type_key = data['business_type']
-                business_info = BUSINESS_TYPES[business_type_key]
+                business_info = BUSINESS_TYPES.get(business_type_key, BUSINESS_TYPES.get("🛒 골라오기 (유통)", {}))
                 
                 # 학생 정보 요약
                 summary_col1, summary_col2, summary_col3, summary_col4 = st.columns(4)
