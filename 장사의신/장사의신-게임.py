@@ -2594,13 +2594,13 @@ with tab2:
                             st.rerun()
                     
                     with edit_col3:
-                        if st.button("🗑️ 학생 삭제", key=f"delete_{name}", type="secondary"):
-                            if st.session_state.get(f'confirm_delete_{name}'):
+                        if st.button("🗑️ 학생 삭제", key=f"delete_v2_{name}", type="secondary"):
+                            if st.session_state.get(f'confirm_delete_v2_{name}'):
                                 del st.session_state.students[name]
                                 st.success(f"✅ {name}님 삭제됨!")
                                 st.rerun()
                             else:
-                                st.session_state[f'confirm_delete_{name}'] = True
+                                st.session_state[f'confirm_delete_v2_{name}'] = True
                                 st.warning("⚠️ 한 번 더 클릭하여 삭제 확인")
                     
                     # 정보 수정 모드
@@ -2617,7 +2617,7 @@ with tab2:
                                 max_value=500000,
                                 value=data['cost'],
                                 step=10000,
-                                key=f"edit_cost_{name}"
+                                key=f"edit_cost_form_{name}"
                             )
                         
                         with edit_form_col2:
@@ -2627,10 +2627,10 @@ with tab2:
                                 max_value=10000000,
                                 value=data['initial_capital'],
                                 step=10000,
-                                key=f"edit_capital_{name}"
+                                key=f"edit_capital_form_{name}"
                             )
                         
-                        if st.button("✅ 수정 완료", key=f"save_edit_{name}"):
+                        if st.button("✅ 수정 완료", key=f"save_edit_form_{name}"):
                             st.session_state.students[name]['cost'] = new_cost
                             st.session_state.students[name]['recommended_price'] = new_cost * 2
                             st.session_state.students[name]['initial_capital'] = new_capital
