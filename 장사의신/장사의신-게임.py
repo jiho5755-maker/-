@@ -2657,13 +2657,26 @@ with tab2:
                         
                         if st.button(f"✅ 판매 기록", key=f"record_{name}_r{st.session_state.current_round}"):
                             # 데이터 업데이트
-                            st.session_state.students[name]['rounds'][st.session_state.current_round] = {
-                                "selling_price": selling_price,
-                                "quantity_sold": quantity_sold,
-                                "revenue": revenue,
-                                "cost_total": cost_total,
-                                "profit": profit
-                            }
+                            current_round_data = st.session_state.students[name]['rounds'][st.session_state.current_round]
+                            
+                            # 다품목 모드: 누적, 단일 모드: 덮어쓰기
+                            if data.get('enable_multi_products', False):
+                                # 기존 값에 누적
+                                current_round_data["revenue"] = current_round_data.get("revenue", 0) + revenue
+                                current_round_data["cost_total"] = current_round_data.get("cost_total", 0) + cost_total
+                                current_round_data["profit"] = current_round_data.get("profit", 0) + profit
+                                current_round_data["quantity_sold"] = current_round_data.get("quantity_sold", 0) + quantity_sold
+                                # 판매가는 상품별로 다르므로 마지막 판매가 저장 (참고용)
+                                current_round_data["selling_price"] = selling_price
+                            else:
+                                # 단일 상품 모드: 기존 방식 (덮어쓰기)
+                                st.session_state.students[name]['rounds'][st.session_state.current_round] = {
+                                    "selling_price": selling_price,
+                                    "quantity_sold": quantity_sold,
+                                    "revenue": revenue,
+                                    "cost_total": cost_total,
+                                    "profit": profit
+                                }
                             
                             # 재고 차감 (전략 모드만)
                             if game_mode == "전략 모드":
