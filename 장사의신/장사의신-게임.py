@@ -2535,26 +2535,53 @@ with tab2:
                 round_data = data['rounds'][st.session_state.current_round]
                 
                 # 간단 모드: 재고 체크 없음, 전략 모드: 재고 체크
-                can_sell = True if game_mode == "간단 모드" else data['inventory'] > 0
+                if game_mode == "간단 모드":
+                    can_sell = True
+                else:
+                    # 전략 모드
+                    if data.get('enable_multi_products', False):
+                        # 다품목 모드: 최소 1개 이상의 상품에 재고가 있는지 확인
+                        products = data.get('products', [])
+                        can_sell = any(p.get('inventory', 0) > 0 for p in products) if products else False
+                    else:
+                        # 단일 상품 모드: 기존 방식
+                        can_sell = data['inventory'] > 0
                 
                 if not can_sell:
                     st.warning("⚠️ 재고가 없습니다. 먼저 재고를 구매하세요.")
                 else:
                     # 여러 상품 판매 모드 처리
                     if data.get('enable_multi_products', False):
+                        products = data.get('products', [])
+                        
+                        # 상품 목록이 비어있는 경우
+                        if not products or len(products) == 0:
+                            st.error("⚠️ 등록된 상품이 없습니다. 학생 정보에 문제가 있을 수 있습니다.")
+                            st.info("💡 '창업 컨설팅' 탭에서 학생을 다시 등록해주세요.")
+                            st.stop()
+                        
+                        # 전략 모드에서 재고가 있는 상품만 필터링
+                        if game_mode == "전략 모드":
+                            available_products = [p for p in products if p.get('inventory', 0) > 0]
+                            if not available_products:
+                                st.warning("⚠️ 재고가 있는 상품이 없습니다. 먼저 재고를 구매하세요.")
+                                st.stop()
+                            products_to_show = available_products
+                        else:
+                            products_to_show = products
+                        
                         st.info("🛍️ **다품목 판매 모드**: 판매할 상품을 선택하세요")
                         
-                        products = data.get('products', [])
-                        product_names = [f"{p['name']} (재고: {p.get('inventory', 0)}개, 판매가: {p['price']:,}원)" for p in products]
+                        product_names = [f"{p['name']} (재고: {p.get('inventory', 0)}개, 판매가: {p['price']:,}원)" for p in products_to_show]
                         
                         selected_product_idx = st.selectbox(
                             "판매할 상품 선택",
-                            range(len(products)),
+                            range(len(products_to_show)),
                             format_func=lambda x: product_names[x],
                             key=f"select_product_{name}_r{st.session_state.current_round}"
                         )
                         
-                        selected_product = products[selected_product_idx]
+                        selected_product = products_to_show[selected_product_idx]
                         
                         st.caption(f"📦 **선택된 상품**: {selected_product['name']} | 💰 원가: {selected_product['cost']:,}원 | 💵 권장가: {selected_product['price']:,}원")
                         
@@ -2562,6 +2589,9 @@ with tab2:
                         default_price = selected_product['price']
                         product_cost = selected_product['cost']
                         product_inventory = selected_product.get('inventory', 0)
+                        
+                        # 원본 products 리스트에서의 인덱스 찾기 (재고 차감 시 필요)
+                        original_product_idx = products.index(selected_product)
                     else:
                         # 단일 상품 모드 (기존 방식)
                         selected_product_idx = 0
@@ -2639,10 +2669,10 @@ with tab2:
                             if game_mode == "전략 모드":
                                 if data.get('enable_multi_products', False):
                                     # 여러 상품: 선택된 상품의 재고 차감
-                                    st.session_state.students[name]['products'][selected_product_idx]['inventory'] -= quantity_sold
+                                    st.session_state.students[name]['products'][original_product_idx]['inventory'] -= quantity_sold
                                     # 해당 상품 판매 기록
                                     round_key = f"round_{st.session_state.current_round}"
-                                    st.session_state.students[name]['products'][selected_product_idx]['sales'][round_key] = quantity_sold
+                                    st.session_state.students[name]['products'][original_product_idx]['sales'][round_key] = quantity_sold
                                 else:
                                     # 단일 상품: 기존 방식
                                     st.session_state.students[name]['inventory'] -= quantity_sold
